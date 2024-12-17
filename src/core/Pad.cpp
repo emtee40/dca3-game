@@ -1607,6 +1607,8 @@ int16 CPad::GetSteeringLeftRight(void)
 			{
 				if (NewState.X)
 					return 0;
+				if (NewState.A && ((NewState.LeftStickX < -64) || (NewState.LeftStickX > 64)))
+					return 0;
 				return NewState.LeftStickX;
 			}
 		case 1:	//PS2 Mode
@@ -1617,6 +1619,8 @@ int16 CPad::GetSteeringLeftRight(void)
 			else
 			{
 				if (NewState.LeftTrigger > 128)
+					return 0;
+				if (NewState.A && ((NewState.RightTrigger > 128) || (NewState.LeftTrigger > 128)))
 					return 0;
 				return NewState.LeftStickX;
 			}
@@ -2003,8 +2007,8 @@ bool CPad::GetLookLeft(void)
 			}
 			else
 			{
-				if (NewState.A)
-					return CPad::GetPad(0)->GetAnaloguePadLeft();
+				if (NewState.A && (NewState.LeftStickX < -64))
+					return true;
 			}
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
@@ -2014,8 +2018,8 @@ bool CPad::GetLookLeft(void)
 			}
 			else
 			{
-				if (NewState.B)
-					return CPad::GetPad(0)->GetAnaloguePadLeft();
+				if (NewState.B && (NewState.LeftTrigger > 128))
+					return true;
 			}
 	}
 #else
@@ -2023,6 +2027,8 @@ bool CPad::GetLookLeft(void)
 	return !!(NewState.LeftShoulder2 && !NewState.RightShoulder2);
 
 #endif
+
+	return false;
 
 }
 
@@ -2041,8 +2047,8 @@ bool CPad::GetLookRight(void)
 			}
 			else
 			{
-				if (NewState.A)
-					return CPad::GetPad(0)->GetAnaloguePadRight();
+				if (NewState.A && (NewState.LeftStickX > 64))
+					return true;
 			}
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
@@ -2052,8 +2058,8 @@ bool CPad::GetLookRight(void)
 			}
 			else
 			{
-				if (NewState.B)
-					return CPad::GetPad(0)->GetAnaloguePadRight();
+				if (NewState.B && (NewState.RightTrigger > 128))
+					return true;
 			}
 	}
 #else
@@ -2061,6 +2067,8 @@ bool CPad::GetLookRight(void)
 	return !!(NewState.RightShoulder2 && !NewState.LeftShoulder2);
 
 #endif
+
+	return false;
 	
 }
 
@@ -2102,6 +2110,8 @@ bool CPad::GetLookBehindForCar(void)
 
 #endif
 
+return false;
+
 }
 
 bool CPad::GetLookBehindForPed(void)
@@ -2136,6 +2146,8 @@ bool CPad::GetLookBehindForPed(void)
 	return !!NewState.RightShock;
 
 #endif
+
+return false;
 }
 
 bool CPad::GetHorn(void)
@@ -2424,11 +2436,13 @@ int16 CPad::GetBrake(void)
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return	NewState.X;
+				if(NewState.X)
+					return 255;
 			}
 			else
 			{
-				return	NewState.X;
+				if(NewState.X)
+					return 255;
 			}
 	}
 #else
@@ -2685,11 +2699,13 @@ int16 CPad::GetAccelerate(void)
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return	NewState.A;
+				if(NewState.A)
+					return 255;
 			}
 			else
 			{
-				return	NewState.A;
+				if(NewState.A)
+					return 255;
 			}
 	}
 
@@ -3568,7 +3584,7 @@ float axis = 0;
 			}
 			else
 			{
-				if (NewState.X)
+				if (!NewState.X)
 					return 0;
 				axis = NewState.LeftStickX;
 			}
@@ -3579,7 +3595,7 @@ float axis = 0;
 			}
 			else
 			{
-				if (NewState.LeftTrigger > 128)
+				if (!(NewState.LeftTrigger > 128))
 					return 0;
 				axis = NewState.LeftStickX;
 			}
@@ -3614,7 +3630,7 @@ int16 axis = 0;
 			}
 			else
 			{
-				if (NewState.X)
+				if (!NewState.X)
 					return 0;
 				axis = NewState.LeftStickY;
 			}
@@ -3625,7 +3641,7 @@ int16 axis = 0;
 			}
 			else
 			{
-				if (NewState.LeftTrigger > 128)
+				if (!(NewState.LeftTrigger > 128))
 					return 0;
 				axis = NewState.LeftStickY;
 			}
