@@ -3595,6 +3595,7 @@ float axis = 0;
 					return 0;
 				axis = NewState.LeftStickX;
 			}
+			break;
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
@@ -3606,6 +3607,7 @@ float axis = 0;
 					return 0;
 				axis = NewState.LeftStickX;
 			}
+			break;
 	}
 
 #else
@@ -3619,11 +3621,12 @@ float axis = 0;
 	else if ( TheCamera.Cams[0].Using3rdPersonMouseCam() && Abs(axis) > 10 )
 		return (int16) ( (axis + ( ( axis > 0 ) ? -10 : 10) )
 							* (127.0f / 64.0f) ); // 1.984375f
+	return 0;
 }
 
 int16 CPad::LookAroundUpDown(void)
 {
-int16 axis = 0;
+	int16 axis = 0;
 #ifdef RW_DC
 
 	switch (CPad::GetPad(0)->Mode)
@@ -3639,6 +3642,7 @@ int16 axis = 0;
 					return 0;
 				axis = NewState.LeftStickY;
 			}
+			break;
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
@@ -3650,6 +3654,7 @@ int16 axis = 0;
 					return 0;
 				axis = NewState.LeftStickY;
 			}
+			break;
 	}
 
 #else
@@ -3672,6 +3677,7 @@ int16 axis = 0;
 	else if ( TheCamera.Cams[0].Using3rdPersonMouseCam() && Abs(axis) > 40 )
 		return (int16) ( (axis + ( ( axis > 0 ) ? -40 : 40) )
 							* (127.0f / 64.0f) ); // 1.984375f
+	return 0;
 }
 
 void CPad::ResetAverageWeapon(void)
