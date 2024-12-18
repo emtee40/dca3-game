@@ -662,6 +662,9 @@ bool CGame::Initialise(const char* datFile)
 	CCollision::ms_collisionInMemory = currLevel;
 	for (int i = 0; i < MAX_PADS; i++)
 		CPad::GetPad(i)->Clear(true);
+#ifdef RW_DC
+	//CPad::GetPad(0)->IsDualAnalog = false;
+#endif
 	return true;
 }
 

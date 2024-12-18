@@ -1435,8 +1435,7 @@ void CPad::Update(int16 pad)
 #ifdef RW_DC
 
 		
-		CPad::IsDualAnalog = cont_has_capabilities(contMaple, CONT_CAPABILITIES_DUAL_ANALOG); //Query controller about Dual analog capabilities
-
+		//CPad::IsDualAnalog = cont_has_capabilities(contMaple, CONT_CAPABILITIES_DUAL_ANALOG); //Query controller about Dual analog capabilities
 		if (pad == 0) 
 		{
 			NewState.DPadUp			= state->dpad_up;				//This part could be inside a compiler directive to preserve the old code and just use this block if compil
@@ -1480,6 +1479,7 @@ void CPad::Update(int16 pad)
 			NewState.LeftStickY		= 0;
 			NewState.RightShock		= 0;
 		}
+
 #else
 		NewState = ReconcileTwoControllersInput(PCTempKeyState, PCTempJoyState);
 		NewState = ReconcileTwoControllersInput(PCTempMouseState, NewState);
@@ -1496,6 +1496,13 @@ void CPad::Update(int16 pad)
 		iCurrHornHistory = 0;
 
 	bHornHistory[iCurrHornHistory] = GetHorn();
+
+#ifdef RW_DC
+	if (((NewState.RightStickX > 64) || (NewState.RightStickX < -64)) || ((NewState.RightStickY > 64) || (NewState.RightStickY < -64)))
+		{
+			CPad::GetPad(0)->IsDualAnalog = true;
+		}
+#endif
 
 
 	if ( !bDisplayNoControllerMessage )
@@ -3612,8 +3619,6 @@ float axis = 0;
 	else if ( TheCamera.Cams[0].Using3rdPersonMouseCam() && Abs(axis) > 10 )
 		return (int16) ( (axis + ( ( axis > 0 ) ? -10 : 10) )
 							* (127.0f / 64.0f) ); // 1.984375f
-
-	return 0;
 }
 
 int16 CPad::LookAroundUpDown(void)
@@ -3667,8 +3672,6 @@ int16 axis = 0;
 	else if ( TheCamera.Cams[0].Using3rdPersonMouseCam() && Abs(axis) > 40 )
 		return (int16) ( (axis + ( ( axis > 0 ) ? -40 : 40) )
 							* (127.0f / 64.0f) ); // 1.984375f
-
-	return 0;
 }
 
 void CPad::ResetAverageWeapon(void)
