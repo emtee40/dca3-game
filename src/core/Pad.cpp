@@ -1435,7 +1435,7 @@ void CPad::Update(int16 pad)
 #ifdef RW_DC
 
 		
-		CPad::IsDualAnalog = cont_has_capabilities(contMaple, CONT_CAPABILITIES_DUAL_ANALOG); //Query controller about Dual analog capabilities
+		//CPad::IsDualAnalog = cont_has_capabilities(contMaple, CONT_CAPABILITIES_DUAL_ANALOG); //Query controller about Dual analog capabilities
 		if (pad == 0) 
 		{
 			NewState.DPadUp			= state->dpad_up;				//This part could be inside a compiler directive to preserve the old code and just use this block if compil
@@ -1591,6 +1591,10 @@ CPad *CPad::GetPad(int32 pad)
 #define CURMODE (IsAffectedByController ? Mode : 0)
 #else
 #define CURMODE (Mode)
+#endif
+
+#ifdef RW_DC
+#define DEADZONE 10
 #endif
 
 //The next are the actuall functions that are checked and produce the values that are used by engine to make the char run, the car turn, etc
@@ -1846,6 +1850,8 @@ int16 CPad::GetPedWalkLeftRight(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
+
+int16 axis = 0;
 	
 #ifdef RW_DC
 	switch (CPad::GetPad(0)->Mode)
@@ -1853,25 +1859,32 @@ int16 CPad::GetPedWalkLeftRight(void)
 		case 0:	//Xbox Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return NewState.LeftStickX;
+				axis = NewState.LeftStickX;
 			}
 			else
 			{
 				if (NewState.X)
 					return 0;
-				return NewState.LeftStickX;
+				axis = NewState.LeftStickX;
 			}
+			break;
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return NewState.LeftStickX;
+				axis = NewState.LeftStickX;
 			}
 			else
 			{
 				if (NewState.LeftTrigger > 128)
 					return 0;
-				return NewState.LeftStickX;
+				axis = NewState.LeftStickX;
 			}
+			break;
+	}
+
+	if (axis > DEADZONE || axis < -DEADZONE)
+	{
+		return axis;
 	}
 #else		
 	switch (CURMODE)
@@ -1907,32 +1920,41 @@ int16 CPad::GetPedWalkUpDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
-	
+
+int16 axis = 0;
+
 #ifdef RW_DC
 	switch (CPad::GetPad(0)->Mode)
 	{
 		case 0:	//Xbox Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return NewState.LeftStickY;
+				axis = NewState.LeftStickY;
 			}
 			else
 			{
 				if (NewState.X)
 					return 0;
-				return NewState.LeftStickY;
+				axis =  NewState.LeftStickY;
 			}
+			break;
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return NewState.LeftStickY;
+				axis =  NewState.LeftStickY;
 			}
 			else
 			{
 				if (NewState.LeftTrigger > 128)
 					return 0;
-				return NewState.LeftStickY;
+				axis =  NewState.LeftStickY;
 			}
+			break;
+	}
+
+	if (axis > DEADZONE || axis < -DEADZONE)
+	{
+		return axis;
 	}
 #else
 	switch (CURMODE)
@@ -2012,13 +2034,15 @@ bool CPad::GetLookLeft(void)
 		case 0:	//Xbox Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return !!(NewState.Z && !NewState.Z);
+				if (NewState.Z)
+					return true;
 			}
 			else
 			{
 				if (NewState.A && (NewState.LeftStickX < -64))
 					return true;
 			}
+			break;
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
@@ -2030,6 +2054,7 @@ bool CPad::GetLookLeft(void)
 				if (NewState.B && (NewState.LeftTrigger > 128))
 					return true;
 			}
+			break;
 	}
 #else
 
@@ -2052,13 +2077,15 @@ bool CPad::GetLookRight(void)
 		case 0:	//Xbox Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return !!(NewState.C && !NewState.C);
+				if (NewState.C)
+					return true;
 			}
 			else
 			{
 				if (NewState.A && (NewState.LeftStickX > 64))
 					return true;
 			}
+			break;
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
@@ -2070,6 +2097,7 @@ bool CPad::GetLookRight(void)
 				if (NewState.B && (NewState.RightTrigger > 128))
 					return true;
 			}
+			break;
 	}
 #else
 
@@ -2101,6 +2129,7 @@ bool CPad::GetLookBehindForCar(void)
 				if (NewState.RightTrigger > 128 && NewState.LeftTrigger > 128)
 					return true;
 			}
+			break;
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
@@ -2112,6 +2141,7 @@ bool CPad::GetLookBehindForCar(void)
 				if (NewState.RightTrigger > 128 && NewState.LeftTrigger > 128)
 					return true;
 			}
+			break;
 	}
 #else
 
@@ -2854,8 +2884,7 @@ bool CPad::ChangeStationJustDown(void)
 		case 0:	//Xbox Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
-				return	NewState.Z;
-				//return !!(NewState.DPadRight&& !OldState.DPadRight);
+				return !!(NewState.DPadRight&& !OldState.DPadRight);
 			}
 			else
 			{
