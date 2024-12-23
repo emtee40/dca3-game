@@ -1434,8 +1434,8 @@ void CPad::Update(int16 pad)
 	{
 #ifdef RW_DC
 
-		
 		//CPad::IsDualAnalog = cont_has_capabilities(contMaple, CONT_CAPABILITIES_DUAL_ANALOG); //Query controller about Dual analog capabilities
+
 		if (pad == 0) 
 		{
 			NewState.DPadUp			= state->dpad_up;				//This part could be inside a compiler directive to preserve the old code and just use this block if compil
@@ -1482,6 +1482,33 @@ void CPad::Update(int16 pad)
 			NewState.RightShock		= 0;
 		}
 
+		auto contMaple = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
+		auto state = (cont_state_t *)maple_dev_status(contMaple);
+
+		if (contMaple == nullptr)
+		{
+			//CPad::GetPad(0)->IsDualAnalog = false;
+			NewState.DPadUp			= 0;
+			NewState.DPadDown		= 0;
+			NewState.DPadLeft		= 0;
+			NewState.DPadRight		= 0;
+			NewState.A				= 0;
+			NewState.B				= 0;
+			NewState.C				= 0;
+			NewState.D				= 0;
+			NewState.X				= 0;
+			NewState.Y				= 0;
+			NewState.Z				= 0;
+			NewState.Start			= 0;
+			NewState.RightTrigger	= 0;
+			NewState.LeftTrigger	= 0;
+			NewState.LeftStickX		= 0;
+			NewState.LeftStickY		= 0;
+			NewState.RightStickX	= 0;
+			NewState.RightStickY	= 0;
+			NewState.RightShock		= 0;
+		}
+
 #else
 		NewState = ReconcileTwoControllersInput(PCTempKeyState, PCTempJoyState);
 		NewState = ReconcileTwoControllersInput(PCTempMouseState, NewState);
@@ -1500,9 +1527,12 @@ void CPad::Update(int16 pad)
 	bHornHistory[iCurrHornHistory] = GetHorn();
 
 #ifdef RW_DC
-	if (((NewState.RightStickY > 64 && OldState.RightStickY)) || ((NewState.RightStickY) < -64 && (OldState.RightStickY < -64)))
+	if (((NewState.RightStickY > 64 && OldState.RightStickY > 64)) || ((NewState.RightStickY) < -64 && (OldState.RightStickY < -64)))
 		{
-			CPad::GetPad(0)->IsDualAnalog = true;
+			if (contMaple == nullptr)
+				CPad::GetPad(0)->IsDualAnalog = false;
+			else
+				CPad::GetPad(0)->IsDualAnalog = true;
 		}
 #endif
 
@@ -2890,6 +2920,7 @@ bool CPad::ChangeStationJustDown(void)
 			{
 				return !!(NewState.DPadRight && !OldState.DPadRight);
 			}
+			break;
 		case 1:	//PS2 Mode
 			if (CPad::GetPad(0)->IsDualAnalog)
 			{
@@ -2899,6 +2930,7 @@ bool CPad::ChangeStationJustDown(void)
 			{
 				return !!(NewState.DPadRight && !OldState.DPadRight);
 			}
+			break;
 	}
 
 #else
