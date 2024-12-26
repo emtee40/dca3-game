@@ -278,17 +278,17 @@ int validate_wav_header(wavhdr_t *wavhdr, wavhdr3_t *wavhdr3, int format, int bi
 
     if (memcmp(wavhdr->hdr1, "RIFF", 4)) {
         fprintf(stderr, "Invalid RIFF header.\n");
-        result = -1;
+        result = 1;
     }
 
     if (memcmp(wavhdr->hdr2, "WAVEfmt ", 8)) {
         fprintf(stderr, "Invalid WAVEfmt header.\n");
-        result = -1;
+        result = 1;
     }
 
     if (wavhdr->hdrsize < 0x10) {
         fprintf(stderr, "Invalid header size, %d bytes\n", wavhdr->hdrsize);
-        result = -1;
+        result = 1;
     } else if (wavhdr->hdrsize > 0x10) {
         fprintf(stderr, "Unusual header size, seeking %d bytes\n", wavhdr->hdrsize - 0x10);
         fseek(in, wavhdr->hdrsize - 0x10, SEEK_CUR);
@@ -296,29 +296,29 @@ int validate_wav_header(wavhdr_t *wavhdr, wavhdr3_t *wavhdr3, int format, int bi
 
     if (wavhdr->format != format) {
         fprintf(stderr, "Unsupported format.\n");
-        result = -1;
+        result = 1;
     }
 
     if (wavhdr->channels != 1 && wavhdr->channels != 2) {
         fprintf(stderr, "Unsupported number of channels.\n");
-        result = -1;
+        result = 1;
     }
 
     if (wavhdr->bits != bits) {
         fprintf(stderr, "Unsupported bit depth.\n");
-        result = -1;
+        result = 1;
     }
 
     for (;;) {
         if (fread(wavhdr3->hdr3, 1, 4, in) != 4) {
             fprintf(stderr, "Failed to read next chunk header!\n");
-            result = -1;
+            result = 1;
             break;
         }
 
         if (fread(&wavhdr3->datasize, 1, 4, in) != 4) {
             fprintf(stderr, "Failed to read chunk size!\n");
-            result = -1;
+            result = 1;
             break;
         }
 
@@ -446,7 +446,7 @@ int aud2adpcm(const char *infile, const char *outfile, int use_hdr, int to_mono,
         !loadMp3(infile, &pcmsize, &pcmbuf, &channels, &freq) && 
         !loadWavIMA(infile, &pcmsize, &pcmbuf, &channels, &freq)) {
         fprintf(stderr, "Cannot load input file as wav, mp3, or IMA ADPCM.\n");
-        return -1;
+        return 1;
     }
 
     if (to_mono && channels == 2) {
@@ -544,7 +544,7 @@ int aud2adpcm(const char *infile, const char *outfile, int use_hdr, int to_mono,
         fclose(out);
         free(pcmbuf);
         free(adpcmbuf);
-        return -1;
+        return 1;
     }
 
     fclose(out);
@@ -567,6 +567,7 @@ void usage() {
 }
 
 int main(int argc, char **argv) {
+
     if (argc == 4) {
         if (!strcmp(argv[1], "-t")) {
             return aud2adpcm(argv[2], argv[3], 1, 0, 0);
@@ -576,10 +577,10 @@ int main(int argc, char **argv) {
             return aud2adpcm(argv[2], argv[3], 0, 0, 0);
         } else {
             usage();
-            return -1;
+            return 1;
         }
     } else {
         usage();
-        return -1;
+        return 1;
     }
 }

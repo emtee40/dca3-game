@@ -314,7 +314,7 @@ int main(int argc, const char** argv) {
 		StoreModelFile(argv[2], clump);
 	} else {
 		printf("Invalid format: %s\n", argv[1]);
-		return -1;
+		return 1;
 	}
 	
 	return 0;
