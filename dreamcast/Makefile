@@ -349,7 +349,7 @@ STREAM_WAV_DECODED = $(addprefix $(REPACK_STREAM_DECODED_DIR)/, $(STREAM_WAV))
 
 $(REPACK_DIR)/repacked: $(REPACK_GTA_DIR)/models/gta3.img $(REPACK_GTA_DIR)/models/gta3.dir $(LOOSE_FILES_DC) $(STREAM_ADPCM_DC) $(SFX_DC_RAW) $(SFX_DC_DSC)
 	mkdir -p $(@D)
-	touch $@
+	@touch $@
 	@echo && echo && echo "*** Repack Completed Successfully ***" && echo && echo
  
 $(REPACK_DIR)/unpacked: imgtool $(GTA_DIR)/models/gta3.img $(GTA_DIR)/models/gta3.dir
@@ -429,20 +429,20 @@ $(REPACK_DIR)/packed: $(IMG_TEXTURES_DC) $(IMG_MODELS_DC)
 	mkdir -p $(@D)
 	mkdir -p "$(REPACK_GTA_DIR)/models/gta3"
 	./imgtool pack "$(REPACK_GTA_DIR)/models/gta3" "$(REPACK_IMG_DC_DIR)"
-	touch $@
+	@touch $@
 
 $(REPACK_GTA_DIR)/models/gta3.img $(REPACK_GTA_DIR)/models/gta3.dir: $(REPACK_DIR)/packed
-	touch $@
+	@touch $@
 
 # sfx processing
 $(REPACK_DIR)/unpacked-sfx: extract-sfx $(GTA_DIR)/audio/sfx.SDT $(GTA_DIR)/audio/sfx.RAW
 	mkdir -p $(@D)
 	mkdir -p "$(REPACK_SFX_ORIG_DIR)"
 	./extract-sfx "$(GTA_DIR)/audio/sfx.SDT" "$(GTA_DIR)/audio/sfx.RAW" "$(REPACK_SFX_ORIG_DIR)"
-	touch $@
+	@touch $@
 
 $(SFX_ORIG): $(REPACK_DIR)/unpacked-sfx
-	touch $@
+	@touch $@
 
 $(SFX_ORIG_LOOP): $(SFX_ORIG)
 	@touch $@
