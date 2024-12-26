@@ -6863,7 +6863,7 @@ CPed::SeekCar(void)
 bool
 CPed::CheckForExplosions(CVector2D &area)
 {
-	int event = 0;
+	int32 event = 0;
 	if (CEventList::FindClosestEvent(EVENT_EXPLOSION, GetPosition(), &event)) {
 		area.x = gaEvent[event].posn.x;
 		area.y = gaEvent[event].posn.y;
@@ -6907,7 +6907,7 @@ CPed::CheckForExplosions(CVector2D &area)
 CPed *
 CPed::CheckForGunShots(void)
 {
-	int event;
+	int32 event;
 	if (CEventList::FindClosestEvent(EVENT_GUNSHOT, GetPosition(), &event)) {
 		if (gaEvent[event].entityType == EVENT_ENTITY_PED) {
 			// Probably due to we don't want peds to go gunshot area? (same on VC)
@@ -6922,7 +6922,7 @@ CPed::CheckForGunShots(void)
 CPed *
 CPed::CheckForDeadPeds(void)
 {
-	int event;
+	int32 event;
 	if (CEventList::FindClosestEvent(EVENT_DEAD_PED, GetPosition(), &event)) {
 		int pedHandle = gaEvent[event].entityRef;
 		if (pedHandle && gaEvent[event].entityType == EVENT_ENTITY_PED) {

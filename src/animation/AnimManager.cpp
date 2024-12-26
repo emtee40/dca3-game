@@ -16,7 +16,6 @@ CAnimBlendHierarchy CAnimManager::ms_aAnimations[NUMANIMATIONS];
 int32 CAnimManager::ms_numAnimBlocks;
 int32 CAnimManager::ms_numAnimations;
 CAnimBlendAssocGroup *CAnimManager::ms_aAnimAssocGroups;
-CLinkList<CAnimBlendHierarchy*> CAnimManager::ms_animCache;
 
 AnimAssocDesc aStdAnimDescs[] = {
 	{ ANIM_STD_WALK, ASSOC_REPEAT | ASSOC_MOVEMENT | ASSOC_HAS_TRANSLATION | ASSOC_WALK },
@@ -584,7 +583,6 @@ CAnimManager::Initialise(void)
 {
 	ms_numAnimations = 0;
 	ms_numAnimBlocks = 0;
-	ms_animCache.Init(25);
 
 //	dumpanimdata();
 }
@@ -594,32 +592,10 @@ CAnimManager::Shutdown(void)
 {
 	int i;
 
-	ms_animCache.Shutdown();
-
 	for(i = 0; i < ms_numAnimations; i++)
 		ms_aAnimations[i].Shutdown();
 
 	delete[] ms_aAnimAssocGroups;
-}
-
-void
-CAnimManager::UncompressAnimation(CAnimBlendHierarchy *hier)
-{
-	if(!hier->compressed){
-		if(hier->linkPtr){
-			hier->linkPtr->Remove();
-			ms_animCache.head.Insert(hier->linkPtr);
-		}
-	}else{
-		CLink<CAnimBlendHierarchy*> *link = ms_animCache.Insert(hier);
-		if(link == nil){
-			ms_animCache.tail.prev->item->RemoveUncompressedData();
-			ms_animCache.Remove(ms_animCache.tail.prev);
-			link = ms_animCache.Insert(hier);
-		}
-		hier->linkPtr = link;
-		hier->Uncompress();
-	}
 }
 
 CAnimBlock*
@@ -754,7 +730,8 @@ CAnimManager::BlendAnimation(RpClump *clump, AssocGroupId groupId, AnimationId a
 		found->blendAmount = 0.0f;
 		found->blendDelta = delta;
 	}
-	UncompressAnimation(found->hierarchy);
+
+	assert(anim->hierarchy->totalLength != 0.0f);
 	return found;
 }
 
@@ -872,13 +849,15 @@ CAnimManager::LoadAnimFile(int fd, bool compress)
 				CFileMgr::Read(fd, (char*)&info, sizeof(info));
 				if(!CGeneral::faststrncmp(info.ident, "KRTS", 4)) {
 					hasScale = true;
-					seq->SetNumFrames(numFrames, true);
+					seq->SetNumFrames(numFrames, true, compress);
 				}else if(!CGeneral::faststrncmp(info.ident, "KRT0", 4)) {
 					hasTranslation = true;
-					seq->SetNumFrames(numFrames, true);
+					seq->SetNumFrames(numFrames, true, compress);
 				}else if(!CGeneral::faststrncmp(info.ident, "KR00", 4)){
-					seq->SetNumFrames(numFrames, false);
+					seq->SetNumFrames(numFrames, false, compress);
 				}
+
+				float *frameTimes = (float*)RwMalloc(sizeof(float) * numFrames);
 
 				for(l = 0; l < numFrames; l++){
 					if(hasScale){
@@ -887,45 +866,47 @@ CAnimManager::LoadAnimFile(int fd, bool compress)
 						rot.Invert();
 						CVector trans(fbuf[4], fbuf[5], fbuf[6]);
 
-						KeyFrameTrans *kf = (KeyFrameTrans*)seq->GetKeyFrame(l);
-						kf->rotation = rot;
-						kf->translation = trans;
+						seq->SetRotation(l, rot);
+						seq->SetTranslation(l, trans);
 						// scaling ignored
-						kf->deltaTime = fbuf[10];	// absolute time here
+						frameTimes[l] = fbuf[10];	// absolute time here
 					}else if(hasTranslation){
 						CFileMgr::Read(fd, buf, 0x20);
 						CQuaternion rot(fbuf[0], fbuf[1], fbuf[2], fbuf[3]);
 						rot.Invert();
 						CVector trans(fbuf[4], fbuf[5], fbuf[6]);
 
-						KeyFrameTrans *kf = (KeyFrameTrans*)seq->GetKeyFrame(l);
-						kf->rotation = rot;
-						kf->translation = trans;
-						kf->deltaTime = fbuf[7];	// absolute time here
+						seq->SetRotation(l, rot);
+						seq->SetTranslation(l, trans);
+						frameTimes[l] = fbuf[7];	// absolute time here
 					}else{
 						CFileMgr::Read(fd, buf, 0x14);
 						CQuaternion rot(fbuf[0], fbuf[1], fbuf[2], fbuf[3]);
 						rot.Invert();
 
-						KeyFrame *kf = (KeyFrame*)seq->GetKeyFrame(l);
-						kf->rotation = rot;
-						kf->deltaTime = fbuf[4];	// absolute time here
+						seq->SetRotation(l, rot);
+						frameTimes[l] = fbuf[4];	// absolute time here
 					}
 				}
 
 				// convert absolute time to deltas
-				for(l = seq->numFrames-1; l > 0; l--){
-					KeyFrame *kf1 = seq->GetKeyFrame(l);
-					KeyFrame *kf2 = seq->GetKeyFrame(l-1);
-					kf1->deltaTime -= kf2->deltaTime;
+				float running_sum = 0.0f;
+				for (l = 0; l < numFrames; l++) {
+					auto dt = frameTimes[l] - running_sum;
+					seq->SetDeltaTime(l, dt);
+					assert(seq->GetDeltaTime(l) <= dt);
+					running_sum += seq->GetDeltaTime(l);
+					// if (seq->GetDeltaTime(l) == 0.0f && dt != 0.0f) {
+					// 	seq->SetDeltaTime(l, KF_MINDELTA);
+					// }
+
+					// assert(seq->GetDeltaTime(l) != 0.0f || dt == 0.0f);
 				}
+				RwFree(frameTimes);
 			}
 
 			hier->RemoveQuaternionFlips();
-			if(compress)
-				hier->RemoveUncompressedData();
-			else
-				hier->CalcTotalTime();
+			hier->CalcTotalTime();
 		}
 	}
 }

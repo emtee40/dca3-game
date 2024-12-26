@@ -30,7 +30,7 @@ bool PrintDebugCode = false;
 int16 DebugCamMode;
 
 #ifdef FREE_CAM
-bool CCamera::bFreeCam = false;
+bool CCamera::bFreeCam = true;
 int nPreviousMode = -1;
 #endif
 
@@ -5179,14 +5179,14 @@ CCam::Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation,
 	if (Abs(AlphaSpeed) < 0.0001f)
 		AlphaSpeed = 0.0f;
 
-		float alphaWithSpeedAccounted;
-		if (mouseChangesBeta) {
-			alphaWithSpeedAccounted = alphaSpeedFromStickY + targetAlpha;
-				Alpha += alphaSpeedFromStickY;
-		} else {
-			alphaWithSpeedAccounted = CTimer::GetTimeStep() * AlphaSpeed + targetAlpha;
-			Alpha += targetAlphaBlendAmount;
-		}
+	float alphaWithSpeedAccounted;
+	if (mouseChangesBeta) {
+		alphaWithSpeedAccounted = alphaSpeedFromStickY + targetAlpha;
+		Alpha += alphaSpeedFromStickY;
+	} else {
+		alphaWithSpeedAccounted = CTimer::GetTimeStep() * AlphaSpeed + targetAlpha;
+		Alpha += targetAlphaBlendAmount;
+	}
 
 	if (Alpha <= maxAlphaAllowed) {
 		float minAlphaAllowed = -CARCAM_SET[camSetArrPos][14];

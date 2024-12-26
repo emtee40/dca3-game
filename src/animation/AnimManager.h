@@ -71,12 +71,10 @@ class CAnimManager
 	static int32 ms_numAnimBlocks;
 	static int32 ms_numAnimations;
 	static CAnimBlendAssocGroup *ms_aAnimAssocGroups;
-	static CLinkList<CAnimBlendHierarchy*> ms_animCache;
 public:
 
 	static void Initialise(void);
 	static void Shutdown(void);
-	static void UncompressAnimation(CAnimBlendHierarchy *anim);
 	static CAnimBlock *GetAnimationBlock(const char *name);
 	static CAnimBlendHierarchy *GetAnimation(const char *name, CAnimBlock *animBlock);
 	static CAnimBlendHierarchy *GetAnimation(int32 n) { return &ms_aAnimations[n]; }

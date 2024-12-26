@@ -12,6 +12,11 @@
 #include "PCSave.h"
 #include "Text.h"
 
+#include "minilzo.h"
+#include "main.h"
+
+#include "../vmu/vmu.h"
+
 const char* _psGetUserFilesFolder();
 
 C_PcSave PcSaveHelper;
@@ -19,7 +24,11 @@ C_PcSave PcSaveHelper;
 void
 C_PcSave::SetSaveDirectory(const char *path)
 {
+	#if defined(RW_DC)
+	sprintf(DefaultPCSaveFileName, "%s/%s", path, "GTA3SF");
+	#else
 	sprintf(DefaultPCSaveFileName, "%s\\%s", path, "GTA3sf");
+	#endif
 }
 
 bool
@@ -32,7 +41,7 @@ C_PcSave::DeleteSlot(int32 slot)
 #endif
 
 	PcSaveHelper.nErrorCode = SAVESTATUS_SUCCESSFUL;
-	sprintf(FileName, "%s%i.b", DefaultPCSaveFileName, slot + 1);
+	sprintf(FileName, "%s%i%s", slot==7?"GTA3SF":DefaultPCSaveFileName, slot + 1, slot==7?".b": "");
 	DeleteFile(FileName);
 	SlotSaveDate[slot][0] = '\0';
 	return true;
@@ -41,6 +50,7 @@ C_PcSave::DeleteSlot(int32 slot)
 bool
 C_PcSave::SaveSlot(int32 slot)
 {
+	RAIIVmuBeep(VMU_DEFAULT_PATH, 1.0f);
 	MakeValidSaveName(slot);
 	PcSaveHelper.nErrorCode = SAVESTATUS_SUCCESSFUL;
 	_psGetUserFilesFolder();
@@ -62,17 +72,79 @@ C_PcSave::SaveSlot(int32 slot)
 	return false;
 }
 
+uint32_t C_PcSave::PcClassLoadRoutine(int32 file, uint8 *data) {
+	uint32 size;
+	CFileMgr::Read(file, (char*)&size, sizeof(size));
+	
+
+	assert(data == work_buff);
+
+	if (!(size & 0x80000000)) {
+		assert(align4bytes(size) == size);
+		CFileMgr::Read(file, (char*)data, align4bytes(size));
+		if (CFileMgr::GetErrorReadWrite(file)) {
+			return 0;
+		}
+		return size;
+	} else {
+		size &= ~0x80000000;
+		uint8* compressed = (uint8*)malloc(size);
+		CFileMgr::Read(file, (const char*)compressed, size);
+		if (CFileMgr::GetErrorReadWrite(file)) {
+			free(compressed);
+			return 0;
+		}
+
+		lzo_uint decompressed_size = 0;
+		auto crv = lzo1x_decompress(compressed, size, data, &decompressed_size, NULL);
+		free(compressed);
+		if (crv != LZO_E_OK) {
+			return 0;
+		}
+
+		if (align4bytes(decompressed_size) != decompressed_size) {
+			return 0;
+		}
+
+		return decompressed_size;
+	}
+}
 bool
 C_PcSave::PcClassSaveRoutine(int32 file, uint8 *data, uint32 size)
 {
-	CFileMgr::Write(file, (const char*)&size, sizeof(size));
-	if (CFileMgr::GetErrorReadWrite(file)) {
-		nErrorCode = SAVESTATUS_ERR_SAVE_WRITE;
-		strncpy(SaveFileNameJustSaved, ValidSaveName, sizeof(ValidSaveName) - 1);
+	void* wrkmem = malloc(LZO1X_1_MEM_COMPRESS);
+	uint8* compressed = (uint8*)malloc(size*2);
+	lzo_uint compressed_size;
+	int crv = lzo1x_1_compress(data, size, compressed, &compressed_size, wrkmem);
+	free(wrkmem);
+
+	if (crv == LZO_E_OK) {
+		uint32_t compressed_size32 = compressed_size | 0x80000000;
+		CFileMgr::Write(file, (const char*)&compressed_size32, sizeof(compressed_size32));
+		if (CFileMgr::GetErrorReadWrite(file)) {
+			free(compressed);
+			nErrorCode = SAVESTATUS_ERR_SAVE_WRITE;
+			strncpy(SaveFileNameJustSaved, ValidSaveName, sizeof(ValidSaveName) - 1);
+			return false;
+		}
+
+		CFileMgr::Write(file, (const char*)compressed, compressed_size);
+		free(compressed);
+	} else if (crv == LZO_E_NOT_COMPRESSIBLE) {
+		free(compressed);
+		uint32_t compressed_size32 = size;
+		CFileMgr::Write(file, (const char*)&compressed_size32, sizeof(compressed_size32));
+		if (CFileMgr::GetErrorReadWrite(file)) {
+			nErrorCode = SAVESTATUS_ERR_SAVE_WRITE;
+			strncpy(SaveFileNameJustSaved, ValidSaveName, sizeof(ValidSaveName) - 1);
+			return false;
+		}
+		CFileMgr::Write(file, (const char*)data, align4bytes(size));
+	} else {
+		free(compressed);
 		return false;
 	}
 
-	CFileMgr::Write(file, (const char*)data, align4bytes(size));
 	CheckSum += (uint8) size;
 	CheckSum += (uint8) (size >> 8);
 	CheckSum += (uint8) (size >> 16);
@@ -92,6 +164,7 @@ C_PcSave::PcClassSaveRoutine(int32 file, uint8 *data, uint32 size)
 void
 C_PcSave::PopulateSlotInfo()
 {
+	RAIIVmuBeep(VMU_DEFAULT_PATH, 1.0f);
 	for (int i = 0; i < SLOT_COUNT; i++) {
 		Slots[i + 1] = SLOT_EMPTY;
 		SlotFileName[i][0] = '\0';
@@ -103,19 +176,18 @@ C_PcSave::PopulateSlotInfo()
 #else
 		char savename[52];
 #endif
-		struct {
-			int size;
+		struct header_t {
 			wchar FileName[24];
 			SYSTEMTIME SaveDateTime;
 		} header;
-		sprintf(savename, "%s%i%s", DefaultPCSaveFileName, i + 1, ".b");
+		sprintf(savename, "%s%i%s", i==7?"GTA3SF":DefaultPCSaveFileName, i + 1, i==7?".b": "");
 		int file = CFileMgr::OpenFile(savename, "rb");
+		printf("file: %s: %d\n", savename, file);
 		if (file != 0) {
-			CFileMgr::Read(file, (char*)&header, sizeof(header));
-			if (strncmp((char*)&header, TopLineEmptyFile, sizeof(TopLineEmptyFile)-1) != 0) {
+			if (C_PcSave::PcClassLoadRoutine(file, (uint8*)work_buff)) {
+				header = *(header_t*)work_buff;
 				Slots[i + 1] = SLOT_OK;
 				memcpy(SlotFileName[i], &header.FileName, sizeof(header.FileName));
-				
 				SlotFileName[i][24] = '\0';
 			}
 			CFileMgr::CloseFile(file);

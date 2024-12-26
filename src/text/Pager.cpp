@@ -119,7 +119,7 @@ CPager::AddMessage(wchar *str, uint16 speed, uint16 priority, uint16 a5)
 				m_messages[0].m_nNumber[4],
 				m_messages[0].m_nNumber[5],
 				nil);
-			return;
+		return;
 	}
 }
 

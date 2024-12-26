@@ -34,6 +34,7 @@ public:
 	bool DeleteSlot(int32 slot);
 	bool SaveSlot(int32 slot);
 	bool PcClassSaveRoutine(int32 file, uint8 *data, uint32 size);
+	static uint32_t PcClassLoadRoutine(int32 file, uint8 *data);
 	static void SetSaveDirectory(const char *path);
 };
 

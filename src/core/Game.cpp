@@ -413,7 +413,7 @@ bool CGame::Initialise(const char* datFile)
 	// Load density values from gta3.ini only if our re3.ini have them 1.f
 	if (CIniFile::PedNumberMultiplier == 1.f && CIniFile::CarNumberMultiplier == 1.f)
 #endif
-		CIniFile::LoadIniFile();
+		CIniFile::LoadIniFile();	// this is a NOP for us now
 #endif
 
 	currLevel = LEVEL_INDUSTRIAL;

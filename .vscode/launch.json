@@ -1,6 +1,114 @@
 {
   "configurations": [
     {
+      "name": "dca3-sim",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/dreamcast/dca3-sim.elf",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+          {
+              "description": "Enable pretty-printing for gdb",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": true
+          },
+          {
+              "description": "Set Disassembly Flavor to Intel",
+              "text": "-gdb-set disassembly-flavor intel",
+              "ignoreFailures": true
+          }
+      ]
+    },
+    {
+      "name": "dca3-sim (mac)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/dreamcast/dca3-sim.elf",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/dreamcast",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "texconv (Windows)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/dreamcast/texconv.exe",
+      "args": ["repack-data/img-orig/GTAElift.DFF", "repack-data/img-dc/GTAElift.DFF"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/dreamcast",
+      "environment": [],
+      "console": "externalTerminal"
+    },
+    {
+      "name": "wav2adpcm (wav, mac)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/dreamcast/wav2adpcm",
+      "args": ["-t", "../../gta3/audio/CLASS.wav", "repack-data/gta3/stream/CLASS.wav"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/dreamcast",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "wav2adpcm (mp3, mac)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/dreamcast/wav2adpcm",
+      "args": ["-t", "../../gta3/audio/JB.mp3", "repack-data/gta3/stream/JB.wav"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/dreamcast",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "texconv (mac)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/dreamcast/texconv",
+      "args": ["repack-data/img-orig/IslandLODcomSUB.dff", "repack-data/img-dc/IslandLODcomSUB.dff"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/dreamcast",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "texconv",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/dreamcast/texconv",
+      "args": ["../../gta3/models/fonts.txd", "repack/gta3/models/fonts.txd", "32", "32"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/dreamcast",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+          {
+              "description": "Enable pretty-printing for gdb",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": true
+          },
+          {
+              "description": "Set Disassembly Flavor to Intel",
+              "text": "-gdb-set disassembly-flavor intel",
+              "ignoreFailures": true
+          }
+      ]
+    },
+
+    {
       "MIMode": "gdb",
       "args": [],
       "cwd": "${workspaceFolder}",

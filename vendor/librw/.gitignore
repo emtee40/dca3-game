@@ -1,0 +1,12 @@
+/bin
+/build
+/obj
+/lib
+/output
+/.vs
+librw.vcxproj.user
+librw.VC.db
+librw.VC.VC.opendb
+imgui.ini
+*.o
+*.sim.o

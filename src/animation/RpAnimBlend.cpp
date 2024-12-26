@@ -143,6 +143,31 @@ FrameInitCBskin(AnimBlendFrameData *frameData, void*)
 }
 
 #ifdef PED_SKIN
+#if defined(DC_TEXCONV)
+// These are copied from RwHelper.cpp for linking reasons
+static RpAtomic*
+isSkinnedCb(RpAtomic *atomic, void *data)
+{
+	RpAtomic **pAtomic = (RpAtomic**)data;
+	if(*pAtomic)
+		return nil;	// already found one
+	if(RpSkinGeometryGetSkin(RpAtomicGetGeometry(atomic)))
+		*pAtomic = atomic;	// we could just return nil here directly...
+	return atomic;
+}
+
+RpAtomic*
+IsClumpSkinned(RpClump *clump)
+{
+	RpAtomic *atomic = nil;
+	RpClumpForAllAtomics(clump, isSkinnedCb, &atomic);
+	return atomic;
+}
+void
+RpAnimBlendClumpInitSkinned(RpClump *clump) {
+	assert("false" && "Must not reach here");
+}
+#else
 void
 RpAnimBlendClumpInitSkinned(RpClump *clump)
 {
@@ -176,6 +201,7 @@ RpAnimBlendClumpInitSkinned(RpClump *clump)
 	clumpData->ForAllFrames(FrameInitCBskin, nil);
 	clumpData->frames[0].flag |= AnimBlendFrameData::VELOCITY_EXTRACTION;
 }
+#endif
 #endif
 
 void
@@ -365,6 +391,13 @@ FillFrameArrayCBnonskin(AnimBlendFrameData *frame, void *arg)
 }
 
 #ifdef PED_SKIN
+#if defined(DC_TEXCONV)
+void
+RpAnimBlendClumpFillFrameArraySkin(RpClump *clump, AnimBlendFrameData **frames)
+{
+	assert("false" && "Must not reach here");
+}
+#else
 void
 RpAnimBlendClumpFillFrameArraySkin(RpClump *clump, AnimBlendFrameData **frames)
 {
@@ -374,6 +407,7 @@ RpAnimBlendClumpFillFrameArraySkin(RpClump *clump, AnimBlendFrameData **frames)
 	for(i = PED_MID; i < PED_NODE_MAX; i++)
 		frames[i] = &clumpData->frames[RpHAnimIDGetIndex(hier, ConvertPedNode2BoneTag(i))];
 }
+#endif
 #endif
 
 void
@@ -421,6 +455,13 @@ RpAnimBlendClumpFindFrame(RpClump *clump, const char *name)
 	return pFrameDataFound;
 }
 
+#if defined(DC_TEXCONV)
+void
+RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta)
+{
+	assert("false" && "Must not reach here");
+}
+#else
 void
 RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta)
 {
@@ -442,7 +483,6 @@ RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta)
 		next = link->next;
 		CAnimBlendAssociation *assoc = CAnimBlendAssociation::FromLink(link);
 		if(assoc->UpdateBlend(timeDelta)){
-			CAnimManager::UncompressAnimation(assoc->hierarchy);
 			updateData.nodes[i++] = assoc->GetNode(0);
 			if(assoc->flags & ASSOC_MOVEMENT){
 				totalLength += assoc->hierarchy->totalLength/assoc->speed * assoc->blendAmount;
@@ -467,3 +507,4 @@ RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta)
 	}
 	RwFrameUpdateObjects(RpClumpGetFrame(clump));
 }
+#endif

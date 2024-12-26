@@ -176,8 +176,7 @@ CMatrix::SetTranslate(float x, float y, float z)
 void
 CMatrix::SetRotateXOnly(float angle)
 {
-	float c = Cos(angle);
-	float s = Sin(angle);
+	auto [s, c] = SinCos(angle);
 
 	rx = 1.0f;
 	ry = 0.0f;
@@ -195,8 +194,7 @@ CMatrix::SetRotateXOnly(float angle)
 void
 CMatrix::SetRotateYOnly(float angle)
 {
-	float c = Cos(angle);
-	float s = Sin(angle);
+	auto [s, c] = SinCos(angle);
 
 	rx = c;
 	ry = 0.0f;
@@ -214,8 +212,7 @@ CMatrix::SetRotateYOnly(float angle)
 void
 CMatrix::SetRotateZOnly(float angle)
 {
-	float c = Cos(angle);
-	float s = Sin(angle);
+	auto [s, c] = SinCos(angle);
 
 	rx = c;
 	ry = s;
@@ -261,12 +258,9 @@ CMatrix::SetRotateZ(float angle)
 void
 CMatrix::SetRotate(float xAngle, float yAngle, float zAngle)
 {
-	float cX = Cos(xAngle);
-	float sX = Sin(xAngle);
-	float cY = Cos(yAngle);
-	float sY = Sin(yAngle);
-	float cZ = Cos(zAngle);
-	float sZ = Sin(zAngle);
+	auto [sX, cX] = SinCos(xAngle);
+	auto [sY, cY] = SinCos(yAngle);
+	auto [sZ, cZ] = SinCos(zAngle);
 
 	rx = cZ * cY - (sZ * sX) * sY;
 	ry = (cZ * sX) * sY + sZ * cY;
@@ -288,8 +282,12 @@ CMatrix::SetRotate(float xAngle, float yAngle, float zAngle)
 void
 CMatrix::RotateX(float x)
 {
-	float c = Cos(x);
-	float s = Sin(x);
+#ifdef DC_SH4
+	mat_load(reinterpret_cast<matrix_t *>(this));
+	mat_rotate_x(x);
+	mat_store(reinterpret_cast<matrix_t *>(this));
+#else
+	auto [s, c] = SinCos(x);
 
 	float ry = this->ry;
 	float rz = this->rz;
@@ -308,13 +306,18 @@ CMatrix::RotateX(float x)
 	this->uz = c * az + s * ay;
 	this->py = c * py - s * pz;
 	this->pz = c * pz + s * py;
+#endif
 }
 
 void
 CMatrix::RotateY(float y)
 {
-	float c = Cos(y);
-	float s = Sin(y);
+#ifdef DC_SH4
+	mat_load(reinterpret_cast<matrix_t *>(this));
+	mat_rotate_y(y);
+	mat_store(reinterpret_cast<matrix_t *>(this));
+#else
+	auto [s, c] = SinCos(y);
 
 	float rx = this->rx;
 	float rz = this->rz;
@@ -333,13 +336,18 @@ CMatrix::RotateY(float y)
 	this->uz = c * az - s * ax;
 	this->px = c * px + s * pz;
 	this->pz = c * pz - s * px;
+#endif
 }
 
 void
 CMatrix::RotateZ(float z)
 {
-	float c = Cos(z);
-	float s = Sin(z);
+#ifdef DC_SH4
+	mat_load(reinterpret_cast<matrix_t *>(this));
+	mat_rotate_z(z);
+	mat_store(reinterpret_cast<matrix_t *>(this));
+#else	
+	auto [s, c] = SinCos(z);
 
 	float ry = this->ry;
 	float rx = this->rx;
@@ -358,18 +366,20 @@ CMatrix::RotateZ(float z)
 	this->uy = c * ay + s * ax;
 	this->px = c * px - s * py;
 	this->py = c * py + s * px;
-
+#endif
 }
 
 void
 CMatrix::Rotate(float x, float y, float z)
 {
-	float cX = Cos(x);
-	float sX = Sin(x);
-	float cY = Cos(y);
-	float sY = Sin(y);
-	float cZ = Cos(z);
-	float sZ = Sin(z);
+#ifdef DC_SH4
+	mat_load(reinterpret_cast<matrix_t *>(this));
+	mat_rotate(x, y, z);
+	mat_store(reinterpret_cast<matrix_t *>(this));
+#else
+	auto [sX, cX] = SinCos(x);
+	auto [sY, cY] = SinCos(y);
+	auto [sZ, cZ] = SinCos(z);
 	
 	float rx = this->rx;
 	float ry = this->ry;
@@ -406,6 +416,7 @@ CMatrix::Rotate(float x, float y, float z)
 	this->px = x1 * px + y1 * py + z1 * pz;
 	this->py = x2 * px + y2 * py + z2 * pz;
 	this->pz = x3 * px + y3 * py + z3 * pz;
+#endif
 }
 
 CMatrix &
@@ -429,11 +440,71 @@ CMatrix::Reorthogonalise(void)
 	f = CrossProduct(u, r);
 }
 
+#ifdef DC_SH4
+static __always_inline void MATH_Load_Matrix_Product(const matrix_t* matrix1, const matrix_t* matrix2)
+{
+    unsigned int prefetch_scratch;
+
+    asm volatile (
+        "mov %[bmtrx], %[pref_scratch]\n\t" // (MT)
+        "add #32, %[pref_scratch]\n\t" // offset by 32 (EX - flow dependency, but 'add' is actually parallelized since 'mov Rm, Rn' is 0-cycle)
+        "fschg\n\t" // switch fmov to paired moves (note: only paired moves can access XDn regs) (FE)
+        "pref @%[pref_scratch]\n\t" // Get a head start prefetching the second half of the 64-byte data (LS)
+        // back matrix
+        "fmov.d @%[bmtrx]+, XD0\n\t" // (LS)
+        "fmov.d @%[bmtrx]+, XD2\n\t"
+        "fmov.d @%[bmtrx]+, XD4\n\t"
+        "fmov.d @%[bmtrx]+, XD6\n\t"
+        "pref @%[fmtrx]\n\t" // prefetch fmtrx now while we wait (LS)
+        "fmov.d @%[bmtrx]+, XD8\n\t" // bmtrx prefetch should work for here
+        "fmov.d @%[bmtrx]+, XD10\n\t"
+        "fmov.d @%[bmtrx]+, XD12\n\t"
+        "mov %[fmtrx], %[pref_scratch]\n\t" // (MT)
+        "add #32, %[pref_scratch]\n\t" // store offset by 32 in r0 (EX - flow dependency, but 'add' is actually parallelized since 'mov Rm, Rn' is 0-cycle)
+        "fmov.d @%[bmtrx], XD14\n\t"
+        "pref @%[pref_scratch]\n\t" // Get a head start prefetching the second half of the 64-byte data (LS)
+        // front matrix
+        // interleave loads and matrix multiply 4x4
+        "fmov.d @%[fmtrx]+, DR0\n\t"
+        "fmov.d @%[fmtrx]+, DR2\n\t"
+        "fmov.d @%[fmtrx]+, DR4\n\t" // (LS) want to issue the next one before 'ftrv' for parallel exec
+        "ftrv XMTRX, FV0\n\t" // (FE)
+
+        "fmov.d @%[fmtrx]+, DR6\n\t"
+        "fmov.d @%[fmtrx]+, DR8\n\t"
+        "ftrv XMTRX, FV4\n\t"
+
+        "fmov.d @%[fmtrx]+, DR10\n\t"
+        "fmov.d @%[fmtrx]+, DR12\n\t"
+        "ftrv XMTRX, FV8\n\t"
+
+        "fmov.d @%[fmtrx], DR14\n\t" // (LS, but this will stall 'ftrv' for 3 cycles)
+        "fschg\n\t" // switch back to single moves (and avoid stalling 'ftrv') (FE)
+        "ftrv XMTRX, FV12\n\t" // (FE)
+        // Save output in XF regs
+        "frchg\n"
+        : [bmtrx] "+&r" ((unsigned int)matrix1), [fmtrx] "+r" ((unsigned int)matrix2), [pref_scratch] "=&r" (prefetch_scratch) // outputs, "+" means r/w, "&" means it's written to before all inputs are consumed
+        : // no inputs
+        : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15" // clobbers (GCC doesn't know about back bank, so writing to it isn't clobbered)
+    );
+}
+#endif
+
 CMatrix
 operator*(const CMatrix &m1, const CMatrix &m2)
 {
 	// TODO: VU0 code
 	CMatrix out;
+#if defined(RW_DC) && 0 // THIS IS BROKEN, 4th element shouldn't be processed
+#	ifdef DC_SH4
+	MATH_Load_Matrix_Product(reinterpret_cast<const matrix_t *>(&m1), reinterpret_cast<const matrix_t *>(&m2));
+
+#	elif defined(RW_DC)
+	mat_load(reinterpret_cast<const matrix_t *>(&m2));
+	mat_apply(reinterpret_cast<const matrix_t *>(&m1));
+#	endif
+	mat_store(reinterpret_cast<matrix_t *>(&out));
+#else
 	out.rx = m1.rx * m2.rx + m1.fx * m2.ry + m1.ux * m2.rz;
 	out.ry = m1.ry * m2.rx + m1.fy * m2.ry + m1.uy * m2.rz;
 	out.rz = m1.rz * m2.rx + m1.fz * m2.ry + m1.uz * m2.rz;
@@ -446,6 +517,7 @@ operator*(const CMatrix &m1, const CMatrix &m2)
 	out.px = m1.rx * m2.px + m1.fx * m2.py + m1.ux * m2.pz + m1.px;
 	out.py = m1.ry * m2.px + m1.fy * m2.py + m1.uy * m2.pz + m1.py;
 	out.pz = m1.rz * m2.px + m1.fz * m2.py + m1.uz * m2.pz + m1.pz;
+#endif
 	return out;
 }
 

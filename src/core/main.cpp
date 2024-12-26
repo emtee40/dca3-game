@@ -352,6 +352,7 @@ DoFade(void)
 	}
 }
 
+#if 0   // not used in dca3, RsGrabScreen is not working either way.
 bool
 RwGrabScreen(RwCamera *camera, RwChar *filename)
 {
@@ -374,6 +375,7 @@ RwGrabScreen(RwCamera *camera, RwChar *filename)
 	RwImageDestroy(pImage);
 	return result;
 }
+#endif
 
 #define TILE_WIDTH 576
 #define TILE_HEIGHT 432
@@ -401,10 +403,12 @@ DoRWStuffEndOfFrame(void)
 		}
 	}
 #else
+#if 0
 	if (CPad::GetPad(1)->GetLeftShockJustDown() || CPad::GetPad(0)->GetFJustDown(11)) {
 		sprintf(s, "screen_%011lld.png", time(nil));
 		RwGrabScreen(Scene.camera, s);
 	}
+#endif
 #endif
 #endif // !MASTER
 }
@@ -1090,11 +1094,12 @@ return;
 	y += 12.0f;
 }
 
+bool bDisplayPosn = false;
+bool bDisplayRate = false;
+
 void
 DisplayGameDebugText()
 {
-	static bool bDisplayPosn = false;
-	static bool bDisplayRate = false;
 #ifndef FINAL
 	{
 		SETTWEAKPATH("Debug");
@@ -1226,7 +1231,7 @@ DisplayGameDebugText()
 
 		//NOTE: fps should be 30, but its 29 due to different fp2int conversion 
 		if ( bDisplayRate )
-			sprintf(str, "X:%5.1f, Y:%5.1f, Z:%5.1f, F-%d, %s", pos.x, pos.y, pos.z, (int32)FramesPerSecond, ZonePrint[ZoneId].name);
+			sprintf(str, "X:%5.1f, Y:%5.1f, Z:%5.1f, F-%.2f, %s", pos.x, pos.y, pos.z, FramesPerSecond, ZonePrint[ZoneId].name);
 		else
 			sprintf(str, "X:%5.1f, Y:%5.1f, Z:%5.1f, %s", pos.x, pos.y, pos.z, ZonePrint[ZoneId].name);
 		
@@ -1886,6 +1891,7 @@ AppEventHandler(RsEvent event, void *param)
 	}
 }
 
+#if !defined(RW_DC)
 #ifndef MASTER
 void
 TheModelViewer(void)
@@ -1916,6 +1922,7 @@ TheModelViewer(void)
 	DoRWStuffEndOfFrame();
 #endif
 }
+#endif
 #endif
 
 

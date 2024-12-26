@@ -14,10 +14,10 @@
 
 // Originally taken from RW example 'mblur'
 
-RwRaster *CMBlur::pFrontBuffer;
+// RwRaster *CMBlur::pFrontBuffer;
 bool CMBlur::ms_bJustInitialised;
 bool CMBlur::ms_bScaledBlur;
-bool CMBlur::BlurOn;
+uint8_t CMBlur::BlurOn;
 
 static RwIm2DVertex Vertex[4];
 static RwImVertexIndex Index[6] = { 0, 1, 2, 0, 2, 3 };
@@ -60,7 +60,7 @@ CMBlur::MotionBlurOpen(RwCamera *cam)
 	}
 	
 	CreateImmediateModeData(cam, &rect);
-#else
+#elif defined(NOT_DC)
 	RwRect rect = { 0, 0, 0, 0 };
 
 	if(pFrontBuffer)
@@ -73,6 +73,8 @@ CMBlur::MotionBlurOpen(RwCamera *cam)
 	_GetVideoMemInfo(&total, &avaible);
 	debug("Available video memory %d\n", avaible);
 #endif
+
+	BlurOn = false;
 		
 	if(BlurOn)
 	{
@@ -131,6 +133,10 @@ CMBlur::MotionBlurOpen(RwCamera *cam)
 	}
 	
 	return TRUE;
+#else
+	RwRect rect = { 0, 0, 640, 480 };
+	CreateImmediateModeData(cam, &rect);
+	return TRUE;
 #endif
 #endif
 }
@@ -138,6 +144,7 @@ CMBlur::MotionBlurOpen(RwCamera *cam)
 RwBool
 CMBlur::MotionBlurClose(void)
 {
+#if defined(NOT_DC)
 #ifdef EXTENDED_COLOURFILTER
 	CPostFX::Close();
 #else
@@ -147,6 +154,7 @@ CMBlur::MotionBlurClose(void)
 		
 		return TRUE;
 	}
+#endif
 #endif
 	return FALSE;
 }
@@ -214,7 +222,7 @@ CMBlur::MotionBlurRender(RwCamera *cam, uint32 red, uint32 green, uint32 blue, u
 #ifdef GTA_PS2
 	if( pFrontBuffer )
 		OverlayRender(cam, pFrontBuffer, color, type, bluralpha);
-#else
+#elif defined(NOT_DC)
 	if(BlurOn){
 		if(pFrontBuffer){
 			if(ms_bJustInitialised)
@@ -228,9 +236,17 @@ CMBlur::MotionBlurRender(RwCamera *cam, uint32 red, uint32 green, uint32 blue, u
 	}else{
 		OverlayRender(cam, nil, color, type, bluralpha);
 	}
+#else
+	OverlayRender(cam, nil, color, type, bluralpha);
 #endif
 	POP_RENDERGROUP();
 #endif
+}
+
+namespace rw::dc {
+	// TODO: move to some header?
+	void dcMotionBlur_v1(uint8_t a, uint8_t r, uint8_t g, uint8_t b);
+	void dcMotionBlur_v3(uint8_t a, uint8_t r, uint8_t g, uint8_t b);
 }
 
 void
@@ -301,18 +317,29 @@ CMBlur::OverlayRender(RwCamera *cam, RwRaster *raster, RwRGBA color, int32 type,
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
 	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
 	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
-	RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, Vertex, 4, Index, 6);
-
-	a = bluralpha/2;
-	if(a < 30)
-		a = 30;
-
-	if(BlurOn && a != 0){	// the second condition should always be true
-		RwIm2DVertexSetIntRGBA(&Vertex[0], 255, 255, 255, a);
-		RwIm2DVertexSetIntRGBA(&Vertex[1], 255, 255, 255, a);
-		RwIm2DVertexSetIntRGBA(&Vertex[2], 255, 255, 255, a);
-		RwIm2DVertexSetIntRGBA(&Vertex[3], 255, 255, 255, a);
+	if (BlurOn) {
+		if (BlurOn == 1) {
+			rw::dc::dcMotionBlur_v3(a, r, g, b);
+		} else {
+			rw::dc::dcMotionBlur_v1(a, r, g, b);
+		}
+	} else {
 		RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, Vertex, 4, Index, 6);
+	}
+
+	if (BlurOn == 2) {
+		a = bluralpha/2;
+		if(a < 30)
+			a = 30;
+
+		if(BlurOn && a != 0){	// the second condition should always be true
+			// RwIm2DVertexSetIntRGBA(&Vertex[0], 255, 255, 255, a);
+			// RwIm2DVertexSetIntRGBA(&Vertex[1], 255, 255, 255, a);
+			// RwIm2DVertexSetIntRGBA(&Vertex[2], 255, 255, 255, a);
+			// RwIm2DVertexSetIntRGBA(&Vertex[3], 255, 255, 255, a);
+			// RwIm2DRenderIndexedPrimitive(rwPRIMTYPETRILIST, Vertex, 4, Index, 6);
+			rw::dc::dcMotionBlur_v1(a, 255, 255, 255);
+		}
 	}
 
 	RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)FALSE);

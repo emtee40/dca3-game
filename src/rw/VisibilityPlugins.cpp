@@ -35,6 +35,8 @@ float CVisibilityPlugins::ms_pedLod0Dist;
 float CVisibilityPlugins::ms_pedLod1Dist;
 float CVisibilityPlugins::ms_pedFadeDist;
 
+#if !defined(DC_TEXCONV)
+
 #ifdef GTA_PS2	// maybe something else?
 // if wanted, delete the original geometry data after rendering
 // and only keep the instanced data
@@ -830,8 +832,28 @@ CVisibilityPlugins::VehicleVisibilityCB_BigVehicle(RpClump *clump)
 	return FrustumSphereCB(clump);
 }
 
-
-
+#else
+bool
+CVisibilityPlugins::MloVisibilityCB(RpClump *clump) {
+	assert(false && "How did we get here?");
+	return false;
+}
+bool
+CVisibilityPlugins::DefaultVisibilityCB(RpClump *clump) {
+	assert(false && "How did we get here?");
+	return false;
+}
+bool
+CVisibilityPlugins::VehicleVisibilityCB(RpClump *clump) {
+	assert(false && "How did we get here?");
+	return false;
+}
+bool
+CVisibilityPlugins::VehicleVisibilityCB_BigVehicle(RpClump *clump) {
+	assert(false && "How did we get here?");
+	return false;
+}
+#endif
 
 //
 // RW Plugins
@@ -875,20 +897,20 @@ CVisibilityPlugins::PluginAttach(void)
 //
 
 void*
-CVisibilityPlugins::AtomicConstructor(void *object, int32, int32)
+CVisibilityPlugins::AtomicConstructor(void *object, RwInt32, RwInt32)
 {
 	ATOMICEXT(object)->modelInfo = nil;
 	return object;
 }
 
 void*
-CVisibilityPlugins::AtomicDestructor(void *object, int32, int32)
+CVisibilityPlugins::AtomicDestructor(void *object, RwInt32, RwInt32)
 {
 	return object;
 }
 
 void*
-CVisibilityPlugins::AtomicCopyConstructor(void *dst, const void *src, int32, int32)
+CVisibilityPlugins::AtomicCopyConstructor(void *dst, const void *src, RwInt32, RwInt32)
 {
 	*ATOMICEXT(dst) = *ATOMICEXT(src);
 	return dst;
@@ -898,6 +920,7 @@ void
 CVisibilityPlugins::SetAtomicModelInfo(RpAtomic *atomic,
                                        CSimpleModelInfo *modelInfo)
 {
+	#if !defined(DC_TEXCONV)
 	AtomicExt *ext = ATOMICEXT(atomic);
 	ext->modelInfo = modelInfo;
 	switch (modelInfo->GetModelType()) {
@@ -907,6 +930,9 @@ CVisibilityPlugins::SetAtomicModelInfo(RpAtomic *atomic,
 				SetAtomicRenderCallback(atomic, RenderObjNormalAtomic);
 		default: break;
 	}
+	#else
+	assert(false);
+	#endif
 }
 
 CSimpleModelInfo*
@@ -942,9 +968,13 @@ CVisibilityPlugins::GetAtomicId(RpAtomic *atomic)
 void
 CVisibilityPlugins::SetAtomicRenderCallback(RpAtomic *atomic, RpAtomicCallBackRender cb)
 {
+	#if !defined(DC_TEXCONV)
 	if(cb == nil)
 		cb = RENDERCALLBACK;
 	RpAtomicSetRenderCallBack(atomic, cb);
+	#else
+	assert(false && "How did we get here?");
+	#endif
 }
 
 //
@@ -952,20 +982,20 @@ CVisibilityPlugins::SetAtomicRenderCallback(RpAtomic *atomic, RpAtomicCallBackRe
 //
 
 void*
-CVisibilityPlugins::FrameConstructor(void *object, int32, int32)
+CVisibilityPlugins::FrameConstructor(void *object, RwInt32, RwInt32)
 {
 	FRAMEEXT(object)->id = 0;
 	return object;
 }
 
 void*
-CVisibilityPlugins::FrameDestructor(void *object, int32, int32)
+CVisibilityPlugins::FrameDestructor(void *object, RwInt32, RwInt32)
 {
 	return object;
 }
 
 void*
-CVisibilityPlugins::FrameCopyConstructor(void *dst, const void *src, int32, int32)
+CVisibilityPlugins::FrameCopyConstructor(void *dst, const void *src, RwInt32, RwInt32)
 {
 	*FRAMEEXT(dst) = *FRAMEEXT(src);
 	return dst;
@@ -989,7 +1019,7 @@ CVisibilityPlugins::GetFrameHierarchyId(RwFrame *frame)
 //
 
 void*
-CVisibilityPlugins::ClumpConstructor(void *object, int32, int32)
+CVisibilityPlugins::ClumpConstructor(void *object, RwInt32, RwInt32)
 {
 	ClumpExt *ext = CLUMPEXT(object);
 	ext->visibilityCB = DefaultVisibilityCB;
@@ -998,13 +1028,13 @@ CVisibilityPlugins::ClumpConstructor(void *object, int32, int32)
 }
 
 void*
-CVisibilityPlugins::ClumpDestructor(void *object, int32, int32)
+CVisibilityPlugins::ClumpDestructor(void *object, RwInt32, RwInt32)
 {
 	return object;
 }
 
 void*
-CVisibilityPlugins::ClumpCopyConstructor(void *dst, const void *src, int32, int32)
+CVisibilityPlugins::ClumpCopyConstructor(void *dst, const void *src, RwInt32, RwInt32)
 {
 	CLUMPEXT(dst)->visibilityCB = CLUMPEXT(src)->visibilityCB;
 	return dst;

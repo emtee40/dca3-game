@@ -55,7 +55,7 @@
 #endif
 
 #ifdef FREE_CAM
-	#define FREE_CAM_TOGGLE MENUACTION_CFO_SELECT, "FEC_FRC", { new CCFOSelect((int8*)&TheCamera.bFreeCam, "Display", "FreeCam", off_on, 2, false) },
+	#define FREE_CAM_TOGGLE MENUACTION_CFO_SELECT, "FEC_FRC", { new CCFOSelect((int8*)&TheCamera.bFreeCam, "Display", "FreeCam", off_on, 2, true) },
 #else
 	#define FREE_CAM_TOGGLE
 #endif
@@ -155,15 +155,17 @@ void RestoreDefDisplay(int8 action) {
 		CMenuManager::m_PrefsCutsceneBorders = true;
 	#endif
 	#ifdef FREE_CAM
-		TheCamera.bFreeCam = false;
+		TheCamera.bFreeCam = true;
 	#endif
 	#ifdef PED_CAR_DENSITY_SLIDERS
+		CIniFile::PedNumberMultiplier = 0.6f;	// dreamcast defaults
+		CIniFile::CarNumberMultiplier = 0.6f;	// dreamcast defaults
 		CIniFile::LoadIniFile();
 	#endif
 	#ifdef GRAPHICS_MENU_OPTIONS // otherwise Frontend will handle those
 		CMenuManager::m_PrefsBrightness = 256;
-		CMenuManager::m_PrefsLOD = 1.2f;
-		CRenderer::ms_lodDistScale = 1.2f;
+		CMenuManager::m_PrefsLOD = 0.7f;
+		CRenderer::ms_lodDistScale = 0.7f;
 		CMenuManager::m_PrefsShowSubtitles = true;
 		FrontEndMenuManager.SaveSettings();
 	#endif
@@ -395,6 +397,9 @@ void ControllerTypeAfterChange(int8 before, int8 after)
 }
 #endif
 
+extern bool doEnvironmentMaps;
+extern bool bDisplayRate;
+
 CMenuScreenCustom aScreens[MENUPAGES] = {
 	// MENUPAGE_NONE = 0
 	{ "", MENUPAGE_DISABLED, MENUPAGE_DISABLED, nil, nil, },
@@ -480,6 +485,10 @@ CMenuScreenCustom aScreens[MENUPAGES] = {
 		DENSITY_SLIDERS
 		CUTSCENE_BORDERS_TOGGLE
 		FREE_CAM_TOGGLE
+		MENUACTION_CFO_SELECT, "FEC_FPS", { new CCFOSelect((int8*)&bDisplayRate, "Display", "FPS", off_on, 2, false) },
+		#if defined(TIMEBARS)
+		MENUACTION_CFO_SELECT, "FEC_TB", { new CCFOSelect((int8*)&gbShowTimebars, "Display", "TB", off_on, 2, false) },
+		#endif
 		MENUACTION_SUBTITLES,	"FED_SUB", { nil, SAVESLOT_NONE, MENUPAGE_DISPLAY_SETTINGS },
 		MENUACTION_CFO_DYNAMIC,	"FET_DEF", { new CCFODynamic(nil, nil, nil, nil, RestoreDefDisplay) },
 		MENUACTION_CHANGEMENU,	"FEDS_TB", { nil, SAVESLOT_NONE, MENUPAGE_NONE },
@@ -907,6 +916,7 @@ CMenuScreenCustom aScreens[MENUPAGES] = {
 		POSTFX_SELECTORS
 #else
 		MENUACTION_TRAILS,		"FED_TRA", { nil, SAVESLOT_NONE, MENUPAGE_DISPLAY_SETTINGS },
+		MENUACTION_CFO_SELECT, "FEC_MFX", { new CCFOSelect((int8*)&doEnvironmentMaps, "Graphics", "MFX", off_on, 2, false) },
 #endif
 		// re3.cpp inserts here pipeline selectors if neo/neo.txd exists and EXTENDED_PIPELINES defined
 		MENUACTION_CFO_DYNAMIC,	"FET_DEF", { new CCFODynamic(nil, nil, nil, nil, RestoreDefGraphics) },

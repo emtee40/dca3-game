@@ -97,6 +97,8 @@ CClumpModelInfo::SetClump(RpClump *clump)
 		hier = GetAnimHierarchyFromClump(clump);
 		assert(hier);
 		RpSkinAtomicSetHAnimHierarchy(IsClumpSkinned(clump), hier);
+		#if !defined(RW_DC)
+		// why is this here? should be already normalized ~ skmp
 		skinAtomic = IsClumpSkinned(clump);
 
 		assert(skinAtomic);
@@ -110,6 +112,7 @@ CClumpModelInfo::SetClump(RpClump *clump)
 			weights->w2 /= sum;
 			weights->w3 /= sum;
 		}
+		#endif
 		RpHAnimHierarchySetFlags(hier, (RpHAnimHierarchyFlag)(rpHANIMHIERARCHYUPDATEMODELLINGMATRICES|rpHANIMHIERARCHYUPDATELTMS));
 	}
 	if(strcmp(GetModelName(), "playerh") == 0){

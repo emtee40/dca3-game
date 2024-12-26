@@ -266,7 +266,8 @@ CWaterLevel::CreateWavyAtomic()
 		wavyGeometry = RpGeometryCreate(9*9, 8*8*2, rpGEOMETRYTRISTRIP
 													|rpGEOMETRYTEXTURED
 													|rpGEOMETRYPRELIT
-													|rpGEOMETRYMODULATEMATERIALCOLOR);
+													|rpGEOMETRYMODULATEMATERIALCOLOR
+													|rw::Geometry::HAS_TRIANGLES/* RW_DC specific */);
 													
 		ASSERT(wavyGeometry != nil);
 	

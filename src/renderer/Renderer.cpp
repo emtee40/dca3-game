@@ -82,7 +82,7 @@ CLinkList<EntityInfo> gSortedBuildings;
 CVector CRenderer::ms_vecCameraPosition;
 CVehicle *CRenderer::m_pFirstPersonVehicle;
 bool CRenderer::m_loadingPriority;
-float CRenderer::ms_lodDistScale = 1.2f;
+float CRenderer::ms_lodDistScale = 0.7f; //  This Controls Engine Draw Distance Slider.  Default = 1.2.  Menu Manager Defines MIN as 0.8, MAX as 1.8 :-)
 
 // unused
 BlockedRange CRenderer::aBlockedRanges[16];
@@ -168,11 +168,11 @@ CRenderer::RenderOneRoad(CEntity *e)
 		PUSH_RENDERGROUP(CModelInfo::GetModelInfo(e->GetModelIndex())->GetModelName());
 
 #ifdef EXTRA_MODEL_FLAGS
-	if(!e->IsBuilding() || CModelInfo::GetModelInfo(e->GetModelIndex())->RenderDoubleSided()){
-		BACKFACE_CULLING_OFF;
-		e->Render();
-		BACKFACE_CULLING_ON;
-	}else
+		if(!e->IsBuilding() || CModelInfo::GetModelInfo(e->GetModelIndex())->RenderDoubleSided()){
+			BACKFACE_CULLING_OFF;
+			e->Render();
+			BACKFACE_CULLING_ON;
+		}else
 #endif
 		e->Render();
 

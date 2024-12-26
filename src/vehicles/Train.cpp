@@ -433,7 +433,7 @@ CTrain::InitTrains(void)
 		ReadAndInterpretTrackFile("data\\paths\\tracks2.dat", &pTrackNodes_S, &NumTrackNodes_S, 4, StationDist_S,
 			&TotalLengthOfTrack_S, &TotalDurationOfTrack_S, aLineBits_S, true);
 
-	int trainId;
+	int32 trainId;
 	CStreaming::LoadAllRequestedModels(false);
 	if(CModelInfo::GetModelInfo("train", &trainId))
 		CStreaming::RequestModel(trainId, 0);

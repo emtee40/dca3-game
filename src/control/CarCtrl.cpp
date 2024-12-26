@@ -67,9 +67,9 @@
 #define MIN_ANGLE_TO_APPLY_HANDBRAKE 0.7f
 #define MIN_SPEED_TO_APPLY_HANDBRAKE 0.3f
 
-int CCarCtrl::NumLawEnforcerCars;
-int CCarCtrl::NumAmbulancesOnDuty;
-int CCarCtrl::NumFiretrucksOnDuty;
+int32 CCarCtrl::NumLawEnforcerCars;
+int32 CCarCtrl::NumAmbulancesOnDuty;
+int32 CCarCtrl::NumFiretrucksOnDuty;
 bool CCarCtrl::bCarsGeneratedAroundCamera;
 float CCarCtrl::CarDensityMultiplier = 1.0f;
 int32 CCarCtrl::NumMissionCars;
@@ -2710,7 +2710,7 @@ bool CCarCtrl::GenerateOneEmergencyServicesCar(uint32 mi, CVector vecPos)
 	bool created = false;
 	int attempts = 0;
 	CVector spawnPos;
-	int curNode, nextNode;
+	int32 curNode, nextNode;
 	float posBetweenNodes;
 	while (!created && attempts < 5){
 		if (ThePaths.NewGenerateCarCreationCoors(pPlayerPos.x, pPlayerPos.y, 0.707f, 0.707f,

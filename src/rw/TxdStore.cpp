@@ -113,8 +113,12 @@ CTxdStore::AddRef(int slot)
 void
 CTxdStore::RemoveRef(int slot)
 {
+	#if !defined(DC_TEXCONV)
 	if(--GetSlot(slot)->refCount <= 0)
 		CStreaming::RemoveTxd(slot);
+	#else
+	assert(false);
+	#endif
 }
 
 void
@@ -122,6 +126,31 @@ CTxdStore::RemoveRefWithoutDelete(int slot)
 {
 	GetSlot(slot)->refCount--;
 }
+
+void StoreTxd(RwTexDictionary *texDict, RwStream *stream) {
+	auto fheader = stream->tell();
+	// size will be written later
+	writeChunkHeader(stream, rwID_TEXDICTIONARY, 4);
+	auto fbegin = stream->tell();
+
+	RwTexDictionaryGtaStreamWrite(stream, texDict);
+	
+	// rewrite header for correct length
+	auto fend = stream->tell();
+	stream->seek(fheader, 0);
+	writeChunkHeader(stream, rwID_TEXDICTIONARY, fend - fbegin);
+	stream->seek(fend, 0);
+}
+RwTexDictionary *
+LoadTxd(RwStream *stream)
+{
+	RwUInt32 len;
+	if(RwStreamFindChunk(stream, rwID_TEXDICTIONARY, &len, nil)){
+		return RwTexDictionaryGtaStreamRead(stream);
+	}
+	return nullptr;
+}
+
 
 bool
 CTxdStore::LoadTxd(int slot, RwStream *stream)

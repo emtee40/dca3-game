@@ -573,7 +573,7 @@ RwBool RwEngineOpen(RwEngineOpenParams *initParams) {
 	return Engine::open(&openParams);
 }
 RwBool RwEngineStart(void) {
-	rw::d3d::isP8supported = false;
+	// rw::d3d::isP8supported = false;
 	return Engine::start();
 }
 RwBool RwEngineStop(void) { Engine::stop(); return true; }
@@ -751,7 +751,7 @@ RwInt32 RpClumpGetNumAtomics(RpClump * clump) { return clump->countAtomics(); }
 //RwInt32 RpClumpGetNumLights(RpClump * clump);
 //RwInt32 RpClumpGetNumCameras(RpClump * clump);
 RpClump *RpClumpStreamRead(RwStream * stream) { return rw::Clump::streamRead(stream); }
-//RpClump *RpClumpStreamWrite(RpClump * clump, RwStream * stream);
+RwBool RpClumpStreamWrite(RpClump * clump, RwStream * stream) { return clump->streamWrite(stream); }
 RwInt32 RpClumpRegisterPlugin(RwInt32 size, RwUInt32 pluginID, RwPluginObjectConstructor constructCB, RwPluginObjectDestructor destructCB, RwPluginObjectCopy copyCB)
 	{ return Clump::registerPlugin(size, pluginID, constructCB, destructCB, (CopyConstructor)copyCB); }
 RwInt32 RpClumpRegisterPluginStream(RwUInt32 pluginID, RwPluginDataChunkReadCallBack  readCB, RwPluginDataChunkWriteCallBack writeCB, RwPluginDataChunkGetSizeCallBack getSizeCB)
@@ -805,7 +805,7 @@ RwBool       RpWorldPluginAttach(void) {
 	registerMaterialRightsPlugin();
 
 	// not sure if this goes here
-	rw::xbox::registerVertexFormatPlugin();
+	// rw::xbox::registerVertexFormatPlugin();
 	return true;
 }
 
@@ -878,11 +878,11 @@ RpHAnimHierarchy *RpHAnimFrameGetHierarchy(RwFrame *frame) { return HAnimHierarc
 
 RpHAnimHierarchy *RpHAnimHierarchySetFlags(RpHAnimHierarchy *hierarchy, RpHAnimHierarchyFlag flags) { hierarchy->flags = flags; return hierarchy; }
 
-RwBool RpHAnimHierarchySetCurrentAnim(RpHAnimHierarchy *hierarchy, RpHAnimAnimation *anim) { hierarchy->interpolator->setCurrentAnim(anim); return true; }
-RwBool RpHAnimHierarchyAddAnimTime(RpHAnimHierarchy *hierarchy, RwReal time) { hierarchy->interpolator->addTime(time); return true; }
+RwBool RpHAnimHierarchySetCurrentAnim(RpHAnimHierarchy *hierarchy, RpHAnimAnimation *anim) { if (hierarchy) { hierarchy->interpolator->setCurrentAnim(anim); } return true; }
+RwBool RpHAnimHierarchyAddAnimTime(RpHAnimHierarchy *hierarchy, RwReal time) { if (hierarchy) { hierarchy->interpolator->addTime(time); } return true; }
 
-RwMatrix *RpHAnimHierarchyGetMatrixArray(RpHAnimHierarchy *hierarchy) { return hierarchy->matrices; }
-RwBool RpHAnimHierarchyUpdateMatrices(RpHAnimHierarchy *hierarchy) { hierarchy->updateMatrices(); return true; }
+RwMatrix *RpHAnimHierarchyGetMatrixArray(RpHAnimHierarchy *hierarchy) { return hierarchy ? hierarchy->matrices : nullptr; }
+RwBool RpHAnimHierarchyUpdateMatrices(RpHAnimHierarchy *hierarchy) { if (hierarchy) { hierarchy->updateMatrices(); } return true; }
 
 RpHAnimAnimation *RpHAnimAnimationCreate(RwInt32 typeID, RwInt32 numFrames, RwInt32 flags, RwReal duration)
 	{ return Animation::create(AnimInterpolatorInfo::find(typeID), numFrames, flags, duration); }
@@ -909,6 +909,7 @@ RpSkin *RpSkinGeometryGetSkin( RpGeometry *geometry ) { return Skin::get(geometr
 RpAtomic *RpSkinAtomicSetHAnimHierarchy( RpAtomic *atomic, RpHAnimHierarchy *hierarchy ) { Skin::setHierarchy(atomic, hierarchy); return atomic; }
 RpHAnimHierarchy *RpSkinAtomicGetHAnimHierarchy( const RpAtomic *atomic ) { return Skin::getHierarchy(atomic); }
 
+#if 0   // not used in dca3
 RwImage *
 RtBMPImageWrite(RwImage *image, const RwChar *imageName)
 {
@@ -945,7 +946,6 @@ RtBMPImageRead(const RwChar *imageName)
 #endif
 }
 
-
 RwImage *
 RtPNGImageWrite(RwImage *image, const RwChar *imageName)
 {
@@ -963,6 +963,7 @@ RtPNGImageWrite(RwImage *image, const RwChar *imageName)
 #endif
 	return image;
 }
+
 RwImage *
 RtPNGImageRead(const RwChar *imageName)
 {
@@ -981,6 +982,7 @@ RtPNGImageRead(const RwChar *imageName)
 	return rw::readPNG(imageName);
 #endif
 }
+#endif
 
 #include "rtquat.h"
 

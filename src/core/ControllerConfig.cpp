@@ -199,36 +199,36 @@ void CControllerConfigManager::LoadSettings(int32 file)
 
 void CControllerConfigManager::InitDefaultControlConfiguration()
 {
-	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKLEFT,                    rsPADEND,   KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKLEFT,                    ' ',   KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKLEFT,                    'Q',        OPTIONAL_EXTRA);
 										    						              
-	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKRIGHT,                   rsPADDOWN,  KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKRIGHT,                   ' ',  KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKRIGHT,                   'E',        OPTIONAL_EXTRA);
 																              
 	if ( _dwOperatingSystemVersion == OS_WIN98 )											              
-		SetControllerKeyAssociatedWithAction(VEHICLE_HORN,                        rsSHIFT,    OPTIONAL_EXTRA); // BUG: must be KEYBOARD ?											              
+		SetControllerKeyAssociatedWithAction(VEHICLE_HORN,                        rsPADLEFT,    OPTIONAL_EXTRA); // BUG: must be KEYBOARD ?											              
 	else		
 	{
-		SetControllerKeyAssociatedWithAction(VEHICLE_HORN,                        rsLSHIFT,   OPTIONAL_EXTRA);
+		SetControllerKeyAssociatedWithAction(VEHICLE_HORN,                        rsPADLEFT,   OPTIONAL_EXTRA);
 		SetControllerKeyAssociatedWithAction(VEHICLE_HORN,                        rsRSHIFT,   KEYBOARD);
 	}													              
 																	              
-	SetControllerKeyAssociatedWithAction    (VEHICLE_HANDBRAKE,                   rsRCTRL,    KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_HANDBRAKE,                   rsMINUS,    KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_HANDBRAKE,                   ' ',        OPTIONAL_EXTRA);
 															                      
-	SetControllerKeyAssociatedWithAction    (VEHICLE_ENTER_EXIT,                  rsENTER,    KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_ENTER_EXIT,                  rsPADDEL,    KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_ENTER_EXIT,                  'F',        OPTIONAL_EXTRA);
 										    					                  
-	SetControllerKeyAssociatedWithAction    (VEHICLE_ACCELERATE,                  rsUP,       KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_ACCELERATE,                  ' ',       KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_ACCELERATE,                  'W',        OPTIONAL_EXTRA);
 																		          
-	SetControllerKeyAssociatedWithAction    (VEHICLE_CHANGE_RADIO_STATION,        rsINS,      KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_CHANGE_RADIO_STATION,        rsPADDOWN,      KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_CHANGE_RADIO_STATION,        'R',        OPTIONAL_EXTRA);
 																		          
-	SetControllerKeyAssociatedWithAction    (VEHICLE_BRAKE,                       rsDOWN,     KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_BRAKE,                       ' ',     KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_BRAKE,                       'S',        OPTIONAL_EXTRA);
 																		          
-	SetControllerKeyAssociatedWithAction    (TOGGLE_SUBMISSIONS,                  rsPLUS,     KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (TOGGLE_SUBMISSIONS,                  rsPADRIGHT,     KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (TOGGLE_SUBMISSIONS,                  rsCAPSLK,   OPTIONAL_EXTRA);
 																		          
 	SetControllerKeyAssociatedWithAction    (GO_LEFT,                             rsLEFT,     KEYBOARD);
@@ -243,33 +243,33 @@ void CControllerConfigManager::InitDefaultControlConfiguration()
 	SetControllerKeyAssociatedWithAction    (GO_BACK,                             rsDOWN,     KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (GO_BACK,                             'S',        OPTIONAL_EXTRA);
 																		          
-	SetControllerKeyAssociatedWithAction    (PED_LOOKBEHIND,                      rsPADEND,   KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_LOOKBEHIND,                      rsPADDOWN,   KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (PED_LOOKBEHIND,                      rsCAPSLK,   OPTIONAL_EXTRA);
 																		          
-	SetControllerKeyAssociatedWithAction    (PED_FIREWEAPON,                      rsPADINS,   KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_FIREWEAPON,                      rsPADPGUP,   KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (PED_FIREWEAPON,                      rsLCTRL,    OPTIONAL_EXTRA);
 #ifdef BIND_VEHICLE_FIREWEAPON
-	SetControllerKeyAssociatedWithAction    (VEHICLE_FIREWEAPON,                  rsPADINS,   KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_FIREWEAPON,                  rsENTER,   KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_FIREWEAPON,                  rsLCTRL,    OPTIONAL_EXTRA);
 #endif
-	SetControllerKeyAssociatedWithAction    (PED_CYCLE_WEAPON_LEFT,               rsPADDEL,   KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_CYCLE_WEAPON_LEFT,               rsPADLEFT,   KEYBOARD);
 
-	SetControllerKeyAssociatedWithAction    (PED_CYCLE_WEAPON_RIGHT,              rsPADENTER, OPTIONAL_EXTRA); // BUG: must be KEYBOARD ?
+	SetControllerKeyAssociatedWithAction    (PED_CYCLE_WEAPON_RIGHT,              rsPADRIGHT, OPTIONAL_EXTRA); // BUG: must be KEYBOARD ?
 																		          
-	SetControllerKeyAssociatedWithAction    (PED_LOCK_TARGET,                     rsDEL,      KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_LOCK_TARGET,                     rsPADHOME,      KEYBOARD);
 																		          
-	SetControllerKeyAssociatedWithAction    (PED_JUMPING,                         rsRCTRL,    KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_JUMPING,                         rsMINUS,    KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (PED_JUMPING,                         ' ',        OPTIONAL_EXTRA);
 																              
 	if ( _dwOperatingSystemVersion == OS_WIN98 )											              
-		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsSHIFT,    OPTIONAL_EXTRA); // BUG: must be KEYBOARD ?											              
+		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsENTER,    OPTIONAL_EXTRA); // BUG: must be KEYBOARD ?											              
 	else		
 	{
-		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsLSHIFT,   OPTIONAL_EXTRA);
+		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsENTER,   OPTIONAL_EXTRA);
 #ifndef FIX_BUGS
-		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsRSHIFT,   OPTIONAL_EXTRA); // BUG: must be KEYBOARD
+		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsENTER,   OPTIONAL_EXTRA); // BUG: must be KEYBOARD
 #else
-		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsRSHIFT,   KEYBOARD);
+		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsENTER,   KEYBOARD);
 #endif
 	}
 
@@ -277,7 +277,7 @@ void CControllerConfigManager::InitDefaultControlConfiguration()
 
 	SetControllerKeyAssociatedWithAction    (PED_CYCLE_TARGET_RIGHT,              ']',        OPTIONAL_EXTRA); // BUG: must be KEYBOARD ?
 																			      
-	SetControllerKeyAssociatedWithAction    (PED_CENTER_CAMERA_BEHIND_PLAYER,     '#',        KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_CENTER_CAMERA_BEHIND_PLAYER,     ' ',        KEYBOARD);
 	
 	SetControllerKeyAssociatedWithAction    (PED_SNIPER_ZOOM_IN,                  rsPGUP,     KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (PED_SNIPER_ZOOM_IN,                  'Z',        OPTIONAL_EXTRA);
@@ -285,23 +285,23 @@ void CControllerConfigManager::InitDefaultControlConfiguration()
 	SetControllerKeyAssociatedWithAction    (PED_SNIPER_ZOOM_OUT,                 rsPGDN,     KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (PED_SNIPER_ZOOM_OUT,                 'X',        OPTIONAL_EXTRA);
 										    
-	SetControllerKeyAssociatedWithAction    (PED_1RST_PERSON_LOOK_LEFT,           rsPADLEFT,  KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_1RST_PERSON_LOOK_LEFT,           ' ',  KEYBOARD);
 
-	SetControllerKeyAssociatedWithAction    (PED_1RST_PERSON_LOOK_RIGHT,          rsPADRIGHT, KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_1RST_PERSON_LOOK_RIGHT,          ' ', KEYBOARD);
 										    
-	SetControllerKeyAssociatedWithAction    (PED_1RST_PERSON_LOOK_UP,             rsPADUP,    KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_1RST_PERSON_LOOK_UP,             ' ',    KEYBOARD);
 
-	SetControllerKeyAssociatedWithAction    (PED_1RST_PERSON_LOOK_DOWN,           rsPAD5,     KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (PED_1RST_PERSON_LOOK_DOWN,           ' ',     KEYBOARD);
 										    
-	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETLEFT,                  rsPADLEFT,  KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETLEFT,                  ' ',  KEYBOARD);
 
-	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETRIGHT,                 rsPAD5,     KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETRIGHT,                 ' ',     KEYBOARD);
 										    
-	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETUP,                    rsPADPGUP,  KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETUP,                    ' ',  KEYBOARD);
 
-	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETDOWN,                  rsPADRIGHT, KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETDOWN,                  ' ', KEYBOARD);
 										    
-	SetControllerKeyAssociatedWithAction    (CAMERA_CHANGE_VIEW_ALL_SITUATIONS,   rsHOME,     KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (CAMERA_CHANGE_VIEW_ALL_SITUATIONS,   rsPADUP,     KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (CAMERA_CHANGE_VIEW_ALL_SITUATIONS,   'C',        OPTIONAL_EXTRA);
 
 	for (int32 i = 0; i < MAX_SIMS; i++)
@@ -2026,349 +2026,664 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 	return NULL;
 }
 
-wchar *CControllerConfigManager::GetControllerSettingTextKeyBoard(e_ControllerAction action, eControllerType type)
-{
-	static wchar ActionText[50];
-	static wchar NewStringWithNumber[30];
 
-	for (int32 i = 0; i < ARRAY_SIZE(ActionText); i++)
-		ActionText[i] = '\0';
-
-	if (GetControllerKeyAssociatedWithAction(action, type) != rsNULL)
+#ifdef RW_DC
+	wchar *CControllerConfigManager::GetControllerSettingTextKeyBoard(e_ControllerAction action, eControllerType type)
 	{
-		if (   GetControllerKeyAssociatedWithAction(action, type) >= 0
-			&& GetControllerKeyAssociatedWithAction(action, type) <= 255)
+		// The Hints Messages use GetControllerSettingTextKeyBoard to get the Action Key associated for each Action
+		// As we manualy set them for CONTROL_CLASSIC and CONTROL_STANDARD we don't need to take into account a reassignment by the player
+		// [!] Please note that for the moment it's the same Layout for both CONTROL_CLASSIC and CONTROL_STANDARD
+		// CONTROL_STANDARD : more like GTA 3 on Original Xbox
+		// CONTROL_CLASSIC : more like GTA: Liberty City Stories on PlayStation Portable
+
+		//static wchar ActionText[50];
+		static wchar ActionText[24];
+		for (int32 i = 0; i < ARRAY_SIZE(ActionText); i++)
+			ActionText[i] = '\0';
+
+		const int iLimitCopy = ARRAY_SIZE(ActionText)-1;
+
+		static const char* Dreamcast_A = "A";
+		static const char* Dreamcast_B = "B";
+		static const char* Dreamcast_X = "X";
+		static const char* Dreamcast_Y = "Y";
+		static const char* Dreamcast_LeftTrigger = "Left Trigger";
+		static const char* Dreamcast_RightTrigger = "Right Trigger";
+		static const char* Dreamcast_Start = "Start";
+		static const char* Dreamcast_DPad_Up = "D-Pad Up";
+		static const char* Dreamcast_DPad_Down = "D-Pad Down";
+		static const char* Dreamcast_DPad_Left = "D-Pad Left";
+		static const char* Dreamcast_DPad_Right = "D-Pad Right";
+		static const char* Dreamcast_LefAnalog_Up = "Joystick Up";
+		static const char* Dreamcast_LefAnalog_Down = "Joystick Down";
+		static const char* Dreamcast_LefAnalog_Left = "Joystick Left";
+		static const char* Dreamcast_LefAnalog_Right = "Joystick Right";
+		static const char* Dreamcast_NotAssigned = "Not Assigned";
+
+		if (CMenuManager::m_ControlMethod == CONTROL_CLASSIC) // CONTROL_CLASSIC
 		{
-			char c = GetControllerKeyAssociatedWithAction(action, type);
-			if (c == ' ')
-				return TheText.Get("FEC_SPC"); // "SPC"
+			switch (action)
+			{
+				case VEHICLE_LOOKLEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_LOOKRIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_HORN:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_HANDBRAKE:
+					for (int i = 0; (ActionText[i] = Dreamcast_B[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_ENTER_EXIT:
+					for (int i = 0; (ActionText[i] = Dreamcast_Y[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_ACCELERATE:
+					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_CHANGE_RADIO_STATION:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_BRAKE:
+					for (int i = 0; (ActionText[i] = Dreamcast_LeftTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TOGGLE_SUBMISSIONS:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_FORWARD:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Up[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_BACK:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_FIREWEAPON:
+					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_FIREWEAPON:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_WEAPON_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_WEAPON_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_LOCK_TARGET:
+					for (int i = 0; (ActionText[i] = Dreamcast_LeftTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_JUMPING:
+					for (int i = 0; (ActionText[i] = Dreamcast_X[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SPRINT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_TARGET_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_TARGET_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CENTER_CAMERA_BEHIND_PLAYER:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SNIPER_ZOOM_IN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SNIPER_ZOOM_OUT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_UP:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_DOWN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETLEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETRIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETUP:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETDOWN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case CAMERA_CHANGE_VIEW_ALL_SITUATIONS:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Up[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case NETWORK_TALK: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case _CONTROLLERACTION_36: // What is that???
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TOGGLE_DPAD: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case SWITCH_DEBUG_CAM_ON: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TAKE_SCREEN_SHOT: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case SHOW_MOUSE_POINTER_TOGGLE: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case MAX_CONTROLLERACTIONS: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				default:
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+			}
+		}
+		else // CONTROL_STANDARD
+		{
+			switch (action)
+			{
+				case VEHICLE_LOOKLEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_LOOKRIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_HORN:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_HANDBRAKE:
+					for (int i = 0; (ActionText[i] = Dreamcast_B[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_ENTER_EXIT:
+					for (int i = 0; (ActionText[i] = Dreamcast_Y[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_ACCELERATE:
+					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_CHANGE_RADIO_STATION:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_BRAKE:
+					for (int i = 0; (ActionText[i] = Dreamcast_LeftTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TOGGLE_SUBMISSIONS:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_FORWARD:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Up[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_BACK:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_FIREWEAPON:
+					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_FIREWEAPON:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_WEAPON_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_WEAPON_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_LOCK_TARGET:
+					for (int i = 0; (ActionText[i] = Dreamcast_LeftTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_JUMPING:
+					for (int i = 0; (ActionText[i] = Dreamcast_X[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SPRINT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_TARGET_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_TARGET_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CENTER_CAMERA_BEHIND_PLAYER:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SNIPER_ZOOM_IN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SNIPER_ZOOM_OUT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_UP:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_DOWN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETLEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETRIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETUP:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETDOWN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case CAMERA_CHANGE_VIEW_ALL_SITUATIONS:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Up[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case NETWORK_TALK: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case _CONTROLLERACTION_36: // What is that???
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TOGGLE_DPAD: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case SWITCH_DEBUG_CAM_ON: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TAKE_SCREEN_SHOT: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case SHOW_MOUSE_POINTER_TOGGLE: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case MAX_CONTROLLERACTIONS: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				default:
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+			}
+		}
+
+		return ActionText;
+	}
+#else // not RW_DC
+	wchar *CControllerConfigManager::GetControllerSettingTextKeyBoard(e_ControllerAction action, eControllerType type)
+	{
+		static wchar ActionText[50];
+		static wchar NewStringWithNumber[30];
+
+		for (int32 i = 0; i < ARRAY_SIZE(ActionText); i++)
+			ActionText[i] = '\0';
+
+		if (GetControllerKeyAssociatedWithAction(action, type) != rsNULL)
+		{
+			if (   GetControllerKeyAssociatedWithAction(action, type) >= 0
+				&& GetControllerKeyAssociatedWithAction(action, type) <= 255)
+			{
+				char c = GetControllerKeyAssociatedWithAction(action, type);
+				if (c == ' ')
+					return TheText.Get("FEC_SPC"); // "SPC"
+				else
+				{
+					ActionText[0] = CFont::character_code(c);
+					if (ActionText[0] == '\0')
+						ActionText[0] = CFont::character_code('#');
+					ActionText[1] = '\0';
+					return ActionText;
+				}
+			}
 			else
 			{
-				ActionText[0] = CFont::character_code(c);
-				if (ActionText[0] == '\0')
-					ActionText[0] = CFont::character_code('#');
-				ActionText[1] = '\0';
-				return ActionText;
+				switch (GetControllerKeyAssociatedWithAction(action, type))
+				{
+					case rsF1:
+					case rsF2:
+					case rsF3:
+					case rsF4:
+					case rsF5:
+					case rsF6:
+					case rsF7:
+					case rsF8:
+					case rsF9:
+					case rsF10:
+					case rsF11:
+					case rsF12:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_FNC"), // "F~1~"
+							GetControllerKeyAssociatedWithAction(action, type) - rsESC,
+							-1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsINS:
+					{
+						return TheText.Get("FEC_IRT"); // "INS"
+						break;
+					}
+
+					case rsDEL:
+					{
+						return TheText.Get("FEC_DLL"); // "DEL"
+						break;
+					}
+
+					case rsHOME:
+					{
+						return TheText.Get("FEC_HME"); // "HOME"
+						break;
+					}
+
+					case rsEND:
+					{
+						return TheText.Get("FEC_END"); // "END"
+						break;
+					}
+
+					case rsPGUP:
+					{
+						return TheText.Get("FEC_PGU"); // "PGUP"
+						break;
+					}
+
+					case rsPGDN:
+					{
+						return TheText.Get("FEC_PGD"); // "PGDN"
+						break;
+					}
+
+					case rsUP:
+					{
+						return TheText.Get("FEC_UPA"); // "UP"
+						break;
+					}
+
+					case rsDOWN:
+					{
+						return TheText.Get("FEC_DWA"); // "DOWN"
+						break;
+					}
+
+					case rsLEFT:
+					{
+						return TheText.Get("FEC_LFA"); // "LEFT"
+						break;
+					}
+
+					case rsRIGHT:
+					{
+						return TheText.Get("FEC_RFA"); // "RIGHT"
+						break;
+					}
+
+					case rsDIVIDE:
+					{
+						return TheText.Get("FEC_FWS"); // "NUM /"
+						break;
+					}
+
+					case rsTIMES:
+					{
+						return TheText.Get("FEC_STR"); // "NUM STAR"
+						break;
+					}
+
+					case rsPLUS:
+					{
+						return TheText.Get("FEC_PLS"); // "NUM +"
+						break;
+					}
+
+					case rsMINUS:
+					{
+						return TheText.Get("FEC_MIN"); // "NUM -"
+						break;
+					}
+
+					case rsPADDEL:
+					{
+						return TheText.Get("FEC_DOT"); // "NUM ."
+						break;
+					}
+
+					case rsPADEND:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							1, -1, -1, -1, -1, -1, NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPADDOWN:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							2, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPADPGDN:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							3, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPADLEFT:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							4, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPAD5:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							5, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsNUMLOCK:
+					{
+						return TheText.Get("FEC_NLK"); // "NUMLOCK"
+						break;
+					}
+
+					case rsPADRIGHT:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							6, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPADHOME:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							7, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPADUP:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							8, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPADPGUP:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							9, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPADINS:
+					{
+						CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
+							0, -1, -1, -1, -1, -1,
+							NewStringWithNumber);
+						return NewStringWithNumber;
+						break;
+					}
+
+					case rsPADENTER:
+					{
+						return TheText.Get("FEC_ETR"); // "ENT"
+						break;
+					}
+
+					case rsSCROLL:
+					{
+						return TheText.Get("FEC_SLK"); // "SCROLL LOCK"
+						break;
+					}
+
+					case rsPAUSE:
+					{
+						return TheText.Get("FEC_PSB"); // "BREAK"
+						break;
+					}
+
+					case rsBACKSP:
+					{
+						return TheText.Get("FEC_BSP"); // "BSPACE"
+						break;
+					}
+
+					case rsTAB:
+					{
+						return TheText.Get("FEC_TAB"); // "TAB"
+						break;
+					}
+
+					case rsCAPSLK:
+					{
+						return TheText.Get("FEC_CLK"); // "CAPSLOCK"
+						break;
+					}
+
+					case rsENTER:
+					{
+						return TheText.Get("FEC_RTN"); // "RET"
+						break;
+					}
+
+					case rsLSHIFT:
+					{
+						return TheText.Get("FEC_LSF"); // "LSHIFT"
+						break;
+					}
+
+					case rsRSHIFT:
+					{
+						return TheText.Get("FEC_RSF"); // "RSHIFT"
+						break;
+					}
+
+					case rsLCTRL:
+					{
+						return TheText.Get("FEC_LCT"); // "LCTRL"
+						break;
+					}
+
+					case rsRCTRL:
+					{
+						return TheText.Get("FEC_RCT"); // "RCTRL"
+						break;
+					}
+
+					case rsLALT:
+					{
+						return TheText.Get("FEC_LAL"); // "LALT"
+						break;
+					}
+
+					case rsRALT:
+					{
+						return TheText.Get("FEC_RAL"); // "RALT"
+						break;
+					}
+
+					case rsLWIN:
+					{
+						return TheText.Get("FEC_LWD"); // "LWIN"
+						break;
+					}
+
+					case rsRWIN:
+					{
+						return TheText.Get("FEC_RWD"); // "RWIN"
+						break;
+					}
+
+					case rsAPPS:
+					{
+						return TheText.Get("FEC_WRC"); // "WINCLICK"
+						break;
+					}
+
+					case rsSHIFT:
+					{
+						return TheText.Get("FEC_SFT"); // "SHIFT"
+						break;
+					}
+					default: break;
+				}
 			}
 		}
-		else
-		{
-			switch (GetControllerKeyAssociatedWithAction(action, type))
-			{
-				case rsF1:
-				case rsF2:
-				case rsF3:
-				case rsF4:
-				case rsF5:
-				case rsF6:
-				case rsF7:
-				case rsF8:
-				case rsF9:
-				case rsF10:
-				case rsF11:
-				case rsF12:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_FNC"), // "F~1~"
-						GetControllerKeyAssociatedWithAction(action, type) - rsESC,
-						-1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
 
-				case rsINS:
-				{
-					return TheText.Get("FEC_IRT"); // "INS"
-					break;
-				}
-
-				case rsDEL:
-				{
-					return TheText.Get("FEC_DLL"); // "DEL"
-					break;
-				}
-
-				case rsHOME:
-				{
-					return TheText.Get("FEC_HME"); // "HOME"
-					break;
-				}
-
-				case rsEND:
-				{
-					return TheText.Get("FEC_END"); // "END"
-					break;
-				}
-
-				case rsPGUP:
-				{
-					return TheText.Get("FEC_PGU"); // "PGUP"
-					break;
-				}
-
-				case rsPGDN:
-				{
-					return TheText.Get("FEC_PGD"); // "PGDN"
-					break;
-				}
-
-				case rsUP:
-				{
-					return TheText.Get("FEC_UPA"); // "UP"
-					break;
-				}
-
-				case rsDOWN:
-				{
-					return TheText.Get("FEC_DWA"); // "DOWN"
-					break;
-				}
-
-				case rsLEFT:
-				{
-					return TheText.Get("FEC_LFA"); // "LEFT"
-					break;
-				}
-
-				case rsRIGHT:
-				{
-					return TheText.Get("FEC_RFA"); // "RIGHT"
-					break;
-				}
-
-				case rsDIVIDE:
-				{
-					return TheText.Get("FEC_FWS"); // "NUM /"
-					break;
-				}
-
-				case rsTIMES:
-				{
-					return TheText.Get("FEC_STR"); // "NUM STAR"
-					break;
-				}
-
-				case rsPLUS:
-				{
-					return TheText.Get("FEC_PLS"); // "NUM +"
-					break;
-				}
-
-				case rsMINUS:
-				{
-					return TheText.Get("FEC_MIN"); // "NUM -"
-					break;
-				}
-
-				case rsPADDEL:
-				{
-					return TheText.Get("FEC_DOT"); // "NUM ."
-					break;
-				}
-
-				case rsPADEND:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						1, -1, -1, -1, -1, -1, NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPADDOWN:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						2, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPADPGDN:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						3, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPADLEFT:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						4, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPAD5:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						5, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsNUMLOCK:
-				{
-					return TheText.Get("FEC_NLK"); // "NUMLOCK"
-					break;
-				}
-
-				case rsPADRIGHT:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						6, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPADHOME:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						7, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPADUP:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						8, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPADPGUP:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						9, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPADINS:
-				{
-					CMessages::InsertNumberInString(TheText.Get("FEC_NMN"), // "NUM~1~"
-						0, -1, -1, -1, -1, -1,
-						NewStringWithNumber);
-					return NewStringWithNumber;
-					break;
-				}
-
-				case rsPADENTER:
-				{
-					return TheText.Get("FEC_ETR"); // "ENT"
-					break;
-				}
-
-				case rsSCROLL:
-				{
-					return TheText.Get("FEC_SLK"); // "SCROLL LOCK"
-					break;
-				}
-
-				case rsPAUSE:
-				{
-					return TheText.Get("FEC_PSB"); // "BREAK"
-					break;
-				}
-
-				case rsBACKSP:
-				{
-					return TheText.Get("FEC_BSP"); // "BSPACE"
-					break;
-				}
-
-				case rsTAB:
-				{
-					return TheText.Get("FEC_TAB"); // "TAB"
-					break;
-				}
-
-				case rsCAPSLK:
-				{
-					return TheText.Get("FEC_CLK"); // "CAPSLOCK"
-					break;
-				}
-
-				case rsENTER:
-				{
-					return TheText.Get("FEC_RTN"); // "RET"
-					break;
-				}
-
-				case rsLSHIFT:
-				{
-					return TheText.Get("FEC_LSF"); // "LSHIFT"
-					break;
-				}
-
-				case rsRSHIFT:
-				{
-					return TheText.Get("FEC_RSF"); // "RSHIFT"
-					break;
-				}
-
-				case rsLCTRL:
-				{
-					return TheText.Get("FEC_LCT"); // "LCTRL"
-					break;
-				}
-
-				case rsRCTRL:
-				{
-					return TheText.Get("FEC_RCT"); // "RCTRL"
-					break;
-				}
-
-				case rsLALT:
-				{
-					return TheText.Get("FEC_LAL"); // "LALT"
-					break;
-				}
-
-				case rsRALT:
-				{
-					return TheText.Get("FEC_RAL"); // "RALT"
-					break;
-				}
-
-				case rsLWIN:
-				{
-					return TheText.Get("FEC_LWD"); // "LWIN"
-					break;
-				}
-
-				case rsRWIN:
-				{
-					return TheText.Get("FEC_RWD"); // "RWIN"
-					break;
-				}
-
-				case rsAPPS:
-				{
-					return TheText.Get("FEC_WRC"); // "WINCLICK"
-					break;
-				}
-
-				case rsSHIFT:
-				{
-					return TheText.Get("FEC_SFT"); // "SHIFT"
-					break;
-				}
-				default: break;
-			}
-		}
+		return NULL;
 	}
-
-	return NULL;
-}
+#endif // endif RW_DC
 
 wchar *CControllerConfigManager::GetControllerSettingTextMouse(e_ControllerAction action)
 {
@@ -2417,12 +2732,15 @@ wchar *CControllerConfigManager::GetControllerSettingTextJoystick(e_ControllerAc
 
 int32 CControllerConfigManager::GetNumOfSettingsForAction(e_ControllerAction action)
 {
-	int32 num = 0;
-
-	if (m_aSettings[action][KEYBOARD].m_Key       != rsNULL) num++;
-	if (m_aSettings[action][OPTIONAL_EXTRA].m_Key != rsNULL) num++;
-	if (m_aSettings[action][MOUSE].m_Key          != 0)      num++;
-	if (m_aSettings[action][JOYSTICK].m_Key       != 0)      num++;
+	#ifdef RW_DC
+		int32 num = 0; // No need to show alternative control in the Hint Messages for an action on Dreamcast (just like PS2 and Xbox)
+	#else
+		int32 num = 0;
+		if (m_aSettings[action][KEYBOARD].m_Key       != rsNULL) num++;
+		if (m_aSettings[action][OPTIONAL_EXTRA].m_Key != rsNULL) num++;
+		if (m_aSettings[action][MOUSE].m_Key          != 0)      num++;
+		if (m_aSettings[action][JOYSTICK].m_Key       != 0)      num++;
+	#endif
 
 	return num;
 }

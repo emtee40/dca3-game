@@ -218,7 +218,9 @@ CAutomobile::SetModelIndex(uint32 id)
 CVector vecDAMAGE_ENGINE_POS_SMALL(-0.1f, -0.1f, 0.0f);
 CVector vecDAMAGE_ENGINE_POS_BIG(-0.5f, -0.3f, 0.0f);
 
+#ifndef RW_DC
 #pragma optimize("", off) // that's what R* did
+#endif
 
 void
 CAutomobile::ProcessControl(void)
@@ -1222,7 +1224,9 @@ CAutomobile::ProcessControl(void)
 	}
 }
 
+#ifndef RW_DC
 #pragma optimize("", on)
+#endif
 
 void
 CAutomobile::Teleport(CVector pos)

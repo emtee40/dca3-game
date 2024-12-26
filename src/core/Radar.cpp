@@ -916,6 +916,13 @@ void CRadar::DrawRadarSection(int32 x, int32 y)
 	}
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwTextureGetRaster(texture));
 	CSprite2d::SetVertices(numVertices, (float*)screenPoly, (float*)texCoords, CRGBA(255, 255, 255, 255));
+	
+	// Make the depth slightly less than the mask
+	// Not sure how this worked in the original code tbh
+	auto vtx = CSprite2d::GetVertices();
+	for (i = 0; i < numVertices; i++) {
+		vtx[i].w *= 5;
+	}
 	// check done above now
 //	if(numVertices > 2)
 	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, CSprite2d::GetVertices(), numVertices);
@@ -1113,6 +1120,23 @@ CRadar::LoadTextures()
 
 		RwRaster *raster = RwRasterCreate(16, 16, 0, rwRASTERTYPETEXTURE | rwRASTERFORMAT8888);
 
+		#if defined(RW_DC)
+		RwUInt16 *pixels = (RwUInt16 *)RwRasterLock(raster, 0, rwRASTERLOCKWRITE);
+		for(int x = 0; x < 16; x++)
+			for(int y = 0; y < 16; y++)
+			{
+				int x2 = x < 8 ? x : 7 - (x & 7);
+				int y2 = y < 8 ? y : 7 - (y & 7);
+				if ((y2 >= 4 && x2 >= 4) // square in the center is transparent
+					|| (x2 < 2 && y2 == 0) // two pixels on each side of first/last line are transparent
+					|| (x2 < 1 && y2 == 1)) // one pixel on each side of second to first/last line is transparent
+					pixels[x + y * 16] = 0;
+				else if((x2 == 2 && y2 >= 2)|| (y2 == 2 && x2 >= 2) )// colored square inside
+					pixels[x + y * 16] = (WAYPOINT_B>>4) | ((WAYPOINT_G>>4) << 4) | ((WAYPOINT_R>>4) << 8) | (15 << 12);
+				else
+					pixels[x + y * 16] = 0xF000; // black
+			}
+		#else
 		RwUInt32 *pixels = (RwUInt32 *)RwRasterLock(raster, 0, rwRASTERLOCKWRITE);
 		for(int x = 0; x < 16; x++)
 			for(int y = 0; y < 16; y++)
@@ -1132,6 +1156,7 @@ CRadar::LoadTextures()
 				else
 					pixels[x + y * 16] = 0xFF000000; // black
 			}
+		#endif
 		RwRasterUnlock(raster);
 		WaypointSprite.m_pTexture = RwTextureCreate(raster);
 		RwTextureSetFilterMode(WaypointSprite.m_pTexture, rwFILTERLINEAR);
@@ -1185,7 +1210,7 @@ void CRadar::SetBlipSprite(int32 i, int32 icon)
 	}
 }
 
-int CRadar::SetCoordBlip(eBlipType type, CVector pos, int32 color, eBlipDisplay display)
+int32 CRadar::SetCoordBlip(eBlipType type, CVector pos, int32 color, eBlipDisplay display)
 {
 	int nextBlip;
 	for (nextBlip = 0; nextBlip < NUMRADARBLIPS; nextBlip++) {
@@ -1210,7 +1235,7 @@ int CRadar::SetCoordBlip(eBlipType type, CVector pos, int32 color, eBlipDisplay 
 	return CRadar::GetNewUniqueBlipIndex(nextBlip);
 }
 
-int CRadar::SetEntityBlip(eBlipType type, int32 handle, int32 color, eBlipDisplay display)
+int32 CRadar::SetEntityBlip(eBlipType type, int32 handle, int32 color, eBlipDisplay display)
 {
 	int nextBlip;
 	for (nextBlip = 0; nextBlip < NUMRADARBLIPS; nextBlip++) {

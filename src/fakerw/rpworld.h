@@ -251,7 +251,7 @@ RwInt32 RpClumpGetNumLights(RpClump * clump);
 RwInt32 RpClumpGetNumCameras(RpClump * clump);
 RwUInt32 RpClumpStreamGetSize(RpClump * clump);
 RpClump *RpClumpStreamRead(RwStream * stream);
-RpClump *RpClumpStreamWrite(RpClump * clump, RwStream * stream);
+RwBool RpClumpStreamWrite(RpClump * clump, RwStream * stream);
 RwInt32 RpClumpRegisterPlugin(RwInt32 size, RwUInt32 pluginID, RwPluginObjectConstructor constructCB, RwPluginObjectDestructor destructCB, RwPluginObjectCopy copyCB);
 RwInt32 RpClumpRegisterPluginStream(RwUInt32 pluginID, RwPluginDataChunkReadCallBack  readCB, RwPluginDataChunkWriteCallBack writeCB, RwPluginDataChunkGetSizeCallBack getSizeCB);
 RwInt32 RpClumpSetStreamAlwaysCallBack(RwUInt32 pluginID, RwPluginDataChunkAlwaysCallBack alwaysCB);

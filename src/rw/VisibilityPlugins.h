@@ -98,10 +98,10 @@ public:
 	static int GetAtomicId(RpAtomic *atomic);
 	static void SetAtomicRenderCallback(RpAtomic*, RpAtomicCallBackRender);
 
-	static void *AtomicConstructor(void *object, int32 offset, int32 len);
-	static void *AtomicDestructor(void *object, int32 offset, int32 len);
+	static void *AtomicConstructor(void *object, RwInt32 offset, RwInt32 len);
+	static void *AtomicDestructor(void *object, RwInt32 offset, RwInt32 len);
 	static void *AtomicCopyConstructor(void *dst, const void *src,
-	                                   int32 offset, int32 len);
+	                                   RwInt32 offset, RwInt32 len);
 	static int32 ms_atomicPluginOffset;
 
 	struct FrameExt
@@ -112,10 +112,10 @@ public:
 	static void SetFrameHierarchyId(RwFrame *frame, intptr id);
 	static intptr GetFrameHierarchyId(RwFrame *frame);
 
-	static void *FrameConstructor(void *object, int32 offset, int32 len);
-	static void *FrameDestructor(void *object, int32 offset, int32 len);
+	static void *FrameConstructor(void *object, RwInt32 offset, RwInt32 len);
+	static void *FrameDestructor(void *object, RwInt32 offset, RwInt32 len);
 	static void *FrameCopyConstructor(void *dst, const void *src,
-	                                  int32 offset, int32 len);
+	                                  RwInt32 offset, RwInt32 len);
 	static int32 ms_framePluginOffset;
 
 	struct ClumpExt
@@ -129,10 +129,10 @@ public:
 	static int GetClumpAlpha(RpClump*);
 	static bool IsClumpVisible(RpClump*);
 
-	static void *ClumpConstructor(void *object, int32 offset, int32 len);
-	static void *ClumpDestructor(void *object, int32 offset, int32 len);
+	static void *ClumpConstructor(void *object, RwInt32 offset, RwInt32 len);
+	static void *ClumpDestructor(void *object, RwInt32 offset, RwInt32 len);
 	static void *ClumpCopyConstructor(void *dst, const void *src,
-	                                  int32 offset, int32 len);
+	                                  RwInt32 offset, RwInt32 len);
 	static int32 ms_clumpPluginOffset;
 
 	static bool PluginAttach(void);

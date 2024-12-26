@@ -129,7 +129,7 @@ CClouds::Render(void)
 	CCoronas::SunBlockedByClouds = false;
 
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)FALSE);
-	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)FALSE);
+	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
 	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDONE);
 	RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDONE);
@@ -355,7 +355,7 @@ CClouds::RenderBackground(int16 topred, int16 topgreen, int16 topblue,
 		}
 		ms_colourBottom = ms_colourTop;
 		CRect r(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		CSprite2d::DrawRect(r, ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop);
+		CSprite2d::DrawRect(r, ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop, true);
 	}else{
 		ms_horizonZ = CSprite::CalcHorizonCoors();
 
@@ -392,7 +392,7 @@ CClouds::RenderBackground(int16 topred, int16 topgreen, int16 topblue,
 				toppos = 0.0f;
 			}
 			CSprite2d::DrawRect(CRect(0, toppos, SCREEN_WIDTH, botpos),
-				ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop);
+				ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop, true);
 		}
 
 		// draw the small stripe (whatever it's supposed to be)
@@ -402,7 +402,7 @@ CClouds::RenderBackground(int16 topred, int16 topgreen, int16 topblue,
 			ms_colourTop.g = (topgreen + 2 * botgreen) / 3;
 			ms_colourTop.b = (topblue + 2 * botblue) / 3;
 			CSprite2d::DrawRect(CRect(0, ms_horizonZ, SCREEN_WIDTH, ms_horizonZ+SMALLSTRIPHEIGHT),
-				ms_colourTop, ms_colourTop, ms_colourTop, ms_colourTop);
+				ms_colourTop, ms_colourTop, ms_colourTop, ms_colourTop, true);
 		}
 
 		// Only top
@@ -418,7 +418,7 @@ CClouds::RenderBackground(int16 topred, int16 topgreen, int16 topblue,
 
 			botpos = Min(SCREEN_HEIGHT, topedge);
 			CSprite2d::DrawRect(CRect(0, 0, SCREEN_WIDTH, botpos),
-				ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop);
+				ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop, true);
 		}
 
 		// Set both to fog colour for RenderHorizon
@@ -449,7 +449,7 @@ CClouds::RenderHorizon(void)
 
 	float z1 = Min(ms_horizonZ + SMALLSTRIPHEIGHT, SCREEN_HEIGHT);
 	CSprite2d::DrawRectXLU(CRect(0, ms_horizonZ, SCREEN_WIDTH, z1),
-		ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop);
+		ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop, true);
 
 	// This is just weird
 	float a = SCREEN_HEIGHT/400.0f * HORIZSTRIPHEIGHT +
@@ -460,7 +460,7 @@ CClouds::RenderHorizon(void)
 	float z2 = z1 + (a + b)*TheCamera.LODDistMultiplier;
 	z2 = Min(z2, SCREEN_HEIGHT);
 	CSprite2d::DrawRect(CRect(0, z1, SCREEN_WIDTH, z2),
-		ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop);
+		ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop, true);
 
 	POP_RENDERGROUP();
 }

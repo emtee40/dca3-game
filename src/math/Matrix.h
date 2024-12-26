@@ -5,8 +5,8 @@ class CMatrix
 public:
 	union
 	{
-		float f[4][4];
-		struct
+		alignas(8) float f[4][4];
+		struct alignas(8)
 		{
 			float rx, ry, rz, rw;
 			float fx, fy, fz, fw;

@@ -85,6 +85,10 @@ int32 islandLODcomSub;
 int32 islandLODsubInd;
 int32 islandLODsubCom;
 
+#define memory_logf(...) // printf(__VA_ARGS__)
+
+#define STREAMING_MEM_SIZE (4 * 1024 * 1024)
+
 bool
 CStreamingInfo::GetCdPosnAndSize(uint32 &posn, uint32 &size)
 {
@@ -203,11 +207,11 @@ CStreaming::Init2(void)
 	// allocate streaming buffers
 	if(ms_streamingBufferSize & 1) ms_streamingBufferSize++;
 #ifndef ONE_THREAD_PER_CHANNEL
-	ms_pStreamingBuffer[0] = (int8*)RwMallocAlign(ms_streamingBufferSize*CDSTREAM_SECTOR_SIZE, CDSTREAM_SECTOR_SIZE);
+	ms_pStreamingBuffer[0] = (int8*)RwMallocAlign(ms_streamingBufferSize*CDSTREAM_SECTOR_SIZE, 32);
 	ms_streamingBufferSize /= 2;
 	ms_pStreamingBuffer[1] = ms_pStreamingBuffer[0] + ms_streamingBufferSize*CDSTREAM_SECTOR_SIZE;
 #else
-	ms_pStreamingBuffer[0] = (int8*)RwMallocAlign(ms_streamingBufferSize*2*CDSTREAM_SECTOR_SIZE, CDSTREAM_SECTOR_SIZE);
+	ms_pStreamingBuffer[0] = (int8*)RwMallocAlign(ms_streamingBufferSize*2*CDSTREAM_SECTOR_SIZE, 32);
 	ms_streamingBufferSize /= 2;
 	ms_pStreamingBuffer[1] = ms_pStreamingBuffer[0] + ms_streamingBufferSize*CDSTREAM_SECTOR_SIZE;
 	ms_pStreamingBuffer[2] = ms_pStreamingBuffer[1] + ms_streamingBufferSize*CDSTREAM_SECTOR_SIZE;
@@ -217,17 +221,11 @@ CStreaming::Init2(void)
 
 	// PC only, figure out how much memory we got
 #ifdef GTA_PC
-#define MB (1024*1024)
-
-	extern size_t _dwMemAvailPhys;
-	ms_memoryAvailable = (_dwMemAvailPhys - 10*MB)/2;
-	if(ms_memoryAvailable < 50*MB)
-		ms_memoryAvailable = 50*MB;
-	desiredNumVehiclesLoaded = (int32)((ms_memoryAvailable / MB - 50) / 3 + 12);
+	ms_memoryAvailable = STREAMING_MEM_SIZE;
+	desiredNumVehiclesLoaded = 12; //(int32)((ms_memoryAvailable / MB /*- 50*/) / 3 + 12);
 	if(desiredNumVehiclesLoaded > MAXVEHICLESLOADED)
 		desiredNumVehiclesLoaded = MAXVEHICLESLOADED;
-	debug("Memory allocated to Streaming is %zuMB", ms_memoryAvailable/MB); // original modifier was %d
-#undef MB
+	debug("Memory allocated to Streaming is %.2fMB", ms_memoryAvailable/1024.f/1024.f);
 #endif
 
 	// find island LODs
@@ -372,17 +370,9 @@ CStreaming::LoadCdDirectory(void)
 
 #ifdef GTA_PC
 	ms_imageOffsets[0] = 0;
-	ms_imageOffsets[1] = -1;
-	ms_imageOffsets[2] = -1;
-	ms_imageOffsets[3] = -1;
-	ms_imageOffsets[4] = -1;
-	ms_imageOffsets[5] = -1;
-	ms_imageOffsets[6] = -1;
-	ms_imageOffsets[7] = -1;
-	ms_imageOffsets[8] = -1;
-	ms_imageOffsets[9] = -1;
-	ms_imageOffsets[10] = -1;
-	ms_imageOffsets[11] = -1;
+	for(i = 1; i < NUMCDIMAGES; ++i) {
+		ms_imageOffsets[i] = -1;
+	}
 	ms_imageSize = GetGTA3ImgSize();
 	// PS2 uses CFileMgr::GetCdFile on all IMG files to fill the array
 #endif
@@ -390,7 +380,7 @@ CStreaming::LoadCdDirectory(void)
 	i = CdStreamGetNumImages();
 	while(i-- >= 1){
 		strcpy(dirname, CdStreamGetImageName(i));
-		strncpy(strrchr(dirname, '.') + 1, "DIR", 3);
+		strncpy(strrchr(dirname, '.') + 1, "DIR", 4);
 		LoadCdDirectory(dirname, i);
 	}
 
@@ -399,10 +389,10 @@ CStreaming::LoadCdDirectory(void)
 }
 
 void
-CStreaming::LoadCdDirectory(const char *dirname, int n)
+CStreaming::LoadCdDirectory(const char *dirname, int32 n)
 {
 	int fd, lastID, imgSelector;
-	int modelId, txdId;
+	int32 modelId, txdId;
 	uint32 posn, size;
 	CDirectory::DirectoryInfo direntry;
 	char *dot;
@@ -635,7 +625,11 @@ CStreaming::ConvertBufferToObject(int8 *buf, int32 streamId)
 	if(ms_aInfoForModel[streamId].m_loadState != STREAMSTATE_STARTED){
 		ms_aInfoForModel[streamId].m_loadState = STREAMSTATE_LOADED;
 #ifndef USE_CUSTOM_ALLOCATOR
-		ms_memoryUsed += ms_aInfoForModel[streamId].GetCdSize() * CDSTREAM_SECTOR_SIZE;
+		// Don't count textures here
+		if(streamId < STREAM_OFFSET_TXD) {
+			ms_memoryUsed += ms_aInfoForModel[streamId].GetCdSize() * CDSTREAM_SECTOR_SIZE;
+			memory_logf("ConvertBufferToObject: Memory used: %d\n", ms_memoryUsed);
+		}
 #endif
 	}
 
@@ -701,7 +695,11 @@ CStreaming::FinishLoadingLargeFile(int8 *buf, int32 streamId)
 
 	ms_aInfoForModel[streamId].m_loadState = STREAMSTATE_LOADED;	// only done if success on PS2
 #ifndef USE_CUSTOM_ALLOCATOR
-	ms_memoryUsed += ms_aInfoForModel[streamId].GetCdSize() * CDSTREAM_SECTOR_SIZE;
+	// Don't count textures here
+	if(streamId < STREAM_OFFSET_TXD) {
+		ms_memoryUsed += ms_aInfoForModel[streamId].GetCdSize() * CDSTREAM_SECTOR_SIZE;
+		memory_logf("FinishLoadingLargeFile: Memory used: %d\n", ms_memoryUsed);
+	}
 #endif
 
 	if(!success){
@@ -947,7 +945,10 @@ CStreaming::RemoveModel(int32 id)
 #ifdef USE_CUSTOM_ALLOCATOR
 		UpdateMemoryUsed();
 #else
-		ms_memoryUsed -= ms_aInfoForModel[id].GetCdSize()*CDSTREAM_SECTOR_SIZE;
+		if (id < STREAM_OFFSET_TXD) {
+			ms_memoryUsed -= ms_aInfoForModel[id].GetCdSize()*CDSTREAM_SECTOR_SIZE;
+			memory_logf("Remove Model: %d\n", ms_memoryUsed);
+		}
 #endif
 	}
 
@@ -1159,6 +1160,10 @@ found:
 	return true;
 }
 
+bool re3RemoveLeastUsedModel() {
+	return CStreaming::RemoveLeastUsedModel();
+}
+
 bool
 CStreaming::RemoveLeastUsedModel(void)
 {
@@ -1207,8 +1212,9 @@ CStreaming::RemoveReferencedTxds(size_t mem)
 	CStreamingInfo *si;
 	int streamId;
 
-	for(si = ms_endLoadedList.m_prev; si != &ms_startLoadedList; si = si->m_prev){
+	for(si = ms_endLoadedList.m_prev; si != &ms_startLoadedList; ){
 		streamId = si - ms_aInfoForModel;
+		si = si->m_prev;
 		if(streamId >= STREAM_OFFSET_TXD &&
 		   CTxdStore::GetNumRefs(streamId-STREAM_OFFSET_TXD) == 0){
 			RemoveModel(streamId);
@@ -1396,7 +1402,7 @@ CStreaming::LoadInitialPeds(void)
 void
 CStreaming::LoadInitialVehicles(void)
 {
-	int id;
+	int32 id;
 
 	ms_numVehiclesLoaded = 0;
 	ms_lastVehicleDeleted = 0;
@@ -1410,7 +1416,7 @@ CStreaming::LoadInitialVehicles(void)
 void
 CStreaming::StreamVehiclesAndPeds(void)
 {
-	int i, model;
+	int32 i, model;
 	static int timeBeforeNextLoad = 0;
 	static int modelQualityClass = 0;
 
@@ -2685,13 +2691,9 @@ void
 CStreaming::MakeSpaceFor(int32 size)
 {
 #ifdef FIX_BUGS
-#define MB (1024 * 1024)
 	if(ms_memoryAvailable == 0) {
-		extern size_t _dwMemAvailPhys;
-		ms_memoryAvailable = (_dwMemAvailPhys - 10 * MB) / 2;
-		if(ms_memoryAvailable < 50 * MB) ms_memoryAvailable = 50 * MB;
+		ms_memoryAvailable = STREAMING_MEM_SIZE;
 	}
-#undef MB
 #endif
 	while(ms_memoryUsed >= ms_memoryAvailable - size)
 		if(!RemoveLeastUsedModel()) {

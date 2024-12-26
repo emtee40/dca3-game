@@ -39,7 +39,7 @@ public:
 	static CStore<C2dEffect, TWODFXSIZE> &Get2dEffectStore(void) { return ms_2dEffectStore; }
 	static CStore<CInstance, MLOINSTANCESIZE> &GetMloInstanceStore(void) { return ms_mloInstanceStore; }
 
-	static CBaseModelInfo *GetModelInfo(const char *name, int *id);
+	static CBaseModelInfo *GetModelInfo(const char *name, int32 *id);
 	static CBaseModelInfo *GetModelInfo(int id){
 		return ms_modelInfoPtrs[id];
 	}

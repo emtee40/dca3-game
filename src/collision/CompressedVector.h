@@ -1,11 +1,11 @@
 #pragma once
-
+#include <cmath>
 struct CompressedVector
 {
 #ifdef COMPRESSED_COL_VECTORS
 	int16 x, y, z;
 	CVector Get(void) const { return CVector(x, y, z)/128.0f; };
-	void Set(float x, float y, float z) { this->x = x*128.0f; this->y = y*128.0f; this->z = z*128.0f; };
+	void Set(float x, float y, float z) { this->x = lroundf(x*128.0f); this->y = lroundf(y*128.0f); this->z = lroundf(z*128.0f); };
 #ifdef GTA_PS2
 	void Unpack(uint128 &qword) const {
 		__asm__ volatile (

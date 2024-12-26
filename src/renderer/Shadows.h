@@ -1,9 +1,16 @@
 #pragma once
 
-#define MAX_STOREDSHADOWS    48
-#define MAX_POLYBUNCHES      300
-#define MAX_STATICSHADOWS    64
-#define MAX_PERMAMENTSHADOWS 48
+#ifdef RW_DC
+	#define MAX_STOREDSHADOWS    12 // Frogbull (not Dirty) Hack ::: Default Value 48
+	#define MAX_POLYBUNCHES      300
+	#define MAX_STATICSHADOWS    16 // Frogbull (not Dirty) Hack ::: Default Value 64
+	#define MAX_PERMAMENTSHADOWS 12 // Frogbull (not Dirty) Hack ::: Default Value 48
+#else
+	#define MAX_STOREDSHADOWS    48
+	#define MAX_POLYBUNCHES      300
+	#define MAX_STATICSHADOWS    64
+	#define MAX_PERMAMENTSHADOWS 48
+#endif
 
 
 class CEntity;

@@ -34,6 +34,7 @@
 #include "Messages.h"
 #include "FileLoader.h"
 #include "frontendoption.h"
+#include "IniFile.h"
 
 // Game has colors inlined in code.
 // For easier modification we collect them here:
@@ -51,6 +52,8 @@ const CRGBA INACTIVE_RADIO_COLOR(225, 0, 0, 170);
 const CRGBA SCROLLBAR_COLOR = LABEL_COLOR;
 const CRGBA CONTSETUP_HIGHLIGHTBG_COLOR(SELECTEDMENUOPTION_COLOR.r, SELECTEDMENUOPTION_COLOR.g, SELECTEDMENUOPTION_COLOR.b, 210);
 const CRGBA CONTSETUP_DISABLED_HIGHLIGHTBG_COLOR(MENUOPTION_COLOR.r, MENUOPTION_COLOR.g, MENUOPTION_COLOR.b, 150);
+
+// #define DISABLE_DRAWDIST_SETTING
 
 // This is PS2 menu leftover, and variable name is original. They forgot it here and used in PrintBriefs once (but didn't use the output)
 #if defined(FIX_BUGS) && !defined(PS2_LIKE_MENU)
@@ -100,7 +103,9 @@ int GetOptionCount(int screen)
 #define SETUP_SCROLLING(screen)
 #endif
 
-#ifdef TRIANGLE_BACK_BUTTON
+//APARENTLY THIS DEFINES WHICH BUTTON WILL BE THE BACK BUTTON
+
+/*#ifdef TRIANGLE_BACK_BUTTON
 #define GetBackJustUp GetTriangleJustUp
 #define GetBackJustDown GetTriangleJustDown
 #elif defined(CIRCLE_BACK_BUTTON)
@@ -109,6 +114,11 @@ int GetOptionCount(int screen)
 #else
 #define GetBackJustUp GetSquareJustUp
 #define GetBackJustDown GetSquareJustDown
+#endif*/
+
+#ifdef RW_DC
+#define GetBackJustUp GetBJustUp
+#define GetBackJustDown GetBJustDown
 #endif
 
 #ifdef MENU_MAP
@@ -906,14 +916,16 @@ CMenuManager::CheckSliderMovement(int value)
 		m_PrefsBrightness += value * (512/MENUSLIDER_LOGICAL_BARS);
 		m_PrefsBrightness = Clamp(m_PrefsBrightness, 0, 511);
 		break;
+#ifndef DISABLE_DRAWDIST_SETTING
 	case MENUACTION_DRAWDIST:
 		if(value > 0)
-			m_PrefsLOD += ((1.8f - 0.8f) / MENUSLIDER_LOGICAL_BARS);
+			m_PrefsLOD += ((1.8f - 0.4f) / MENUSLIDER_LOGICAL_BARS);
 		else
-			m_PrefsLOD -= ((1.8f - 0.8f) / MENUSLIDER_LOGICAL_BARS);
-		m_PrefsLOD = Clamp(m_PrefsLOD, 0.8f, 1.8f);
+			m_PrefsLOD -= ((1.8f - 0.4f) / MENUSLIDER_LOGICAL_BARS);
+		m_PrefsLOD = Clamp(m_PrefsLOD, 0.4f, 1.8f);
 		CRenderer::ms_lodDistScale = m_PrefsLOD;
 		break;
+#endif
 	case MENUACTION_MUSICVOLUME:
 		m_PrefsMusicVolume += value * (128/MENUSLIDER_LOGICAL_BARS);
 		m_PrefsMusicVolume = Clamp(m_PrefsMusicVolume, 0, 127);
@@ -1474,7 +1486,7 @@ CMenuManager::Draw()
 				rightText = TheText.Get(m_PrefsFrameLimiter ? "FEM_ON" : "FEM_OFF");
 				break;
 			case MENUACTION_TRAILS:
-				rightText = TheText.Get(CMBlur::BlurOn ? "FEM_ON" : "FEM_OFF");
+				rightText = TheText.Get(CMBlur::BlurOn == 0 ? "FEM_OFF": CMBlur::BlurOn == 1 ? "FEM_V3" : "FEM_V1");
 				break;
 			case MENUACTION_SUBTITLES:
 				rightText = TheText.Get(m_PrefsShowSubtitles ? "FEM_ON" : "FEM_OFF");
@@ -1555,12 +1567,13 @@ CMenuManager::Draw()
 					rightText = TheText.Get("FEA_NAH");
 				else {
 					char *provider = DMAudio.Get3DProviderName(m_nPrefsAudio3DProviderIndex);
-
+#ifndef RW_DC
 					if (!strcmp(strupr(provider), "DIRECTSOUND3D HARDWARE SUPPORT")) {
 						strcpy(provider, "DSOUND3D HARDWARE SUPPORT");
 					} else if (!strcmp(strupr(provider), "DIRECTSOUND3D SOFTWARE EMULATION")) {
 						strcpy(provider, "DSOUND3D SOFTWARE EMULATION");
 					}
+#endif
 					AsciiToUnicode(provider, unicodeTemp);
 					rightText = unicodeTemp;
 				}
@@ -1806,9 +1819,11 @@ CMenuManager::Draw()
 				case MENUACTION_BRIGHTNESS:
 					ProcessSlider(m_PrefsBrightness / 512.0f, HOVEROPTION_INCREASE_BRIGHTNESS, HOVEROPTION_DECREASE_BRIGHTNESS, MENU_X_LEFT_ALIGNED(170.0f), SCREEN_WIDTH);
 					break;
+#ifndef DISABLE_DRAWDIST_SETTING
 				case MENUACTION_DRAWDIST:
-					ProcessSlider((m_PrefsLOD - 0.8f) * 1.0f, HOVEROPTION_INCREASE_DRAWDIST, HOVEROPTION_DECREASE_DRAWDIST, MENU_X_LEFT_ALIGNED(170.0f), SCREEN_WIDTH);
+					ProcessSlider((m_PrefsLOD - 0.4f) * 1.0f, HOVEROPTION_INCREASE_DRAWDIST, HOVEROPTION_DECREASE_DRAWDIST, MENU_X_LEFT_ALIGNED(170.0f), SCREEN_WIDTH);
 					break;
+#endif
 				case MENUACTION_MUSICVOLUME:
 					ProcessSlider(m_PrefsMusicVolume / 128.0f, HOVEROPTION_INCREASE_MUSICVOLUME, HOVEROPTION_DECREASE_MUSICVOLUME, MENU_X_LEFT_ALIGNED(170.0f), SCREEN_WIDTH);
 					break;
@@ -3125,15 +3140,15 @@ CMenuManager::DrawPlayerSetupScreen()
 			for (int k = 0; m_pSelectedSkin->skinNameOriginal[k] != '\0'; ++k) {
 #endif
 				if (!strncmp(&m_pSelectedSkin->skinNameDisplayed[k], "_", 1))
-					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], " ", 1);
+					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], " ", 2);
 				if (!strncmp(&m_pSelectedSkin->skinNameDisplayed[k], "@", 1))
-					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], " ", 1);
+					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], " ", 2);
 				if (!strncmp(&m_pSelectedSkin->skinNameDisplayed[k], "{", 1))
-					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], "(", 1);
+					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], "(", 2);
 				if (!strncmp(&m_pSelectedSkin->skinNameDisplayed[k], "}", 1))
-					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], ")", 1);
+					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], ")", 2);
 				if (!strncmp(&m_pSelectedSkin->skinNameDisplayed[k], "£", 1))
-					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], "$", 1);
+					strncpy(&m_pSelectedSkin->skinNameDisplayed[k], "$", 2);
 			}
 
 			// Make letters after whitespace uppercase
@@ -3800,7 +3815,9 @@ CMenuManager::LoadSettings()
 			CFileMgr::Read(fileHandle, (char*)&m_nPrefsAudio3DProviderIndex, 1);
 			CFileMgr::Read(fileHandle, (char*)&m_PrefsDMA, 1);
 			CFileMgr::Read(fileHandle, (char*)&m_PrefsBrightness, 1);
+#ifndef DISABLE_DRAWDIST_SETTING
 			CFileMgr::Read(fileHandle, (char*)&m_PrefsLOD, 4);
+#endif
 			CFileMgr::Read(fileHandle, (char*)&m_PrefsShowSubtitles, 1);
 			CFileMgr::Read(fileHandle, (char*)&m_PrefsUseWideScreen, 1);
 			CFileMgr::Read(fileHandle, (char*)&m_PrefsVsyncDisp, 1);
@@ -4522,6 +4539,7 @@ CMenuManager::ProcessButtonPresses(void)
 				}
 				SaveSettings();
 				break;
+#ifndef DISABLE_DRAWDIST_SETTING
 			case HOVEROPTION_INCREASE_DRAWDIST:
 				m_PrefsLOD = m_PrefsLOD + (1.0f / MENUSLIDER_LOGICAL_BARS);
 				m_PrefsLOD = min(1.8f, m_PrefsLOD);
@@ -4534,6 +4552,7 @@ CMenuManager::ProcessButtonPresses(void)
 				CRenderer::ms_lodDistScale = m_PrefsLOD;
 				SaveSettings();
 				break;
+#endif
 			case HOVEROPTION_INCREASE_MUSICVOLUME:
 				m_PrefsMusicVolume = m_PrefsMusicVolume + (128 / MENUSLIDER_LOGICAL_BARS);
 				m_PrefsMusicVolume = Clamp(m_PrefsMusicVolume, 0, 127);
@@ -4597,7 +4616,9 @@ CMenuManager::ProcessButtonPresses(void)
 #else
 			switch (m_nHoverOption) {
 				case HOVEROPTION_INCREASE_BRIGHTNESS:
+#ifndef DISABLE_DRAWDIST_SETTING				
 				case HOVEROPTION_INCREASE_DRAWDIST:
+#endif
 				case HOVEROPTION_INCREASE_MUSICVOLUME:
 				case HOVEROPTION_INCREASE_SFXVOLUME:
 				case HOVEROPTION_INCREASE_MOUSESENS:
@@ -4607,7 +4628,9 @@ CMenuManager::ProcessButtonPresses(void)
 					CheckSliderMovement(1);
 					break;
 				case HOVEROPTION_DECREASE_BRIGHTNESS:
+#ifndef DISABLE_DRAWDIST_SETTING				
 				case HOVEROPTION_DECREASE_DRAWDIST:
+#endif
 				case HOVEROPTION_DECREASE_MUSICVOLUME:
 				case HOVEROPTION_DECREASE_SFXVOLUME:
 				case HOVEROPTION_DECREASE_MOUSESENS:
@@ -4644,7 +4667,10 @@ CMenuManager::ProcessButtonPresses(void)
 			|| CPad::GetPad(0)->GetAnaloguePadLeftJustUp() || CPad::GetPad(0)->GetAnaloguePadRightJustUp()
 			|| CPad::GetPad(0)->GetMouseWheelUpJustDown() || CPad::GetPad(0)->GetMouseWheelDownJustDown()) {
 			int option = aScreens[m_nCurrScreen].m_aEntries[m_nCurrOption].m_Action;
-			if (option == MENUACTION_BRIGHTNESS || option == MENUACTION_DRAWDIST
+			if (option == MENUACTION_BRIGHTNESS 
+#ifndef DISABLE_DRAWDIST_SETTING			
+				|| option == MENUACTION_DRAWDIST
+#endif
 #ifdef CUSTOM_FRONTEND_OPTIONS
 				|| option == MENUACTION_CFO_SLIDER
 #endif
@@ -4680,21 +4706,14 @@ CMenuManager::ProcessButtonPresses(void)
 
 	// Centralized enter/back (except some conditions)
 #ifdef TIDY_UP_PBP
-	if (aScreens[m_nCurrScreen].m_aEntries[m_nCurrOption].m_Action != MENUACTION_RESUME) {
-		if (CPad::GetPad(0)->GetEnterJustDown() || CPad::GetPad(0)->GetCrossJustDown() ||
-			(isPlainTextScreen(m_nCurrScreen) && CPad::GetPad(0)->GetLeftMouseJustDown())) {
+	if 	(CPad::GetPad(0)->GetEnterJustDown() || CPad::GetPad(0)->GetCrossJustDown() ||
+		(isPlainTextScreen(m_nCurrScreen) && CPad::GetPad(0)->GetLeftMouseJustDown())) {
 
-			if (!isPlainTextScreen(m_nCurrScreen))
+		if (!isPlainTextScreen(m_nCurrScreen))
 				m_bShowMouse = false;
 
 			optionSelected = true;
 		}
-	} else {
-		if (CPad::GetPad(0)->GetEnterJustUp() || CPad::GetPad(0)->GetCrossJustUp()) {
-			m_bShowMouse = false;
-			optionSelected = true;
-		}
-	}
 
 	if (!goDown && !goUp && !optionSelected) {
 		if (m_nCurrScreen != MENUPAGE_START_MENU) {
@@ -5099,9 +5118,16 @@ CMenuManager::ProcessButtonPresses(void)
 						m_PrefsFrameLimiter = true;
 						m_PrefsBrightness = 256;
 						m_PrefsVsyncDisp = true;
-						m_PrefsLOD = 1.2f;
+#ifdef DISABLE_DRAWDIST_SETTING						
+						m_PrefsLOD = 0.7f;
+						CRenderer::ms_lodDistScale = 0.7f;						
+#else
+						m_PrefsLOD = 0.7f;
+						CRenderer::ms_lodDistScale = 0.7f;						
+#endif
+						CIniFile::PedNumberMultiplier = 0.6f;
+						CIniFile::CarNumberMultiplier = 0.6f;
 						m_PrefsVsync = true;
-						CRenderer::ms_lodDistScale = 1.2f;
 #ifdef ASPECT_RATIO_SCALE
 						m_PrefsUseWideScreen = AR_AUTO;
 #else
@@ -5132,7 +5158,9 @@ CMenuManager::ProcessButtonPresses(void)
 						ControlsManager.MakeControllerActionsBlank();
 						ControlsManager.InitDefaultControlConfiguration();
 						ControlsManager.InitDefaultControlConfigMouse(MousePointerStateHelper.GetMouseSetUp());
-#if !defined RW_GL3
+#if defined(RW_DC)
+						printf("TODO: implement this");
+#elif !defined RW_GL3
 						if (AllValidWinJoys.m_aJoys[JOYSTICK1].m_bInitialised) {
 							DIDEVCAPS devCaps;
 							devCaps.dwSize = sizeof(DIDEVCAPS);
@@ -5523,7 +5551,10 @@ CMenuManager::ProcessOnOffMenuOptions()
 		SaveSettings();
 		break;
 	case MENUACTION_TRAILS:
-		CMBlur::BlurOn = !CMBlur::BlurOn;
+		CMBlur::BlurOn = CMBlur::BlurOn + 1;
+		if (CMBlur::BlurOn > 2)
+			CMBlur::BlurOn = 0;
+
 		DMAudio.PlayFrontEndSound(SOUND_FRONTEND_MENU_SETTING_CHANGE, 0);
 		SaveSettings();
 		if (CMBlur::BlurOn)
@@ -5716,7 +5747,7 @@ CMenuManager::SwitchMenuOnAndOff()
 			m_bShutDownFrontEndRequested = false;
 			DisplayComboButtonErrMsg = false;
 
-#ifdef REGISTER_START_BUTTON
+#ifdef REGISTER_START_BUTTON	//START BUTTON IS DEFINED HERE, DIRECTLY COMPATIBLE WITH DC NOMENCLATURE AND KEYBINDINGS
 			int16 start1 = CPad::GetPad(0)->PCTempJoyState.Start, start2 = CPad::GetPad(0)->PCTempKeyState.Start,
 				start3 = CPad::GetPad(0)->OldState.Start, start4 = CPad::GetPad(0)->NewState.Start;
 #endif

@@ -91,7 +91,9 @@ void GetDateFormat(int unused1, int unused2, SYSTEMTIME* in, int unused3, char* 
 	linuxTime.tm_hour = in->wHour;
 	linuxTime.tm_min = in->wMinute;
 	linuxTime.tm_sec = in->wSecond;
-	strftime(out, size, nl_langinfo(D_FMT), &linuxTime);
+	// strftime(out, size, nl_langinfo(D_FMT), &linuxTime);
+    printf("TODO: FIXME %s\n",__func__);
+    strcpy(out,"abc");
 }
 
 void FileTimeToSystemTime(time_t* writeTime, SYSTEMTIME* out) {
@@ -152,6 +154,9 @@ FILE* _fcaseopen(char const* filename, char const* mode)
         result = fopen(real, mode);
         free(real);
     }
+    if (!result) {
+        printf("FAILED: _fcaseopen(%s, %s)\n", filename, mode);
+    }
     return result;
 }
 
@@ -182,14 +187,18 @@ int _caserename(const char *old_filename, const char *new_filename)
 // Returned string should freed manually (if exists)
 char* casepath(char const* path, bool checkPathFirst)
 {
-    if (checkPathFirst && access(path, F_OK) != -1) {
+    //TODO: Implement this
+    bool access_ok = false; //access(path, F_OK) != -1
+    // printf("TODO: FIXME %s\n", __func__);
+
+    if (checkPathFirst && access_ok ) {
         // File path is correct
         return nil;
     }
 
     size_t l = strlen(path);
     char* p = (char*)alloca(l + 1);
-    char* out = (char*)malloc(l + 3); // for extra ./
+    char* out = (char*)malloc(l + 10); // for extra /cd/
     strcpy(p, path);
 
     // my addon: linux doesn't handle filenames with spaces at the end nicely
@@ -250,34 +259,39 @@ char* casepath(char const* path, bool checkPathFirst)
         }
 
         struct dirent* e;
-        while (e = readdir(d))
-        {
-            if (strcasecmp(c, e->d_name) == 0)
+        errno = 0;
+        if (strcmp(c, ".") != 0) {
+            while (e = readdir(d))
             {
-                strcpy(out + rl, e->d_name);
-                int reportedLen = (int)strlen(e->d_name);
-                rl += reportedLen;
-                assert(reportedLen == strlen(c) && "casepath: This is not good at all");
+                // printf("casepath: looking for %s, got %s\n", c, e->d_name);
+                if (strcasecmp(c, e->d_name) == 0)
+                {
+                    strcpy(out + rl, e->d_name);
+                    int reportedLen = (int)strlen(e->d_name);
+                    rl += reportedLen;
+                    assert(reportedLen == strlen(c) && "casepath: This is not good at all");
 
-                closedir(d);
-                d = opendir(out);
+                    closedir(d);
+                    d = opendir(out);
 
-                // Either it wasn't a folder, or permission error, I/O error etc.
-                if (!d) {
-                    cantProceed = true;
+                    // Either it wasn't a folder, or permission error, I/O error etc.
+                    if (!d) {
+                        cantProceed = true;
+                    }
+
+                    break;
                 }
-
-                break;
             }
-        }
 
-        if (!e)
-        {
-            printf("casepath couldn't find dir/file \"%s\", full path was %s\n", c, path);
-            // No match, add original name and continue converting further slashes.
-            strcpy(out + rl, c);
-            rl += strlen(c);
-            cantProceed = true;
+            if (!e)
+            {
+                printf("casepath couldn't find dir/file \"%s\", full path was %s, errno %d\n", c, path, errno);
+                // No match, add original name and continue converting further slashes.
+                perror("casepath");
+                strcpy(out + rl, c);
+                rl += strlen(c);
+                cantProceed = true;
+            }
         }
     }
 

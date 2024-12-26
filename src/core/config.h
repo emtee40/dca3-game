@@ -8,9 +8,9 @@
 enum Config {
 	NUMPLAYERS = 1,	// 4 on PS2
 
-	NUMCDIMAGES = 12, // gta3.img duplicates (not used on PC)
-	MAX_CDIMAGES = 8, // additional cdimages
-	MAX_CDCHANNELS = 5,
+	NUMCDIMAGES = 2, // gta3.img duplicates (not used on PC)
+	MAX_CDIMAGES = 2, // additional cdimages
+	MAX_CDCHANNELS = 2,
 
 	MODELINFOSIZE = 5500,	// 3150 on PS2
 #ifdef VANILLA_DEFINES
@@ -20,8 +20,11 @@ enum Config {
 #endif
 	EXTRADIRSIZE = 128,
 	CUTSCENEDIRSIZE = 512,
-
+	#if !defined(RW_DC_SLOW)
+	SIMPLEMODELSIZE = 2916 /* RW_DC: is this enough? */, //5000,	// 2910 on PS2
+	#else
 	SIMPLEMODELSIZE = 5000,	// 2910 on PS2
+	#endif
 	MLOMODELSIZE = 1,
 	MLOINSTANCESIZE = 1,
 	TIMEMODELSIZE = 30,
@@ -31,15 +34,26 @@ enum Config {
 	XTRACOMPSMODELSIZE = 2,
 	TWODFXSIZE = 2000,	// 1210 on PS2
 
+	#if !defined(RW_DC_SLOW)
+	MAXVEHICLESLOADED = 35, // 70 on mobile
+	#else
 	MAXVEHICLESLOADED = 50, // 70 on mobile
+	#endif
 
 	NUMOBJECTINFO = 168, // object.dat
 
 	// Pool sizes
 	NUMPTRNODES = 30000,  // 26000 on PS2
 	NUMENTRYINFOS = 5400, // 3200 on PS2
+
+	#if !defined(RW_DC_SLOW)
+	NUMPEDS = 110,        // 90 on PS2
+	NUMVEHICLES = 90,    // 70 on PS2
+	#else
 	NUMPEDS = 140,        // 90 on PS2
 	NUMVEHICLES = 110,    // 70 on PS2
+	#endif
+
 	NUMBUILDINGS = 5500,  // 4915 on PS2
 	NUMTREADABLES = 1214,
 	NUMOBJECTS = 450,
@@ -166,15 +180,14 @@ enum Config {
 #	define RANDOMSPLASH
 #	define USE_CUSTOM_ALLOCATOR
 #	define VU_COLLISION
-#	define ANIM_COMPRESSION
 #	define PS2_MENU
 #elif defined GTA_PC
 #	define EXTERNAL_3D_SOUND
-#	define AUDIO_REFLECTIONS
+// #	define AUDIO_REFLECTIONS
 #	ifndef GTA_HANDHELD
 #		define PC_PLAYER_CONTROLS	// mouse player/cam mode
 #	endif
-#	define GTA_REPLAY
+// #	define GTA_REPLAY
 #	define GTA_SCENE_EDIT
 #	define PC_MENU
 #elif defined GTA_XBOX
@@ -232,8 +245,7 @@ enum Config {
 
 // Memory allocation and compression
 // #define USE_CUSTOM_ALLOCATOR		// use CMemoryHeap for allocation. use with care, not finished yet
-//#define COMPRESSED_COL_VECTORS	// use compressed vectors for collision vertices
-//#define ANIM_COMPRESSION	// only keep most recently used anims uncompressed
+#define COMPRESSED_COL_VECTORS	// use compressed vectors for collision vertices
 
 #if defined GTA_PC && defined GTA_PS2_STUFF
 #	define USE_PS2_RAND
@@ -265,9 +277,9 @@ enum Config {
 #endif
 
 #define FIX_BUGS		// fixes bugs that we've came across during reversing. You can undefine this only on release builds.
-#define MORE_LANGUAGES		// Add more translations to the game
+// #define MORE_LANGUAGES		// Add more translations to the game
 #define COMPATIBLE_SAVES // this allows changing structs while keeping saves compatible, and keeps saves compatible between platforms, needs to be enabled on 64bit builds!
-#define FIX_INCOMPATIBLE_SAVES // try to fix incompatible saves, requires COMPATIBLE_SAVES
+// #define FIX_INCOMPATIBLE_SAVES // try to fix incompatible saves, requires COMPATIBLE_SAVES
 #define LOAD_INI_SETTINGS // as the name suggests. fundamental for CUSTOM_FRONTEND_OPTIONS
 
 #define NO_MOVIES	// add option to disable intro videos
@@ -291,16 +303,16 @@ enum Config {
 #endif
 
 // Rendering/display
-//#define EXTRA_MODEL_FLAGS	// from mobile to optimize rendering
-//# define HARDCODED_MODEL_FLAGS	// sets the flags enabled above from hardcoded model names.
+#define EXTRA_MODEL_FLAGS	// from mobile to optimize rendering
+# define HARDCODED_MODEL_FLAGS	// sets the flags enabled above from hardcoded model names.
 				// NB: keep this enabled unless your map IDEs have these flags baked in
 #define ASPECT_RATIO_SCALE	// Not just makes everything scale with aspect ratio, also adds support for all aspect ratios
 #define PROPER_SCALING		// use original DEFAULT_SCREEN_WIDTH/DEFAULT_SCREEN_HEIGHT from PS2 instead of PC(R* changed HEIGHT here to make radar look better, but broke other hud elements aspect ratio).
 #define DEFAULT_NATIVE_RESOLUTION	// Set default video mode to your native resolution (fixes Windows 10 launch)
-#define USE_TXD_CDIMAGE		// generate and load textures from txd.img
-#define PS2_ALPHA_TEST		// emulate ps2 alpha test 
+// #define USE_TXD_CDIMAGE		// generate and load textures from txd.img
+// #define PS2_ALPHA_TEST		// emulate ps2 alpha test 
 #define IMPROVED_VIDEOMODE	// save and load videomode parameters instead of a magic number
-#define DISABLE_LOADING_SCREEN // disable the loading screen which vastly improves the loading time
+// #define DISABLE_LOADING_SCREEN // disable the loading screen which vastly improves the loading time
 #ifdef DISABLE_LOADING_SCREEN
 // enable the PC splash
 #undef RANDOMSPLASH
@@ -309,10 +321,10 @@ enum Config {
 #define ANISOTROPIC_FILTERING	// set all textures to max anisotropic filtering
 //#define USE_TEXTURE_POOL
 #ifdef LIBRW
-#define EXTENDED_COLOURFILTER		// more options for colour filter (replaces mblur)
-#define EXTENDED_PIPELINES		// custom render pipelines (includes Neo)
-#define SCREEN_DROPLETS			// neo water droplets
-#define NEW_RENDERER		// leeds-like world rendering, needs librw
+// #define EXTENDED_COLOURFILTER		// more options for colour filter (replaces mblur)
+// #define EXTENDED_PIPELINES		// custom render pipelines (includes Neo)
+// #define SCREEN_DROPLETS			// neo water droplets
+//#define NEW_RENDERER		// leeds-like world rendering, needs librw
 #endif
 
 #define FIX_SPRITES	// fix sprites aspect ratio(moon, coronas, particle etc)
@@ -382,7 +394,7 @@ enum Config {
 #define USE_MEASUREMENTS_IN_METERS // makes game use meters instead of feet in script
 #define USE_PRECISE_MEASUREMENT_CONVERTION // makes game convert feet to meeters more precisely
 #ifdef PC_MENU
-#	define MISSION_REPLAY // mobile feature
+//#	define MISSION_REPLAY // mobile feature
 #endif
 //#define SIMPLIER_MISSIONS // apply simplifications from mobile
 #define USE_ADVANCED_SCRIPT_DEBUG_OUTPUT
@@ -427,15 +439,15 @@ enum Config {
 #define FREE_CAM		// Rotating cam
 
 // Audio
-#define EXTERNAL_3D_SOUND // use external engine to simulate 3d audio spatialization. OpenAL would not work without it (because it works in a 3d space
+//#define EXTERNAL_3D_SOUND // use external engine to simulate 3d audio spatialization. OpenAL would not work without it (because it works in a 3d space
                           // originally and making it work in 2d only requires more resource). Will not work on PS2
 #define AUDIO_REFLECTIONS // Enable audio reflections. Disabled on mobile, didn't exist yet on PS2.
 #define RADIO_SCROLL_TO_PREV_STATION
-#define AUDIO_CACHE
+//#define AUDIO_CACHE
 #define PS2_AUDIO_CHANNELS // increases the maximum number of audio channels to PS2 value of 44 (PC has 28 originally)
-#define PS2_AUDIO_PATHS // changes audio paths for cutscenes and radio to PS2 paths (needs vbdec on MSS builds)
+// #define PS2_AUDIO_PATHS // changes audio paths for cutscenes and radio to PS2 paths (needs vbdec on MSS builds)
 //#define AUDIO_OAL_USE_SNDFILE // use libsndfile to decode WAVs instead of our internal decoder
-#define AUDIO_OAL_USE_MPG123 // use mpg123 to support mp3 files
+// #define AUDIO_OAL_USE_MPG123 // use mpg123 to support mp3 files
 #define PAUSE_RADIO_IN_FRONTEND // pause radio when game is paused
 #define ATTACH_RELEASING_SOUNDS_TO_ENTITIES // sounds would follow ped and vehicles coordinates if not being queued otherwise
 #define USE_TIME_SCALE_FOR_AUDIO // slow down/speed up sounds according to the speed of the game
@@ -456,15 +468,16 @@ enum Config {
 // Streaming
 #if !defined(_WIN32) && !defined(__SWITCH__)
 	//#define ONE_THREAD_PER_CHANNEL // Don't use if you're not on SSD/Flash - also not utilized too much right now(see commented LoadAllRequestedModels in Streaming.cpp)
-	#define FLUSHABLE_STREAMING // Make it possible to interrupt reading when processing file isn't needed anymore.
+	// Dreamcast doesn't support aborts on read, does it?
+	//#define FLUSHABLE_STREAMING // Make it possible to interrupt reading when processing file isn't needed anymore.
 #endif
 #define BIG_IMG // Not complete - allows to read larger img files
 
-//#define SQUEEZE_PERFORMANCE
+#define SQUEEZE_PERFORMANCE
 #ifdef SQUEEZE_PERFORMANCE
 	#undef PS2_ALPHA_TEST
 	#undef NO_ISLAND_LOADING
-	#undef PS2_AUDIO_CHANNELS
+	// #undef PS2_AUDIO_CHANNELS
 	#undef EXTENDED_OFFSCREEN_DESPAWN_RANGE
 	#define PC_PARTICLE
 	#define VC_PED_PORTS // To not process collisions always. But should be tested if that's really beneficial

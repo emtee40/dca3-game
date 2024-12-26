@@ -2,10 +2,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _USE_MATH_DEFINES
-#pragma warning(disable: 4244)	// int to float
-#pragma warning(disable: 4800)	// int to bool
-#pragma warning(disable: 4838)  // narrowing conversion
-#pragma warning(disable: 4996)  // POSIX names
+
+#include "common_defines.h"
 
 #ifdef __MWERKS__
 #define __STDC_LIMIT_MACROS // so we get UINT32_MAX etc
@@ -17,7 +15,9 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <math.h>
+#include <cmath>
+#include <cstdio>
+#include <algorithm>
 
 #ifdef __MWERKS__
 #define AUDIO_MSS
@@ -82,12 +82,13 @@
 
 #define rwVENDORID_ROCKSTAR 0x0253F2
 
-#define Max(a,b) ((a) > (b) ? (a) : (b))
-#define Min(a,b) ((a) < (b) ? (a) : (b))
+__always_inline auto Max(auto a, auto b) { return ((a > b)? a : b); }
+__always_inline auto Min(auto a, auto b) { return ((a < b)? a : b); }
 
 // Use this to add const that wasn't there in the original code
 #define Const const
 
+#ifndef RW_DC
 typedef uint8_t uint8;
 typedef int8_t int8;
 typedef uint16_t uint16;
@@ -99,10 +100,14 @@ typedef int32_t int32;
 typedef unsigned int uint32;
 typedef int int32;
 #endif
-typedef uintptr_t uintptr;
-typedef intptr_t intptr;
 typedef uint64_t uint64;
 typedef int64_t int64;
+#endif
+#ifdef DC_SIM
+#include "dc_hle_types.h"
+#endif
+typedef uintptr_t uintptr;
+typedef intptr_t intptr;
 // hardcode ucs-2
 typedef uint16_t wchar;
 
@@ -139,12 +144,12 @@ typedef ptrdiff_t ssize_t;
 
 // PDP-10 like byte functions
 #define MASK(p, s) (((1<<(s))-1) << (p))
-inline uint32 dpb(uint32 b, uint32 p, uint32 s, uint32 w)
+__always_inline uint32 dpb(uint32 b, uint32 p, uint32 s, uint32 w)
 {
 	uint32 m = MASK(p,s);
 	return (w & ~m) | ((b<<p) & m);
 }
-inline uint32 ldb(uint32 p, uint32 s, uint32 w)
+__always_inline uint32 ldb(uint32 p, uint32 s, uint32 w)
 {
 	return w>>p & (1<<s)-1;
 }
@@ -182,8 +187,8 @@ inline uint32 ldb(uint32 p, uint32 s, uint32 w)
 		#define SCREEN_HEIGHT ((float)448)
 	#endif
 #else
-#define SCREEN_WIDTH  ((float)RsGlobal.width)
-#define SCREEN_HEIGHT ((float)RsGlobal.height)
+#define SCREEN_WIDTH  ((float)640)
+#define SCREEN_HEIGHT ((float)480)
 #endif
 
 #define SCREEN_HEIGHT_PAL ((float)512)
@@ -294,12 +299,17 @@ extern int strcasecmp(const char *str1, const char *str2);
 
 extern wchar *AllocUnicode(const char*src);
 
-#define Clamp(v, low, high) ((v)<(low) ? (low) : (v)>(high) ? (high) : (v))
+template<typename T>
+__always_inline T Clamp(T v, auto low, auto high) {
+	return std::clamp(v, static_cast<T>(low), static_cast<T>(high));
+}
 
-#define Clamp2(v, center, radius) ((v) > (center) ? Min(v, center + radius) : Max(v, center - radius))
+__always_inline auto Clamp2(auto v, auto center, auto radius) {
+	return (v > center) ? Min(v, center + radius) : Max(v, center - radius);
+}
 
-inline float sq(float x) { return x*x; }
 #define SQR(x) ((x) * (x))
+__always_inline auto sq(auto x) { return SQR(x); }
 
 #ifdef __MWERKS__
 #define M_E        2.71828182845904523536   // e
@@ -317,7 +327,10 @@ inline float sq(float x) { return x*x; }
 #define M_SQRT1_2  0.707106781186547524401  // 1/sqrt(2)
 #endif
 
-#define PI (float)M_PI
+#ifndef DC_SH4
+#define F_PI M_PI
+#endif
+#define PI (float)F_PI
 #define TWOPI (PI*2)
 #define HALFPI (PI/2)
 #define DEGTORAD(x) ((x) * PI / 180.0f)
@@ -346,6 +359,14 @@ void re3_usererror(const char *format, ...);
 #define DEV(f, ...)   re3_debug("[DEV]: " f, ## __VA_ARGS__)
 #endif
 
+#ifndef WITH_LOGGING
+#define printf(...)
+#define perror(...)
+#define re3_debug(...)
+#define re3_trace(...)
+#define re3_usererror(...)
+#endif
+
 #ifdef __MWERKS__
 void debug(char *f, ...);
 void Error(char *f, ...);
@@ -363,7 +384,10 @@ __inline__ void TRACE(char *f, ...) { } // this is re3 only, and so the function
 #endif
 #endif
 
-#ifndef MASTER
+#ifdef assert
+#undef assert
+#endif
+#if !defined(MASTER)
 #define assert(_Expression) (void)( (!!(_Expression)) || (re3_assert(#_Expression, __FILE__, __LINE__, __FUNCTION__), 0) )
 #else
 #define assert(_Expression) (_Expression)
@@ -389,11 +413,18 @@ template<int s, int t> struct check_size {
 
 #define PERCENT(x, p)                    ((float(x) * (float(p) / 100.0f)))
 #define ARRAY_SIZE(array)                (sizeof(array) / sizeof(array[0]))
+#ifdef BIT
+#undef BIT
+#endif
 #define BIT(num)                         (1<<(num))
 
-#define ABS(a)  (((a) < 0) ? (-(a)) : (a))
-#define norm(value, min, max) (((value) < (min)) ? 0 : (((value) > (max)) ? 1 : (((value) - (min)) / ((max) - (min)))))
-#define lerp(norm, min, max) ( (norm) * ((max) - (min)) + (min) )
+#define ABS(a) std::abs(a)
+
+__always_inline auto norm(auto value, auto min, auto max) {
+	return (Clamp(value, min, max) - min) / (max - min);
+}
+// we use std::lerp now
+//#define lerp(norm, min, max) ( (norm) * ((max) - (min)) + (min) )
 
 #define STRINGIFY(x)                    #x
 #define STR(x)                          STRINGIFY(x)

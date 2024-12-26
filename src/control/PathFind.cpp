@@ -328,7 +328,7 @@ CPathFind::StoreNodeInfoCar(int16 id, int16 node, int8 type, int8 next, int16 x,
 }
 
 void
-CPathFind::CalcNodeCoors(int16 x, int16 y, int16 z, int id, CVector *out)
+CPathFind::CalcNodeCoors(int16 x, int16 y, int16 z, int32 id, CVector *out)
 {
 	CVector pos;
 	pos.x = x / 16.0f;
@@ -524,7 +524,7 @@ int32 TempListLength;
 
 void
 CPathFind::PreparePathDataForType(uint8 type, CTempNode *tempnodes, CPathInfoForObject *objectpathinfo,
-	float maxdist, CTempDetachedNode *detachednodes, int numDetached)
+	float maxdist, CTempDetachedNode *detachednodes, int32 numDetached)
 {
 	static CVector CoorsXFormed;
 	int i, j, k, l;

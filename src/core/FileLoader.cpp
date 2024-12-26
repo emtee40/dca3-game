@@ -26,6 +26,8 @@
 #include "FileLoader.h"
 #include "MemoryHeap.h"
 
+#include <kos/dbglog.h>
+
 char CFileLoader::ms_line[256];
 
 const char*
@@ -294,10 +296,12 @@ CFileLoader::LoadCollisionModel(uint8 *buf, CColModel &model, char *modelname)
 		REGISTER_MEMPTR(&model.vertices);
 		for(i = 0; i < numVertices; i++){
 			model.vertices[i].Set(*(float*)buf, *(float*)(buf+4), *(float*)(buf+8));
-			if(Abs(*(float*)buf) >= 256.0f ||
-			   Abs(*(float*)(buf+4)) >= 256.0f ||
-			   Abs(*(float*)(buf+8)) >= 256.0f)
-				printf("%s:Collision volume too big\n", modelname);
+			if(lroundf(Abs(*(float*)buf)) >= 256 ||
+			   lroundf(Abs(*(float*)(buf+4))) >= 256 ||
+			   lroundf(Abs(*(float*)(buf+8))) >= 256) {
+				dbglog(DBG_CRITICAL, "%s:Collision volume too big\n", modelname);
+				assert(false && "Collision volume too big");
+			   }
 			buf += 12;
 		}
 	}else

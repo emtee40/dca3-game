@@ -6,14 +6,15 @@
 #define MAX_FREQ DIGITALRATE
 
 struct tSample {
-	uint32 nOffset;
-	uint32 nSize;
-	uint32 nFrequency;
-	uint32 nLoopStart;
-	int32 nLoopEnd;
+	uint32 nFileOffset;		// in bytes
+	uint32 nByteSize;		// in bytes (*2 for adpcm samples)
+	uint32 nFrequency;		// in hz
+	uint32 nLoopStartSample;// in samples, 0 if no separate loop data 
+	uint32 nLoopFileOffset;	// in bytes, 0 if none
+	uint32 nLoopByteSize;	// in bytes, 0 if none (*2 for adpcm samples)
 };
 
-#ifdef GTA_PS2
+#if defined(GTA_PS2) || defined(RW_DC)
 #define PS2BANK(e) e
 #else
 #define PS2BANK(e) e = SFX_BANK_0
@@ -97,6 +98,7 @@ enum
 
 #define MAX_PEDSFX                 7
 #define PED_BLOCKSIZE              79000
+#define PED_BLOCKSIZE_ADPCM        (PED_BLOCKSIZE/4)
 
 #define MAXPROVIDERS               64
 
@@ -136,7 +138,7 @@ class cSampleManager
 	bool8   m_bInitialised;
 	uint8   m_nNumberOfProviders;
 	char   *m_aAudioProviders[MAXPROVIDERS];
-	tSample m_aSamples[TOTAL_AUDIO_SAMPLES];
+	alignas(32) tSample m_aSamples[TOTAL_AUDIO_SAMPLES];
 
 public:
 	
@@ -180,6 +182,7 @@ public:
 	
 	bool8 LoadSampleBank    (uint8 nBank);
 	void  UnloadSampleBank  (uint8 nBank);
+	void  UnloadUnusedSampleBank();
 	int8  IsSampleBankLoaded(uint8 nBank);
 	
 	uint8 IsPedCommentLoaded(uint32 nComment);
@@ -211,7 +214,7 @@ public:
 	void  StartChannel            (uint32 nChannel);
 	void  StopChannel             (uint32 nChannel);
 	
-	void  PreloadStreamedFile                                     (uint8 nFile, uint8 nStream = 0);
+	void  PreloadStreamedFile                                     (uint8 nFile, uint8 nStream = 0, uint32_t seek_bytes_aligned = 0);
 	void  PauseStream                                        (bool8 nPauseFlag, uint8 nStream = 0);
 	void  StartPreloadedStreamedFile                                           (uint8 nStream = 0);
 	bool8 StartStreamedFile                          (uint8 nFile, uint32 nPos, uint8 nStream = 0);
@@ -669,5 +672,205 @@ static char StreamedNameTable[][25] =
 	"AUDIO\\t3_c.WAV",
 	"AUDIO\\k1_b.WAV",
 	"AUDIO\\cat1.WAV"
+};
+
+static char DCStreamedNameTable[][25] =
+{
+	"stream/HEAD.APM",
+	"stream/CLASS.APM",
+	"stream/KJAH.APM",
+	"stream/RISE.APM",
+	"stream/LIPS.APM",
+	"stream/GAME.APM",
+	"stream/MSX.APM",
+	"stream/FLASH.APM",
+	"stream/CHAT.APM",
+	"stream/HEAD.APM",
+	"stream/POLICE.APM",
+	"stream/CITY.APM",
+	"stream/WATER.APM",
+	"stream/COMOPEN.APM",
+	"stream/SUBOPEN.APM",
+	"stream/JB.APM",
+	"stream/BET.APM",
+	"stream/L1_LG.APM",
+	"stream/L2_DSB.APM",
+	"stream/L3_DM.APM",
+	"stream/L4_PAP.APM",
+	"stream/L5_TFB.APM",
+	"stream/J0_DM2.APM",
+	"stream/J1_LFL.APM",
+	"stream/J2_KCL.APM",
+	"stream/J3_VH.APM",
+	"stream/J4_ETH.APM",
+	"stream/J5_DST.APM",
+	"stream/J6_TBJ.APM",
+	"stream/T1_TOL.APM",
+	"stream/T2_TPU.APM",
+	"stream/T3_MAS.APM",
+	"stream/T4_TAT.APM",
+	"stream/T5_BF.APM",
+	"stream/S0_MAS.APM",
+	"stream/S1_PF.APM",
+	"stream/S2_CTG.APM",
+	"stream/S3_RTC.APM",
+	"stream/S5_LRQ.APM",
+	"stream/S4_BDBA.APM",
+	"stream/S4_BDBB.APM",
+	"stream/S2_CTG2.APM",
+	"stream/S4_BDBD.APM",
+	"stream/S5_LRQB.APM",
+	"stream/S5_LRQC.APM",
+	"stream/A1_SSO.APM",
+	"stream/A2_PP.APM",
+	"stream/A3_SS.APM",
+	"stream/A4_PDR.APM",
+	"stream/A5_K2FT.APM",
+	"stream/K1_KBO.APM",
+	"stream/K2_GIS.APM",
+	"stream/K3_DS.APM",
+	"stream/K4_SHI.APM",
+	"stream/K5_SD.APM",
+	"stream/R0_PDR2.APM",
+	"stream/R1_SW.APM",
+	"stream/R2_AP.APM",
+	"stream/R3_ED.APM",
+	"stream/R4_GF.APM",
+	"stream/R5_PB.APM",
+	"stream/R6_MM.APM",
+	"stream/D1_STOG.APM",
+	"stream/D2_KK.APM",
+	"stream/D3_ADO.APM",
+	"stream/D5_ES.APM",
+	"stream/D7_MLD.APM",
+	"stream/D4_GTA.APM",
+	"stream/D4_GTA2.APM",
+	"stream/D6_STS.APM",
+	"stream/A6_BAIT.APM",
+	"stream/A7_ETG.APM",
+	"stream/A8_PS.APM",
+	"stream/A9_ASD.APM",
+	"stream/K4_SHI2.APM",
+	"stream/C1_TEX.APM",
+	"stream/EL_PH1.APM",
+	"stream/EL_PH2.APM",
+	"stream/EL_PH3.APM",
+	"stream/EL_PH4.APM",
+	"stream/YD_PH1.APM",
+	"stream/YD_PH2.APM",
+	"stream/YD_PH3.APM",
+	"stream/YD_PH4.APM",
+	"stream/HD_PH1.APM",
+	"stream/HD_PH2.APM",
+	"stream/HD_PH3.APM",
+	"stream/HD_PH4.APM",
+	"stream/HD_PH5.APM",
+	"stream/MT_PH1.APM",
+	"stream/MT_PH2.APM",
+	"stream/MT_PH3.APM",
+	"stream/MT_PH4.APM",
+	"stream/MISCOM.APM",
+	"stream/END.APM",
+	"stream/lib_a1.APM",
+	"stream/lib_a2.APM",
+	"stream/lib_a.APM",
+	"stream/lib_b.APM",
+	"stream/lib_c.APM",
+	"stream/lib_d.APM",
+	"stream/l2_a.APM",
+	"stream/j4t_1.APM",
+	"stream/j4t_2.APM",
+	"stream/j4t_3.APM",
+	"stream/j4t_4.APM",
+	"stream/j4_a.APM",
+	"stream/j4_b.APM",
+	"stream/j4_c.APM",
+	"stream/j4_d.APM",
+	"stream/j4_e.APM",
+	"stream/j4_f.APM",
+	"stream/j6_1.APM",
+	"stream/j6_a.APM",
+	"stream/j6_b.APM",
+	"stream/j6_c.APM",
+	"stream/j6_d.APM",
+	"stream/t4_a.APM",
+	"stream/s1_a.APM",
+	"stream/s1_a1.APM",
+	"stream/s1_b.APM",
+	"stream/s1_c.APM",
+	"stream/s1_c1.APM",
+	"stream/s1_d.APM",
+	"stream/s1_e.APM",
+	"stream/s1_f.APM",
+	"stream/s1_g.APM",
+	"stream/s1_h.APM",
+	"stream/s1_i.APM",
+	"stream/s1_j.APM",
+	"stream/s1_k.APM",
+	"stream/s1_l.APM",
+	"stream/s3_a.APM",
+	"stream/s3_b.APM",
+	"stream/el3_a.APM",
+	"stream/mf1_a.APM",
+	"stream/mf2_a.APM",
+	"stream/mf3_a.APM",
+	"stream/mf3_b.APM",
+	"stream/mf3_b1.APM",
+	"stream/mf3_c.APM",
+	"stream/mf4_a.APM",
+	"stream/mf4_b.APM",
+	"stream/mf4_c.APM",
+	"stream/a1_a.APM",
+	"stream/a3_a.APM",
+	"stream/a5_a.APM",
+	"stream/a4_a.APM",
+	"stream/a4_b.APM",
+	"stream/a4_c.APM",
+	"stream/a4_d.APM",
+	"stream/k1_a.APM",
+	"stream/k3_a.APM",
+	"stream/r1_a.APM",
+	"stream/r2_a.APM",
+	"stream/r2_b.APM",
+	"stream/r2_c.APM",
+	"stream/r2_d.APM",
+	"stream/r2_e.APM",
+	"stream/r2_f.APM",
+	"stream/r2_g.APM",
+	"stream/r2_h.APM",
+	"stream/r5_a.APM",
+	"stream/r6_a.APM",
+	"stream/r6_a1.APM",
+	"stream/r6_b.APM",
+	"stream/lo2_a.APM",
+	"stream/lo6_a.APM",
+	"stream/yd2_a.APM",
+	"stream/yd2_b.APM",
+	"stream/yd2_c.APM",
+	"stream/yd2_c1.APM",
+	"stream/yd2_d.APM",
+	"stream/yd2_e.APM",
+	"stream/yd2_f.APM",
+	"stream/yd2_g.APM",
+	"stream/yd2_h.APM",
+	"stream/yd2_ass.APM",
+	"stream/yd2_ok.APM",
+	"stream/h5_a.APM",
+	"stream/h5_b.APM",
+	"stream/h5_c.APM",
+	"stream/ammu_a.APM",
+	"stream/ammu_b.APM",
+	"stream/ammu_c.APM",
+	"stream/door_1.APM",
+	"stream/door_2.APM",
+	"stream/door_3.APM",
+	"stream/door_4.APM",
+	"stream/door_5.APM",
+	"stream/door_6.APM",
+	"stream/t3_a.APM",
+	"stream/t3_b.APM",
+	"stream/t3_c.APM",
+	"stream/k1_b.APM",
+	"stream/cat1.APM"
 };
 #endif

@@ -132,6 +132,9 @@ public:
 #if defined RW_GL3
 	GlfwJoyState           m_OldState;
 	GlfwJoyState           m_NewState;
+#elif defined(RW_DC)
+	uint32				   m_OldState;
+	uint32				   m_NewState;
 #else
 	DIJOYSTATE2           m_OldState;
 	DIJOYSTATE2           m_NewState;

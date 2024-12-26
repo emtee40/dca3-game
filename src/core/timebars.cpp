@@ -97,7 +97,7 @@ void tbDisplay()
 	AsciiToUnicode(temp, wtemp);
 	CFont::SetColor(CRGBA(255, 255, 255, 255));
 	if (!CMenuManager::m_PrefsMarketing || !CMenuManager::m_PrefsDisableTutorials) {
-		CFont::PrintString(RsGlobal.maximumWidth * (4.0f / DEFAULT_SCREEN_WIDTH), RsGlobal.maximumHeight * (4.0f / DEFAULT_SCREEN_HEIGHT), wtemp);
+		CFont::PrintString(RsGlobal.maximumWidth * (4.0f / DEFAULT_SCREEN_WIDTH), RsGlobal.maximumHeight * (12.0f / DEFAULT_SCREEN_HEIGHT), wtemp);
 
 #ifndef FINAL
 		// Timers output (my own implementation)
@@ -105,7 +105,7 @@ void tbDisplay()
 			MaxTimes[i] = Max(MaxTimes[i], TimerBar.Timers[i].endTime - TimerBar.Timers[i].startTime);
 			sprintf(temp, "%s: %.2f", &TimerBar.Timers[i].name[0], MaxTimes[i]);
 			AsciiToUnicode(temp, wtemp);
-			CFont::PrintString(RsGlobal.maximumWidth * (4.0f / DEFAULT_SCREEN_WIDTH), RsGlobal.maximumHeight * ((8.0f * (i + 2)) / DEFAULT_SCREEN_HEIGHT), wtemp);
+			CFont::PrintString(RsGlobal.maximumWidth * (4.0f / DEFAULT_SCREEN_WIDTH), RsGlobal.maximumHeight * ((12.0f * (i + 2)) / DEFAULT_SCREEN_HEIGHT), wtemp);
 		}
 
 #ifdef FRAMETIME
@@ -113,7 +113,7 @@ void tbDisplay()
 		sprintf(temp, "Frame Time: %.2f", MaxFrameTime);
 		AsciiToUnicode(temp, wtemp);
 
-		CFont::PrintString(RsGlobal.maximumWidth * (4.0f / DEFAULT_SCREEN_WIDTH), RsGlobal.maximumHeight * ((8.0f * (TimerBar.count + 4)) / DEFAULT_SCREEN_HEIGHT), wtemp);
+		CFont::PrintString(RsGlobal.maximumWidth * (4.0f / DEFAULT_SCREEN_WIDTH), RsGlobal.maximumHeight * ((12.0f * (TimerBar.count + 4)) / DEFAULT_SCREEN_HEIGHT), wtemp);
 #endif // FRAMETIME
 #endif // !FINAL
 	}

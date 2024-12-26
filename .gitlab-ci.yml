@@ -1,0 +1,151 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+image:
+    name: ghcr.io/kos-builds/kos-dc:latest-14.1.0
+    entrypoint: ["/bin/sh",  "-c", 'echo gitlab command: "$@" && /bin/bash -c "$@"'] 
+
+build-dreamcast:
+  variables:
+    CCACHE_BASEDIR: $CI_PROJECT_DIR
+    CCACHE_DIR: $CI_PROJECT_DIR/ccache
+  cache:
+    - key: ccache-$CI_JOB_NAME
+      paths:
+        - $CCACHE_DIR
+  stage: build
+  before_script:
+    - apt update
+    - apt install -y ccache
+    - update-ccache-symlinks
+    - rm -rf /opt/toolchains/dc/kos
+    - cp -R vendor/dca3-kos /opt/toolchains/dc/kos
+    - make -C /opt/toolchains/dc/kos/kernel/arch/dreamcast/sound/arm
+    - make -C /opt/toolchains/dc/kos -j $(nproc)
+  script:
+    - cd dreamcast
+    - make -j $(nproc)
+  artifacts:
+    paths:
+      - dreamcast/dca3.elf
+
+build-dreamcast-ide-32mb:
+  variables:
+    CCACHE_BASEDIR: $CI_PROJECT_DIR
+    CCACHE_DIR: $CI_PROJECT_DIR/ccache
+  cache:
+    - key: ccache-$CI_JOB_NAME
+      paths:
+        - $CCACHE_DIR
+  stage: build
+  before_script:
+    - apt update
+    - apt install -y ccache
+    - update-ccache-symlinks
+    - rm -rf /opt/toolchains/dc/kos
+    - cp -R vendor/dca3-kos /opt/toolchains/dc/kos
+    - make -C /opt/toolchains/dc/kos/kernel/arch/dreamcast/sound/arm
+    - make -C /opt/toolchains/dc/kos -j $(nproc)
+  script:
+    - cd dreamcast
+    - make -j $(nproc) WITH_IDE=1 WITH_32MB=1 TARGET=dca3-ide-32mb.elf
+  artifacts:
+    paths:
+      - dreamcast/dca3-ide-32mb.elf
+
+build-texconv:
+  variables:
+    CCACHE_BASEDIR: $CI_PROJECT_DIR
+    CCACHE_DIR: $CI_PROJECT_DIR/ccache
+  cache:
+    - key: ccache-$CI_JOB_NAME
+      paths:
+        - $CCACHE_DIR
+  stage: build
+  before_script:
+    - apt update
+    - apt install -y build-essential gcc g++ ccache
+    - update-ccache-symlinks
+  script:
+    - export PATH="/usr/lib/ccache:$PATH"
+    - cd dreamcast
+    - make texconv -j $(nproc)
+  artifacts:
+    paths:
+      - dreamcast/texconv
+
+build-texconv-clang:
+  variables:
+    CCACHE_BASEDIR: $CI_PROJECT_DIR
+    CCACHE_DIR: $CI_PROJECT_DIR/ccache
+  cache:
+    - key: ccache-$CI_JOB_NAME
+      paths:
+        - $CCACHE_DIR
+  stage: build
+  before_script:
+    - apt update
+    - apt install -y build-essential gcc g++ clang ccache
+    - update-ccache-symlinks
+  script:
+    - export PATH="/usr/lib/ccache:$PATH"
+    - cd dreamcast
+    - CC=clang CXX=clang++ make texconv -j $(nproc)
+    - mv texconv texconv-clang
+  artifacts:
+    paths:
+      - dreamcast/texconv-clang
+
+build-sim:
+  variables:
+    CCACHE_BASEDIR: $CI_PROJECT_DIR
+    CCACHE_DIR: $CI_PROJECT_DIR/ccache
+  cache:
+    - key: ccache-$CI_JOB_NAME
+      paths:
+        - $CCACHE_DIR
+  stage: build
+  before_script:
+    - dpkg --add-architecture i386
+    - apt update
+    - apt install -y build-essential gcc g++ gcc-multilib g++-multilib libx11-dev:i386 ccache
+    - update-ccache-symlinks
+  script:
+    - export PATH="/usr/lib/ccache:$PATH"
+    - cd dreamcast
+    - make -f sim.mk -j $(nproc)
+  artifacts:
+    paths:
+      - dreamcast/dca3-sim.elf
+
+build-sim-clang:
+  variables:
+    CCACHE_BASEDIR: $CI_PROJECT_DIR
+    CCACHE_DIR: $CI_PROJECT_DIR/ccache
+  cache:
+    - key: ccache-$CI_JOB_NAME
+      paths:
+        - $CCACHE_DIR
+  stage: build
+  before_script:
+    - dpkg --add-architecture i386
+    - apt update
+    - apt install -y build-essential gcc g++ gcc-multilib g++-multilib libx11-dev:i386 clang ccache
+    - update-ccache-symlinks
+  script:
+    - export PATH="/usr/lib/ccache:$PATH"
+    - cd dreamcast
+    - CC=clang CXX=clang++ make -f sim.mk -j $(nproc) TARGET=dca3-sim-clang.elf
+  artifacts:
+    paths:
+      - dreamcast/dca3-sim-clang.elf
+
+pages:
+  stage: deploy
+  script:
+    - echo "The site will be deployed to $CI_PAGES_URL"
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

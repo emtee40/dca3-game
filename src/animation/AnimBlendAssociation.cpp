@@ -120,6 +120,12 @@ CAnimBlendAssociation::SetDeleteCallback(void (*cb)(CAnimBlendAssociation*, void
 	callbackArg = arg;
 }
 
+#if defined(DC_TEXCONV)
+void
+CAnimBlendAssociation::SetCurrentTime(float time) {
+	assert("false" && "Must not reach here");
+}
+#else
 void
 CAnimBlendAssociation::SetCurrentTime(float time)
 {
@@ -128,11 +134,11 @@ CAnimBlendAssociation::SetCurrentTime(float time)
 	for(currentTime = time; currentTime >= hierarchy->totalLength; currentTime -= hierarchy->totalLength)
 		if(!IsRepeating())
 			return;
-	CAnimManager::UncompressAnimation(hierarchy);
 	for(i = 0; i < numNodes; i++)
 		if(nodes[i].sequence)
 			nodes[i].FindKeyFrame(currentTime);
 }
+#endif
 
 void
 CAnimBlendAssociation::SyncAnimation(CAnimBlendAssociation *other)

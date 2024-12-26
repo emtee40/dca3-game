@@ -4244,73 +4244,67 @@ CPed::SetAnimOffsetForEnterOrExitVehicle(void)
 
 	CAnimBlendHierarchy *enterAssoc = CAnimManager::GetAnimAssociation(ASSOCGRP_STD, ANIM_STD_JACKEDCAR_LHS)->hierarchy;
 	CAnimBlendSequence *seq = enterAssoc->sequences;
-	CAnimManager::UncompressAnimation(enterAssoc);
+
 	if (seq->numFrames > 0) {
 		if (!seq->HasTranslation())
 			vecPedDraggedOutCarAnimOffset = CVector(0.0f, 0.0f, 0.0f);
 		else {
-			KeyFrameTrans *lastFrame = (KeyFrameTrans*)seq->GetKeyFrame(seq->numFrames - 1);
-			vecPedDraggedOutCarAnimOffset = lastFrame->translation;
+			vecPedDraggedOutCarAnimOffset = seq->GetTranslation(seq->numFrames - 1);
 		}
 	}
 
 	enterAssoc = CAnimManager::GetAnimAssociation(ASSOCGRP_STD, ANIM_STD_CAR_GET_IN_LHS)->hierarchy;
 	seq = enterAssoc->sequences;
-	CAnimManager::UncompressAnimation(enterAssoc);
+
 	if (seq->numFrames > 0) {
 		if (!seq->HasTranslation())
 			vecPedCarDoorAnimOffset = CVector(0.0f, 0.0f, 0.0f);
 		else {
-			KeyFrameTrans *lastFrame = (KeyFrameTrans*)seq->GetKeyFrame(seq->numFrames - 1);
-			vecPedCarDoorAnimOffset = lastFrame->translation;
+			vecPedCarDoorAnimOffset = seq->GetTranslation(seq->numFrames - 1);
 		}
 	}
 
 	enterAssoc = CAnimManager::GetAnimAssociation(ASSOCGRP_STD, ANIM_STD_CAR_GET_IN_LO_LHS)->hierarchy;
 	seq = enterAssoc->sequences;
-	CAnimManager::UncompressAnimation(enterAssoc);
+
 	if (seq->numFrames > 0) {
 		if (!seq->HasTranslation())
 			vecPedCarDoorLoAnimOffset = CVector(0.0f, 0.0f, 0.0f);
 		else {
-			KeyFrameTrans *lastFrame = (KeyFrameTrans*)seq->GetKeyFrame(seq->numFrames - 1);
-			vecPedCarDoorLoAnimOffset = lastFrame->translation;
+			vecPedCarDoorLoAnimOffset = seq->GetTranslation(seq->numFrames - 1);
 		}
 	}
 
 	enterAssoc = CAnimManager::GetAnimAssociation(ASSOCGRP_STD, ANIM_STD_QUICKJACKED)->hierarchy;
 	seq = enterAssoc->sequences;
-	CAnimManager::UncompressAnimation(enterAssoc);
+
 	if (seq->numFrames > 0) {
 		if (!seq->HasTranslation())
 			vecPedQuickDraggedOutCarAnimOffset = CVector(0.0f, 0.0f, 0.0f);
 		else {
-			KeyFrameTrans *lastFrame = (KeyFrameTrans*)seq->GetKeyFrame(seq->numFrames - 1);
-			vecPedQuickDraggedOutCarAnimOffset = lastFrame->translation;
+			vecPedQuickDraggedOutCarAnimOffset = seq->GetTranslation(seq->numFrames - 1);
 		}
 	}
 
 	enterAssoc = CAnimManager::GetAnimAssociation(ASSOCGRP_STD, ANIM_STD_VAN_GET_IN_REAR_LHS)->hierarchy;
 	seq = enterAssoc->sequences;
-	CAnimManager::UncompressAnimation(enterAssoc);
+
 	if (seq->numFrames > 0) {
 		if (!seq->HasTranslation())
 			vecPedVanRearDoorAnimOffset = CVector(0.0f, 0.0f, 0.0f);
 		else {
-			KeyFrameTrans *lastFrame = (KeyFrameTrans*)seq->GetKeyFrame(seq->numFrames - 1);
-			vecPedVanRearDoorAnimOffset = lastFrame->translation;
+			vecPedVanRearDoorAnimOffset = seq->GetTranslation(seq->numFrames - 1);
 		}
 	}
 
 	enterAssoc = CAnimManager::GetAnimAssociation(ASSOCGRP_STD, ANIM_STD_TRAIN_GETOUT)->hierarchy;
 	seq = enterAssoc->sequences;
-	CAnimManager::UncompressAnimation(enterAssoc);
+
 	if (seq->numFrames > 0) {
 		if (!seq->HasTranslation())
 			vecPedTrainDoorAnimOffset = CVector(0.0f, 0.0f, 0.0f);
 		else {
-			KeyFrameTrans *lastFrame = (KeyFrameTrans*)seq->GetKeyFrame(seq->numFrames - 1);
-			vecPedTrainDoorAnimOffset = lastFrame->translation;
+			vecPedTrainDoorAnimOffset = seq->GetTranslation(seq->numFrames - 1);
 		}
 	}
 }

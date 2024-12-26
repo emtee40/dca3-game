@@ -151,7 +151,17 @@ public:
 	// Probably don't want to ever reach high
 	static float GetRandomNumberInRange(float low, float high)
 		{ return low + (high - low)*(GetRandomNumber()/float(MYRAND_MAX + 1)); }
-		
+
+#if !defined(INT32_IS_INT)
 	static int32 GetRandomNumberInRange(int32 low, int32 high)
 		{ return low + (high - low)*(GetRandomNumber()/float(MYRAND_MAX + 1)); }
+#endif
+
+	static int32 GetRandomNumberInRange(int low, int high)
+		{ return low + (high - low)*(GetRandomNumber()/float(MYRAND_MAX + 1)); }
+	
+#if !defined(INT32_IS_INT)
+	static int32 GetRandomNumberInRange(int low, const int32& high)
+		{ return low + (high - low)*(GetRandomNumber()/float(MYRAND_MAX + 1)); }
+#endif
 };

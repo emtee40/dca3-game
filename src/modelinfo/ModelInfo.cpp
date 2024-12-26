@@ -187,7 +187,7 @@ CModelInfo::AddVehicleModel(int id)
 }
 
 CBaseModelInfo*
-CModelInfo::GetModelInfo(const char *name, int *id)
+CModelInfo::GetModelInfo(const char *name, int32 *id)
 {
 	CBaseModelInfo *modelinfo;
 	for(int i = 0; i < MODELINFOSIZE; i++){

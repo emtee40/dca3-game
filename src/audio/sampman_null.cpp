@@ -301,7 +301,7 @@ cSampleManager::StopChannel(uint32 nChannel)
 }
 
 void
-cSampleManager::PreloadStreamedFile(uint8 nFile, uint8 nStream)
+cSampleManager::PreloadStreamedFile(uint8 nFile, uint8 nStream, uint32_t seek_bytes_aligned)
 {
 	ASSERT( nStream < MAX_STREAMS );
 }

@@ -27,6 +27,9 @@ enum eWinVersion
 #if defined RW_D3D9 || defined RWLIBS
 #include "win.h"
 #endif
+#if defined(DC_TEXCONV)
+#include <Windows.h>
+#endif
 extern DWORD _dwOperatingSystemVersion;
 #define fcaseopen fopen
 #define caserename rename
@@ -75,6 +78,24 @@ void CapturePad(RwInt32 padID);
 void joysChangeCB(int jid, int event);
 #endif
 
+#ifdef RW_DC
+typedef struct
+{
+    RwBool		fullScreen;
+    RwV2d		lastMousePos;
+    double      mouseWheel; // glfw doesn't cache it
+    bool        cursorIsInWindow;
+    RwInt8        joy1id;
+    RwInt8        joy2id;
+}
+psGlobalType;
+
+#define PSGLOBAL(var) (((psGlobalType *)(RsGlobal.ps))->var)
+
+void CapturePad(RwInt32 padID);
+void joysChangeCB(int jid, int event);
+#endif
+
 #ifdef DETECT_JOYSTICK_MENU
 extern char gSelectedJoystickName[128];
 #endif
@@ -106,6 +127,9 @@ RwBool IsForegroundApp();
 
 // Codes compatible with Windows and Linux
 #ifndef _WIN32
+#if defined(DC_SIM)
+#include <unistd.h>
+#endif
 #define DeleteFile unlink
 
 // Needed for save games
@@ -131,8 +155,8 @@ void GetLocalTime_CP(SYSTEMTIME* out);
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <langinfo.h>
-#include <unistd.h>
+// #include <langinfo.h>
+// #include <unistd.h>
 
 typedef void* HANDLE;
 #define INVALID_HANDLE_VALUE NULL

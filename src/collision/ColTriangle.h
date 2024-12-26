@@ -23,9 +23,10 @@ struct CColTriangle
 
 struct CColTrianglePlane
 {
-#ifdef VU_COLLISION
+#if defined(VU_COLLISION) || defined(RW_DC)
 	CompressedVector normal;
 	int16 dist;
+	uint8 dir;
 
 	void Set(const CVector &va, const CVector &vb, const CVector &vc);
 	void Set(const CompressedVector *v, CColTriangle &tri) { Set(v[tri.a].Get(), v[tri.b].Get(), v[tri.c].Get()); }

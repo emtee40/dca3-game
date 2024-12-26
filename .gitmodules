@@ -10,7 +10,6 @@
 	path = vendor/opusfile
 	url = https://github.com/xiph/opusfile.git
 	branch = master
-[submodule "vendor/librw"]
-	path = vendor/librw
-	url = https://github.com/aap/librw.git
-	branch = master
+[submodule "vendor/dca3-kos"]
+	path = vendor/dca3-kos
+	url = https://gitlab.com/skmp/dca3-kos.git

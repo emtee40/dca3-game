@@ -442,8 +442,13 @@ enum
 
 enum eControlMethod
 {
-	CONTROL_STANDARD = 0,
-	CONTROL_CLASSIC,
+    #ifdef RW_DC // Change to have Classic Control per default, credits to Frogbull
+        CONTROL_CLASSIC = 0,
+        CONTROL_STANDARD,
+    #else
+        CONTROL_STANDARD = 0,
+        CONTROL_CLASSIC,
+    #endif
 };
 
 // Why??

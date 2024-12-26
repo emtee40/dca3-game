@@ -1,4 +1,5 @@
 #include <csignal>
+#include <kos/dbglog.h>
 #define WITHWINDOWS
 #include "common.h"
 #if defined DETECT_JOYSTICK_MENU && defined XINPUT
@@ -49,9 +50,13 @@
 #include "crossplatform.h"
 
 #ifndef _WIN32
+#ifndef RW_DC
 #include "assert.h"
+#endif
 #include <stdarg.h>
 #endif
+
+#include "../vmu/vmu.h"
 
 #ifdef RWLIBS
 extern "C" int vsprintf(char* const _Buffer, char const* const _Format, va_list  _ArgList);
@@ -184,7 +189,13 @@ CustomFrontendOptionsPopulate(void)
 #define MINI_CASE_SENSITIVE
 #include "ini.h"
 
-mINI::INIFile ini("re3.ini");
+mINI::INIFile ini(
+#if defined(DC_SIM)
+	"re3.ini"
+#else
+	"/vmu/" VMU_DEFAULT_PATH "/re3ini"
+#endif
+);
 mINI::INIStructure cfg;
 
 bool ReadIniIfExists(const char *cat, const char *key, uint32 *out)
@@ -286,6 +297,13 @@ void StoreIni(const char *cat, const char *key, int32 val)
 }
 
 void StoreIni(const char *cat, const char *key, int8 val)
+{
+	char temp[11];
+	sprintf(temp, "%d", val);
+	cfg[cat][key] = temp;
+}
+
+void StoreIni(const char *cat, const char *key, bool val)
 {
 	char temp[11];
 	sprintf(temp, "%d", val);
@@ -466,13 +484,19 @@ void SaveINIControllerSettings()
 #endif
 	StoreIni("Controller", "PadButtonsInited", ControlsManager.ms_padButtonsInited);
 
-	ini.write(cfg);
+	{
+		RAIIVmuBeep(VMU_DEFAULT_PATH, 1.0f);
+		ini.write(cfg);
+	}
 }
 
 bool LoadINISettings()
 {
-	if (!ini.read(cfg))
-		return false;
+	{
+		RAIIVmuBeep(VMU_DEFAULT_PATH, 1.0f);
+		if (!ini.read(cfg))
+			return false;
+	}
 
 #ifdef IMPROVED_VIDEOMODE
 	ReadIniIfExists("VideoMode", "Width", &FrontEndMenuManager.m_nPrefsWidth);
@@ -793,7 +817,7 @@ ResetCamStatics(void)
 }
 
 #ifdef MISSION_SWITCHER
-int8 nextMissionToSwitch = 0;
+uint32 nextMissionToSwitch = 0;
 static void
 SwitchToMission(void)
 {
@@ -915,8 +939,8 @@ DebugMenuPopulate(void)
 		DebugMenuAddCmd("Cheats", "Strong grip", StrongGripCheat);
 		DebugMenuAddCmd("Cheats", "Nasty limbs", NastyLimbsCheat);
 
-		static int spawnCarId = MI_LANDSTAL;
-		e = DebugMenuAddVar("Spawn", "Spawn Car ID", &spawnCarId, nil, 1, MI_LANDSTAL, MI_GHOST, carnames);
+		static int32 spawnCarId = MI_LANDSTAL;
+		e = DebugMenuAddVar("Spawn", "Spawn Car ID", (int32_t*)&spawnCarId, nil, 1, MI_LANDSTAL, MI_GHOST, carnames);
 		DebugMenuEntrySetWrap(e, true);
 		DebugMenuAddCmd("Spawn", "Spawn Car", [](){
 			if(spawnCarId == MI_TRAIN ||
@@ -959,8 +983,8 @@ DebugMenuPopulate(void)
 		DebugMenuAddVarBool8("Render", "Fix Sprites", &CDraw::ms_bFixSprites, nil);
 #endif
 		DebugMenuAddVarBool8("Render", "PS2 Alpha test Emu", &gPS2alphaTest, nil);
-		DebugMenuAddVarBool8("Render", "Frame limiter", &FrontEndMenuManager.m_PrefsFrameLimiter, nil);
-		DebugMenuAddVarBool8("Render", "VSynch", &FrontEndMenuManager.m_PrefsVsync, nil);
+		DebugMenuAddVarBool8("Render", "Frame limiter", (int8_t*)&FrontEndMenuManager.m_PrefsFrameLimiter, nil);
+		DebugMenuAddVarBool8("Render", "VSynch", (int8_t*)&FrontEndMenuManager.m_PrefsVsync, nil);
 		DebugMenuAddVar("Render", "Max FPS", &RsGlobal.maxFPS, nil, 1, 1, 1000, nil);
 #ifdef NEW_RENDERER
 		DebugMenuAddVarBool8("Render", "New Renderer", &gbNewRenderer, nil);
@@ -988,7 +1012,7 @@ extern bool gbRenderWorld2;
 
 #ifdef EXTENDED_COLOURFILTER
 		static const char *filternames[] = { "None", "Simple", "Normal", "Mobile" };
-		e = DebugMenuAddVar("Render", "Colourfilter", &CPostFX::EffectSwitch, nil, 1, CPostFX::POSTFX_OFF, CPostFX::POSTFX_MOBILE, filternames);
+		e = DebugMenuAddVar("Render", "Colourfilter", (int32_t*)&CPostFX::EffectSwitch, nil, 1, CPostFX::POSTFX_OFF, CPostFX::POSTFX_MOBILE, filternames);
 		DebugMenuEntrySetWrap(e, true);
 		DebugMenuAddVar("Render", "Intensity", &CPostFX::Intensity, nil, 0.05f, 0, 10.0f);
 		DebugMenuAddVarBool8("Render", "Motion Blur", &CPostFX::MotionBlurOn, nil);
@@ -1080,7 +1104,7 @@ extern bool gbRenderWorld2;
 			"Uzi Money", "Toyminator", "Rigged To Blow", "Bullion Run", "Rumble", "The Exchange"
 		};
 
-		missionEntry = DebugMenuAddVar("Game", "Select mission", &nextMissionToSwitch, nil, 1, 0, ARRAY_SIZE(missions) - 1, missions);
+		missionEntry = DebugMenuAddVar("Game", "Select mission", (uint32_t*)&nextMissionToSwitch, nil, 1, 0, ARRAY_SIZE(missions) - 1, missions);
 		DebugMenuEntrySetWrap(missionEntry, true);
 		DebugMenuAddCmd("Game", "Start selected mission ", SwitchToMission);
 #endif
@@ -1109,6 +1133,8 @@ extern bool gbRenderWorld2;
 const int   re3_buffsize = 1024;
 static char re3_buff[re3_buffsize];
 #endif
+
+extern void stacktrace();
 
 #ifndef MASTER
 void re3_assert(const char *expr, const char *filename, unsigned int lineno, const char *func)
@@ -1160,13 +1186,27 @@ void re3_assert(const char *expr, const char *filename, unsigned int lineno, con
 	abort();
 #else
 	// TODO
-	printf("\nRE3 ASSERT FAILED\n\tFile: %s\n\tLine: %d\n\tFunction: %s\n\tExpression: %s\n",filename,lineno,func,expr);
-	assert(false);
+	fflush(stdout);
+	fflush(stderr);
+	dbglog(DBG_CRITICAL, "\nRE3 ASSERT FAILED\n\tFile: %s\n\tLine: %d\n\tFunction: %s\n\tExpression: %s\n",filename,lineno,func,expr);
+	dbglog(DBG_CRITICAL, "POSIX error (may not be relevant): %s\n", strerror(errno));
+	#if defined(DC_SIM) || defined(DC_TEXCONV)
+	for(;;);
+	#else
+	stacktrace();
+    dbgio_dev_select("fb");
+	sleep(1);
+	dbgio_printf("RE3 ASSERT FAILED\n\tFile: %s\n\tLine: %d\n\tFunction: %s\n\tExpression: %s\n",filename,lineno,func,expr);
+	dbgio_printf("POSIX error (may not be relevant): %s\n", strerror(errno));
+	stacktrace();
+	dbgio_flush();
+	abort();
+	#endif
 #endif
 }
 #endif
 
-void re3_debug(const char *format, ...)
+void (re3_debug)(const char *format, ...)
 {
 #ifndef MASTER
 	va_list va;
@@ -1184,7 +1224,7 @@ void re3_debug(const char *format, ...)
 }
 
 #ifndef MASTER
-void re3_trace(const char *filename, unsigned int lineno, const char *func, const char *format, ...)
+void (re3_trace)(const char *filename, unsigned int lineno, const char *func, const char *format, ...)
 {
 	char buff[re3_buffsize *2];
 	va_list va;
@@ -1206,7 +1246,7 @@ void re3_trace(const char *filename, unsigned int lineno, const char *func, cons
 #endif
 
 #ifndef MASTER
-void re3_usererror(const char *format, ...)
+void (re3_usererror)(const char *format, ...)
 {
 	va_list va;
 	va_start(va, format);

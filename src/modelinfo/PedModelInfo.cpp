@@ -270,7 +270,6 @@ CPedModelInfo::AnimatePedColModel(CColModel* colmodel, RwFrame* frame)
 {
 	RwObjectNameAssociation nameAssoc;
 	RwObjectIdAssociation idAssoc;
-	RwMatrix* mat = RwMatrixCreate();
 	CColSphere* spheres = colmodel->spheres;
 
 	for (int i = 0; i < NUMPEDINFONODES; i++) {
@@ -288,15 +287,16 @@ CPedModelInfo::AnimatePedColModel(CColModel* colmodel, RwFrame* frame)
 			f = idAssoc.frame;
 		}
 		if (f) {
-			RwMatrixCopy(mat, RwFrameGetMatrix(f));
+			RwMatrix mat;
+			RwMatrixCopy(&mat, RwFrameGetMatrix(f));
 
 			for (f = RwFrameGetParent(f); f; f = RwFrameGetParent(f)) {
-				RwMatrixTransform(mat, RwFrameGetMatrix(f), rwCOMBINEPOSTCONCAT);
+				RwMatrixTransform(&mat, RwFrameGetMatrix(f), rwCOMBINEPOSTCONCAT);
 				if (RwFrameGetParent(f) == frame)
 					break;
 			}
 
-			spheres[i].center = mat->pos + CVector(m_pColNodeInfos[i].x, 0.0f, m_pColNodeInfos[i].z);
+			spheres[i].center = mat.pos + CVector(m_pColNodeInfos[i].x, 0.0f, m_pColNodeInfos[i].z);
 		}
 	}
 

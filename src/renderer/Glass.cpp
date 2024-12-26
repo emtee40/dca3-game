@@ -537,7 +537,7 @@ CGlass::CalcAlphaWithNormal(CVector *normal)
 	
 	float fwdDir = 2.0f * DotProduct(*normal, TheCamera.GetForward());
 	float fwdDot = DotProduct(TheCamera.GetForward()-fwdDir*(*normal), CVector(0.57f, 0.57f, -0.57f));
-	return int32(lerp(fwdDot*fwdDot*fwdDot*fwdDot*fwdDot*fwdDot, 20.0f, 255.0f));
+	return int32(Lerp(fwdDot*fwdDot*fwdDot*fwdDot*fwdDot*fwdDot, 20.0f, 255.0f));
 }
 
 void

@@ -1578,7 +1578,7 @@ CStaticShadow::Free(void)
 		while (pUsed->m_pNext != NULL)
 			pUsed = pUsed->m_pNext;
 
-			pUsed->m_pNext = pFree;
+		pUsed->m_pNext = pFree;
 	}
 
 	m_pPolyBunch = NULL;

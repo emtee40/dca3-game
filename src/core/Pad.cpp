@@ -2,12 +2,22 @@
 #include "common.h"
 #include "crossplatform.h"
 #include "platform.h"
+#ifdef RW_DC
+
+#include <dc/maple.h>
+#include <dc/maple/controller.h>
+#include <map>
+
+auto contMaple = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
+auto state = (cont_state_t *)maple_dev_status(contMaple);
+
 #ifdef XINPUT
 #include <xinput.h>
 #if !defined(PSAPI_VERSION) || (PSAPI_VERSION > 1)
 #pragma comment( lib, "Xinput9_1_0.lib" )
 #else
 #pragma comment( lib, "Xinput.lib" )
+#endif
 #endif
 #endif
 
@@ -526,6 +536,8 @@ CMouseControllerState CMousePointerStateHelper::GetMouseSetUp()
 			state.WHEELUP = true;
 		}
 	}
+#elif defined(RW_DC)
+	printf("TODO this %s\n", __func__);
 #else
 	// It seems there is no way to get number of buttons on mouse, so assign all buttons if we have mouse.
 	double xpos = 1.0f, ypos;
@@ -585,6 +597,8 @@ void CPad::UpdateMouse()
 			NewMouseControllerState = PCTempMouseControllerState;
 		}
 	}
+#elif defined(RW_DC)
+	// TODO: Mouse input here?
 #else
 	if ( IsForegroundApp() && PSGLOBAL(cursorIsInWindow) )
 	{
@@ -1418,8 +1432,41 @@ void CPad::Update(int16 pad)
 	if (!CRecordDataForGame::IsPlayingBack() && !CRecordDataForChase::ShouldThisPadBeLeftAlone(pad))
 #endif
 	{
+#ifdef RW_DC
+		if (pad == 0) {
+			NewState.DPadUp			= state->dpad_up;				//This part could be inside a compiler directive to preserve the old code and just use this block if compil
+			NewState.DPadDown		= state->dpad_down;				//I also changed CControllerState inside Pad.h and created these values for DC controllers
+			NewState.DPadLeft		= state->dpad_left;
+			NewState.DPadRight		= state->dpad_right;
+			NewState.A				= state->a;
+			NewState.B				= state->b;
+			NewState.X				= state->x;
+			NewState.Y				= state->y;
+			NewState.Start			= state->start;
+			NewState.RightTrigger	= state->rtrig;
+			NewState.LeftTrigger	= state->ltrig;
+			NewState.LeftStickX		= state->joyx;
+			NewState.LeftStickY		= state->joyy;
+			NewState.RightShock		= state->dpad_left;
+		} else {
+			NewState.DPadUp			= 0;
+			NewState.DPadDown		= 0;
+			NewState.DPadLeft		= 0;
+			NewState.DPadRight		= 0;
+			NewState.A				= 0;
+			NewState.B				= 0;
+			NewState.X				= 0;
+			NewState.Y				= 0;
+			NewState.Start			= 0;
+			NewState.RightTrigger	= 0;
+			NewState.LeftTrigger	= 0;
+			NewState.LeftStickX		= 0;
+			NewState.LeftStickY		= 0;
+		}
+#else
 		NewState = ReconcileTwoControllersInput(PCTempKeyState, PCTempJoyState);
 		NewState = ReconcileTwoControllersInput(PCTempMouseState, NewState);
+#endif
 	}
 
 	PCTempJoyState.Clear();
@@ -1520,11 +1567,21 @@ CPad *CPad::GetPad(int32 pad)
 #define CURMODE (Mode)
 #endif
 
+//The next are the actuall functions that are checked and produce the values that are used by engine to make the char run, the car turn, etc
+//Although initially I didn't want to change them, I think here is the best place to create the custom desired mapping and behavior for the DC inputs
+//The switch statement using CURMODE could be used in the future to define diferent control configurations, depending on the type of controller and desired mapping (e.g. Xbox like or PS2 like)
+//While i think its possible, creating a system to configure custom mappings inside the game menus like in the PC game is out of my scope in the moment, I don't know if this is really necessary
+//Also, the interface controls are not defined here, they are defined in Frontend.cpp unfortunately, using CControllerState values like here; Because of that, the behavior of the Start button and the A button for selecting menu itens are not here
 
 int16 CPad::GetSteeringLeftRight(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
+	
+#ifdef RW_DC
+	if (NewState.X)
+		return 0;
+#endif
 
 	switch (CURMODE)
 	{
@@ -1558,6 +1615,11 @@ int16 CPad::GetSteeringUpDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
+	
+#ifdef RW_DC
+	if (NewState.X)
+		return 0;
+#endif
 
 	switch (CURMODE)
 	{
@@ -1591,24 +1653,44 @@ int16 CPad::GetCarGunUpDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
+	
+#ifdef RW_DC
+	if (!NewState.X)
+		return 0;
+#endif
 
 	switch (CURMODE)
 	{
 		case 0:
-		case 1:
+		case 1:		
+#ifdef RW_DC
+		case 2:
+		{
+			return NewState.LeftStickY;
+			
+			break;
+		}	
+		case 3:
+		{
+			return NewState.LeftStickY;
+			
+			break;
+		}
+		
+#else
 		case 2:
 		{
 			return NewState.RightStickY;
 
 			break;
 		}
-
 		case 3:
 		{
 			return (NewState.DPadUp - NewState.DPadDown) / 2;
 
 			break;
 		}
+#endif
 	}
 
 	return 0;
@@ -1618,24 +1700,42 @@ int16 CPad::GetCarGunLeftRight(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
+#ifdef RW_DC
+	if (!NewState.X)
+		return 0;
+#endif
 
 	switch (CURMODE)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 2:
+		{
+			return NewState.LeftStickX;
+			
+			break;
+		}
+		case 3: 
+		{
+			return NewState.LeftStickX;
+			
+			break;
+		}
+#else
 		case 2:
 		{
 			return NewState.RightStickX;
 
 			break;
 		}
-
 		case 3:
 		{
 			return (NewState.DPadRight - NewState.DPadLeft) / 2;
 
 			break;
 		}
+#endif
 	}
 
 	return 0;
@@ -1645,10 +1745,23 @@ int16 CPad::GetPedWalkLeftRight(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
+	
+#ifdef RW_DC
+	if (NewState.X)
+		return 0;
+#endif
 
 	switch (CURMODE)
 	{
 		case 0:
+#ifdef RW_DC
+		case 2:
+		{
+			return NewState.LeftStickX;
+
+			break;
+		}
+#else		
 		case 2:
 		{
 			int16 axis = NewState.LeftStickX;
@@ -1661,7 +1774,7 @@ int16 CPad::GetPedWalkLeftRight(void)
 
 			break;
 		}
-
+#endif
 		case 1:
 		case 3:
 		{
@@ -1679,10 +1792,23 @@ int16 CPad::GetPedWalkUpDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
+	
+#ifdef RW_DC
+	if (NewState.X)
+		return 0;
+#endif
 
 	switch (CURMODE)
 	{
 		case 0:
+#ifdef RW_DC
+		case 2:
+		{
+			return NewState.LeftStickY;
+
+			break;
+		}
+#else
 		case 2:
 		{
 			int16 axis = NewState.LeftStickY;
@@ -1695,7 +1821,7 @@ int16 CPad::GetPedWalkUpDown(void)
 
 			break;
 		}
-
+#endif
 		case 1:
 		case 3:
 		{
@@ -1713,6 +1839,14 @@ int16 CPad::GetAnalogueUpDown(void)
 	switch (CURMODE)
 	{
 		case 0:
+#ifdef RW_DC
+		case 2:
+		{
+			return NewState.LeftStickY;
+
+			break;
+		}
+#else
 		case 2:
 		{
 			int16 axis = NewState.LeftStickY;
@@ -1725,7 +1859,7 @@ int16 CPad::GetAnalogueUpDown(void)
 
 			break;
 		}
-
+#endif
 		case 1:
 		case 3:
 		{
@@ -1767,8 +1901,11 @@ bool CPad::GetLookBehindForPed(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return false;
-
+#ifdef RW_DC
+	return	NewState.DPadDown;
+#else
 	return !!NewState.RightShock;
+#endif
 }
 
 bool CPad::GetHorn(void)
@@ -1778,7 +1915,33 @@ bool CPad::GetHorn(void)
 
 	switch (CURMODE)
 	{
-		case 0:
+#ifdef RW_DC
+	case 0:
+		{
+			return !!NewState.DPadRight;
+
+			break;
+		}
+	case 1:
+		{
+			return !!NewState.DPadRight;
+
+			break;
+		}
+	case 2:
+		{
+			return !!NewState.DPadRight;
+
+			break;
+		}
+	case 3:
+		{
+			return !!NewState.DPadRight;
+
+			break;
+		}
+#else
+	case 0:
 		{
 			return !!NewState.LeftShock;
 
@@ -1805,6 +1968,7 @@ bool CPad::GetHorn(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -1859,6 +2023,21 @@ bool CPad::GetCarGunFired(void)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 2:
+		{
+			return !!NewState.A;
+
+			break;
+		}
+
+		case 3:
+		{
+			return !!NewState.A;
+
+			break;
+		}
+#else
 		case 2:
 		{
 			return !!NewState.Circle;
@@ -1872,6 +2051,7 @@ bool CPad::GetCarGunFired(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -1886,6 +2066,21 @@ bool CPad::CarGunJustDown(void)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 2:
+		{
+			return !!NewState.A;
+
+			break;
+		}
+
+		case 3:
+		{
+			return !!NewState.A;
+
+			break;
+		}
+#else
 		case 2:
 		{
 			return !!(NewState.Circle && !OldState.Circle);
@@ -1899,6 +2094,7 @@ bool CPad::CarGunJustDown(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -1908,9 +2104,32 @@ int16 CPad::GetHandBrake(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
-
+	
 	switch (CURMODE)
 	{
+#ifdef RW_DC
+		case 0:
+		case 1:
+		{
+			return NewState.B;
+
+			break;
+		}
+
+		case 2:
+		{
+			return NewState.B;
+
+			break;
+		}
+
+		case 3:
+		{
+			return NewState.B;
+
+			break;
+		}
+#else
 		case 0:
 		case 1:
 		{
@@ -1932,6 +2151,7 @@ int16 CPad::GetHandBrake(void)
 
 			break;
 		}
+#endif
 	}
 
 	return 0;
@@ -1941,9 +2161,37 @@ int16 CPad::GetBrake(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
-
+	
 	switch (CURMODE)
 	{
+#ifdef RW_DC
+		case 0:
+		case 2:
+		{
+			return NewState.LeftTrigger;
+
+			break;
+		}
+
+		case 1:
+		{
+			return NewState.LeftTrigger;
+
+			break;
+		}
+
+		case 3:
+		{
+			int16 axis = 2 * NewState.LeftTrigger;
+
+			if ( axis < 0 )
+				return 0;
+			else
+				return axis;
+
+			break;
+		}
+#else
 		case 0:
 		case 2:
 		{
@@ -1970,8 +2218,8 @@ int16 CPad::GetBrake(void)
 
 			break;
 		}
+#endif
 	}
-
 	return 0;
 }
 
@@ -1979,9 +2227,26 @@ bool CPad::GetExitVehicle(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return false;
-
+	
 	switch (CURMODE)
 	{
+#ifdef RW_DC
+		case 0:
+		case 1:
+		case 3:
+		{
+			return !!NewState.Y;
+
+			break;
+		}
+
+		case 2:
+		{
+			return !!NewState.Y;
+
+			break;
+		}
+#else
 		case 0:
 		case 1:
 		case 3:
@@ -1997,6 +2262,7 @@ bool CPad::GetExitVehicle(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -2011,6 +2277,21 @@ bool CPad::ExitVehicleJustDown(void)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 3:
+		{
+			return !!(NewState.Y && !OldState.Y);
+
+			break;
+		}
+
+		case 2:
+		{
+			return !!(NewState.Y && !OldState.Y);
+
+			break;
+		}
+#else		
 		case 3:
 		{
 			return !!(NewState.Triangle && !OldState.Triangle);
@@ -2024,6 +2305,7 @@ bool CPad::ExitVehicleJustDown(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -2037,26 +2319,46 @@ int32 CPad::GetWeapon(void)
 	switch (CURMODE)
 	{
 		case 0:
+#ifdef RW_DC
 		case 1:
 		{
-			return NewState.Circle;
+			if (NewState.RightTrigger > 128)
+				return true;
 
 			break;
 		}
 
 		case 2:
 		{
-			return NewState.Cross;
+			if (NewState.RightTrigger > 128)
+				return true;
 
 			break;
 		}
 
 		case 3:
 		{
-			return NewState.RightShoulder1;
+			if (NewState.RightTrigger > 128)
+				return true;
 
 			break;
 		}
+#else
+		case 1:
+		{
+			return NewState.Circle;
+		}
+
+		case 2:
+		{
+			return NewState.Cross;
+		}
+
+		case 3:
+		{
+			return NewState.RightShoulder1;
+		}
+#endif
 	}
 
 	return false;
@@ -2070,26 +2372,46 @@ bool CPad::WeaponJustDown(void)
 	switch (CURMODE)
 	{
 		case 0:
+#ifdef RW_DC
 		case 1:
 		{
-			return !!(NewState.Circle && !OldState.Circle);
+			if (NewState.RightTrigger > 128)
+				return true;			
 
 			break;
 		}
 
 		case 2:
 		{
-			return !!(NewState.Cross && !OldState.Cross);
-
+			if (NewState.RightTrigger > 128)
+				return true;
+			
 			break;
 		}
 
 		case 3:
 		{
-			return !!(NewState.RightShoulder1 && !OldState.RightShoulder1);
-
+			if (NewState.RightTrigger > 128)
+				return true;
+			
 			break;
 		}
+#else
+		case 1:
+		{
+			return !!(NewState.Circle && !OldState.Circle);
+		}
+
+		case 2:
+		{
+			return !!(NewState.Cross && !OldState.Cross);
+		}
+
+		case 3:
+		{
+			return !!(NewState.RightShoulder1 && !OldState.RightShoulder1);
+		}
+#endif
 	}
 
 	return false;
@@ -2099,10 +2421,37 @@ int16 CPad::GetAccelerate(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return 0;
-
+	
 	switch (CURMODE)
 	{
 		case 0:
+#ifdef RW_DC
+		case 2:
+		{
+			return NewState.RightTrigger;
+
+			break;
+		}
+
+		case 1:
+		{
+			return NewState.RightTrigger;
+
+			break;
+		}
+
+		case 3:
+		{
+			int16 axis = -2 * NewState.RightTrigger;
+
+			if ( axis < 0 )
+				return 0;
+			else
+				return axis;
+
+			break;
+		}
+#else
 		case 2:
 		{
 			return NewState.Cross;
@@ -2128,6 +2477,7 @@ int16 CPad::GetAccelerate(void)
 
 			break;
 		}
+#endif
 	}
 
 	return 0;
@@ -2139,13 +2489,21 @@ bool CPad::CycleCameraModeUpJustDown(void)
 	{
 		case 0:
 		case 2:
+#ifdef RW_DC
+		case 3:
+		{
+			return !!(NewState.DPadUp && !OldState.DPadUp);
+
+			break;
+		}
+#else
 		case 3:
 		{
 			return !!(NewState.Select && !OldState.Select);
 
 			break;
 		}
-
+#endif
 		case 1:
 		{
 			return !!(NewState.DPadUp && !OldState.DPadUp);
@@ -2225,16 +2583,22 @@ bool CPad::CycleWeaponLeftJustDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return false;
-
+#ifdef RW_DC
+	return !!(NewState.DPadLeft && !OldState.DPadLeft);
+#else
 	return !!(NewState.LeftShoulder2 && !OldState.LeftShoulder2);
+#endif
 }
 
 bool CPad::CycleWeaponRightJustDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return false;
-
+#ifdef RW_DC
+	return !!(NewState.DPadRight && !OldState.DPadRight);
+#else
 	return !!(NewState.RightShoulder2 && !OldState.RightShoulder2);
+#endif
 }
 
 bool CPad::GetTarget(void)
@@ -2246,19 +2610,32 @@ bool CPad::GetTarget(void)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 2:
+		{
+			if (NewState.LeftTrigger > 128)
+				return true;
+			
+			break;
+		}
+		case 3:
+		{
+			if (NewState.LeftTrigger > 128)
+				return true;
+			break;
+		}		
+#else
 		case 2:
 		{
 			return !!NewState.RightShoulder1;
-
 			break;
 		}
-
 		case 3:
 		{
 			return !!NewState.LeftShoulder1;
-
 			break;
-		}
+		}		
+#endif
 	}
 
 	return false;
@@ -2273,6 +2650,21 @@ bool CPad::TargetJustDown(void)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 2:
+		{
+			if (NewState.LeftTrigger > 128)
+				return true;
+			
+			break;
+		}
+		case 3:
+		{
+			if (NewState.LeftTrigger > 128)
+				return true;
+			break;
+		}		
+#else
 		case 2:
 		{
 			return !!(NewState.RightShoulder1 && !OldState.RightShoulder1);
@@ -2286,6 +2678,7 @@ bool CPad::TargetJustDown(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -2295,19 +2688,37 @@ bool CPad::JumpJustDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return false;
-
+#ifdef RW_DC
+	return !!(NewState.B && !OldState.B);
+#else
 	return !!(NewState.Square && !OldState.Square);
+#endif
 }
 
 bool CPad::GetSprint(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return false;
-
+	
 	switch (CURMODE)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 3:
+		{
+			return NewState.A;
+
+			break;
+		}
+
+		case 2:
+		{
+			return NewState.A;
+
+			break;
+		}
+#else
 		case 3:
 		{
 			return !!NewState.Cross;
@@ -2321,6 +2732,7 @@ bool CPad::GetSprint(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -2330,16 +2742,26 @@ bool CPad::ShiftTargetLeftJustDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return false;
+#ifdef RW_DC
+
+	return !!(NewState.DPadLeft && !OldState.DPadLeft);
+#else
 
 	return !!(NewState.LeftShoulder2 && !OldState.LeftShoulder2);
+#endif
 }
 
 bool CPad::ShiftTargetRightJustDown(void)
 {
 	if ( ArePlayerControlsDisabled() )
 		return false;
+#ifdef RW_DC
+
+	return !!(NewState.DPadRight && !OldState.DPadRight);
+#else
 
 	return !!(NewState.RightShoulder2 && !OldState.RightShoulder2);
+#endif
 }
 
 #ifdef FIX_BUGS
@@ -2612,6 +3034,21 @@ bool CPad::SniperZoomIn(void)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 3:
+		{
+			return !!NewState.X;
+
+			break;
+		}
+
+		case 2:
+		{
+			return !!NewState.X;
+
+			break;
+		}
+#else
 		case 3:
 		{
 			return !!NewState.Square;
@@ -2625,6 +3062,7 @@ bool CPad::SniperZoomIn(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -2639,6 +3077,21 @@ bool CPad::SniperZoomOut(void)
 	{
 		case 0:
 		case 1:
+#ifdef RW_DC
+		case 3:
+		{
+			return !!NewState.A;
+
+			break;
+		}
+
+		case 2:
+		{
+			return !!NewState.A;
+
+			break;
+		}
+#else
 		case 3:
 		{
 			return !!NewState.Cross;
@@ -2652,6 +3105,7 @@ bool CPad::SniperZoomOut(void)
 
 			break;
 		}
+#endif
 	}
 
 	return false;
@@ -2696,7 +3150,13 @@ int16 CPad::SniperModeLookUpDown(void)
 
 int16 CPad::LookAroundLeftRight(void)
 {
+	if (!NewState.X)
+		return 0;
+#ifdef RW_DC
+	float axis = GetPad(0)->NewState.LeftStickX;			//I don't know why this is float and the UpDown is int16
+#else
 	float axis = GetPad(0)->NewState.RightStickX;
+#endif	
 
 	if ( Abs(axis) > 85 && !GetLookBehindForPed() )
 		return (int16) ( (axis + ( ( axis > 0 ) ? -85 : 85) )
@@ -2711,7 +3171,14 @@ int16 CPad::LookAroundLeftRight(void)
 
 int16 CPad::LookAroundUpDown(void)
 {
+	if (!NewState.X)
+		return 0;
+#ifdef RW_DC
+	int16 axis = GetPad(0)->NewState.LeftStickY;
+#else
 	int16 axis = GetPad(0)->NewState.RightStickY;
+#endif
+
 
 #ifdef FIX_BUGS
 	axis = -axis;

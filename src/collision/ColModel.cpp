@@ -51,8 +51,8 @@ CColModel::CalculateTrianglePlanes(void)
 {
 	PUSH_MEMID(MEMID_COLLISION);
 
-	// HACK: allocate space for one more element to stuff the link pointer into
-	trianglePlanes = (CColTrianglePlane*)RwMalloc(sizeof(CColTrianglePlane) * (numTriangles+1));
+	// HACK: allocate space for one more element plus 8 to stuff the link pointer into
+	trianglePlanes = (CColTrianglePlane*)RwMalloc(sizeof(CColTrianglePlane) * (numTriangles+1) + sizeof(void*));
 	REGISTER_MEMPTR(&trianglePlanes);
 	for(int i = 0; i < numTriangles; i++)
 		trianglePlanes[i].Set(vertices, triangles[i]);

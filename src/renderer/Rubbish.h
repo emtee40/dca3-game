@@ -3,12 +3,15 @@
 class CVehicle;
 
 enum {
-	// NB: not all values are allowed, check the code
-#ifdef SQUEEZE_PERFORMANCE
+
+#ifdef RW_DC // Frogbull (not Dirty) Hack that allow less Debris on screen for the Dreamcast Port
+	NUM_RUBBISH_SHEETS = 16 // NUM_RUBBISH_SHEETS must be a multiple of 4 (4 or 8 is the minimum value I think, max value is 64)
+#elif SQUEEZE_PERFORMANCE
 	NUM_RUBBISH_SHEETS = 32
 #else
-	NUM_RUBBISH_SHEETS = 64
+	NUM_RUBBISH_SHEETS = 64 // NB: not all values are allowed, check the code
 #endif
+
 };
 
 class COneSheet

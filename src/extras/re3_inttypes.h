@@ -1,3 +1,5 @@
+#ifndef __DREAMCAST__
+
 #define PRId8     "hhd"
 #define PRId16    "hd"
 #define PRId32    "ld"
@@ -214,3 +216,5 @@
 
 #define SCNXMAX   "llX"
 #define SCNXPTR   "llX"
+
+#endif

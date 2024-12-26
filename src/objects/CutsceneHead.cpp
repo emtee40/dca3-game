@@ -94,7 +94,9 @@ CCutsceneHead::ProcessControl(void)
 	// PS2 only plays anims in cutscene, PC always plays anims
 	if(!lastLoadedSKA || CCutsceneMgr::IsRunning())
 #endif
+if (hier) {
 	RpHAnimHierarchyAddAnimTime(hier, CTimer::GetTimeStepNonClippedInSeconds());
+}
 }
 
 void

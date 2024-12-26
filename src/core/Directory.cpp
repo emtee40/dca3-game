@@ -5,7 +5,7 @@
 #include "Directory.h"
 
 CDirectory::CDirectory(int32 maxEntries)
- : numEntries(0), maxEntries(maxEntries)
+ : maxEntries(maxEntries), numEntries(0)
 {
 	entries = new DirectoryInfo[maxEntries];
 }

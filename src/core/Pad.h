@@ -12,16 +12,18 @@ enum {
 	PLAYERCONTROL_CUTSCENE = 128,
 };
 
-class CControllerState
+class CControllerState		//Need to be separated with ifdef for PS2 and DC in the future, dependent code must be tracked first
 {
 public:
 	int16 LeftStickX, LeftStickY;
 	int16 RightStickX, RightStickY;
+	int16 RightTrigger, LeftTrigger;
 	int16 LeftShoulder1, LeftShoulder2;
 	int16 RightShoulder1, RightShoulder2;
 	int16 DPadUp, DPadDown, DPadLeft, DPadRight;
 	int16 Start, Select;
 	int16 Square, Triangle, Cross, Circle;
+	uint32_t A, B, C, X, Y, Z;
 	int16 LeftShock, RightShock;
 	int16 NetworkTalk;
 	float GetLeftStickX(void) { return LeftStickX/32767.0f; };
@@ -408,8 +410,76 @@ public:
 	bool GetLeftWin()             { return NewKeyState.LWIN; }
 	bool GetRightWin()            { return NewKeyState.RWIN; }
 	bool GetApps()                { return NewKeyState.APPS; }
-	// pad
+	// pad -- All these functions could be costumized to make cheat codes available, they are the ones used
 
+#ifdef RW_DC
+	bool GetTriangleJustDown()       { return !!(NewState.Triangle && !OldState.Triangle); }
+	bool GetCircleJustDown()         { return !!(NewState.Circle && !OldState.Circle); }
+	bool GetCrossJustDown()          { return !!(NewState.A && !OldState.A); } //------------HACKY, CHANGE LATTER, GetCrossJustDown is used by Frontend.cpp to select items on the menus
+	bool GetSquareJustDown()         { return !!(NewState.Square && !OldState.Square); }
+	bool GetLeftShoulder1JustDown()  { return !!(NewState.LeftShoulder1 && !OldState.LeftShoulder1); }
+	bool GetLeftShoulder2JustDown()  { return !!(NewState.LeftShoulder2 && !OldState.LeftShoulder2); }
+	bool GetRightShoulder1JustDown() { return !!(NewState.RightShoulder1 && !OldState.RightShoulder1); }
+	bool GetRightShoulder2JustDown() { return !!(NewState.RightShoulder2 && !OldState.RightShoulder2); }
+	bool GetLeftShockJustDown()      { return !!(NewState.LeftShock && !OldState.LeftShock); }
+	bool GetRightShockJustDown()     { return !!(NewState.RightShock && !OldState.RightShock); }
+
+	bool GetTriangleJustUp() { return !!(!NewState.Triangle && OldState.Triangle); }
+	bool GetCircleJustUp() { return !!(!NewState.Circle && OldState.Circle); }
+	bool GetCrossJustUp() { return !!(!NewState.Cross && OldState.Cross); }
+	bool GetSquareJustUp() { return !!(!NewState.Square && OldState.Square); }
+
+	bool GetTriangle()           { return !!NewState.Triangle; }
+	bool GetCircle()             { return !!NewState.Circle; }
+	bool GetCross()              { return !!NewState.Cross; }
+	bool GetSquare()             { return !!NewState.Square; }
+	bool GetLeftShoulder1(void)  { return !!NewState.LeftShoulder1; }
+	bool GetLeftShoulder2(void)  { return !!NewState.LeftShoulder2; }
+	bool GetRightShoulder1(void) { return !!NewState.RightShoulder1; }
+	bool GetRightShoulder2(void) { return !!NewState.RightShoulder2; }
+
+	bool GetAJustDown()				{ return !!(NewState.A && !OldState.A); }
+	bool GetBJustDown()         	{ return !!(NewState.B && !OldState.B); }
+	bool GetCJustDown()         	{ return !!(NewState.C && !OldState.C); }
+	bool GetXJustDown()         	{ return !!(NewState.X && !OldState.X); }
+	bool GetYJustDown()         	{ return !!(NewState.Y && !OldState.Y); }
+	bool GetZJustDown()       		{ return !!(NewState.Z && !OldState.Z); }
+	bool GetDPadUpJustDown()        { return !!(NewState.DPadUp && !OldState.DPadUp); }
+	bool GetDPadDownJustDown()      { return !!(NewState.DPadDown && !OldState.DPadDown); }
+	bool GetDPadLeftJustDown()      { return !!(NewState.DPadLeft && !OldState.DPadLeft); }
+	bool GetDPadRightJustDown()     { return !!(NewState.DPadRight && !OldState.DPadRight); }
+	bool GetStartJustDown()         { return !!(NewState.Start && !OldState.Start); }
+	bool GetLeftStickXJustDown() 	{ return !!(NewState.LeftStickX && !OldState.LeftStickX); }
+	bool GetLeftStickYJustDown() 	{ return !!(NewState.LeftStickY && !OldState.LeftStickY); }
+  
+	bool GetAJustUp() 				{ return !!(!NewState.A && OldState.A); }
+	bool GetBJustUp() 				{ return !!(!NewState.B && OldState.B); }
+	bool GetCJustUp() 				{ return !!(!NewState.C && OldState.C); }
+	bool GetXJustUp() 				{ return !!(!NewState.X && OldState.X); }
+	bool GetYJustUp() 				{ return !!(!NewState.Y && OldState.Y); }
+	bool GetZJustUp() 				{ return !!(!NewState.Z && OldState.Z); }
+	bool GetDPadUpJustUp() 			{ return !!(!NewState.DPadUp && OldState.DPadUp); }
+	bool GetDPadDownJustUp() 		{ return !!(!NewState.DPadDown && OldState.DPadDown); }
+	bool GetDPadLeftJustUp() 		{ return !!(!NewState.DPadLeft && OldState.DPadLeft); }
+	bool GetDPadRightJustUp() 		{ return !!(!NewState.DPadRight && OldState.DPadRight); }
+
+	bool GetA()           			{ return !!NewState.A; }
+	bool GetB()             		{ return !!NewState.B; }
+	bool GetC()              		{ return !!NewState.C; }
+	bool GetX()             		{ return !!NewState.X; }
+	bool GetY()             		{ return !!NewState.Y; }
+	bool GetZ()             		{ return !!NewState.Z; }
+	bool GetDPadUp()             	{ return !!NewState.DPadUp; }
+	bool GetDPadDown()           	{ return !!NewState.DPadDown; }
+	bool GetDPadLeft()           	{ return !!NewState.DPadLeft; }
+	bool GetDPadRight()          	{ return !!NewState.DPadRight; }
+	bool GetStart()              	{ return !!NewState.Start; }
+	int16 GetLeftStickX(void)    	{ return NewState.LeftStickX; }
+	int16 GetLeftStickY(void)    	{ return NewState.LeftStickY; }
+	int16 GetRightStickX(void)   	{ return NewState.RightStickX; }
+	int16 GetRightStickY(void)   	{ return NewState.RightStickY; }
+
+#else
 	bool GetTriangleJustDown()       { return !!(NewState.Triangle && !OldState.Triangle); }
 	bool GetCircleJustDown()         { return !!(NewState.Circle && !OldState.Circle); }
 	bool GetCrossJustDown()          { return !!(NewState.Cross && !OldState.Cross); }
@@ -454,6 +524,7 @@ public:
 	int16 GetLeftStickY(void)    { return NewState.LeftStickY; }
 	int16 GetRightStickX(void)    { return NewState.RightStickX; }
 	int16 GetRightStickY(void)    { return NewState.RightStickY; }
+#endif
 
 	bool ArePlayerControlsDisabled(void) { return DisablePlayerControls != PLAYERCONTROL_ENABLED; }
 	void SetDisablePlayerControls(uint8 who) { DisablePlayerControls |= who; }

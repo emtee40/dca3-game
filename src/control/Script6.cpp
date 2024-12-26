@@ -637,7 +637,7 @@ int8 CRunningScript::ProcessCommands1000To1099(int32 command)
 		} else {
 			CGame::playingIntro = false;
 			DMAudio.ChangeMusicMode(MUSICMODE_GAME);
-			int mi;
+			int32 mi;
 			CModelInfo::GetModelInfo("bridgefukb", &mi);
 			CStreaming::RequestModel(mi, STREAMFLAGS_DEPENDENCY);
 			CStreaming::LoadAllRequestedModels(false);

@@ -16,8 +16,11 @@
 #include "soundlist.h"
 #include "debugmenu.h"
 
-
+#if !defined(RW_DC_SLOW)
 #define MAX_PARTICLES_ON_SCREEN   (1000)
+#else
+#define MAX_PARTICLES_ON_SCREEN   (1000)
+#endif
 
 
 //(5)

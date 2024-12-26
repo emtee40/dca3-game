@@ -32,6 +32,8 @@ CSprite2d::InitPerFrame(void)
 	for(i = 0; i < 10; i++)
 		mpBankTextures[i] = nil;
 #endif
+
+	SetRecipNearClip();
 }
 
 int32
@@ -176,6 +178,7 @@ CSprite2d::SetVertices(const CRect &r, const CRGBA &c0, const CRGBA &c1, const C
 	}else{
 		screenz = RwIm2DGetNearScreenZ();
 		z = 1.0f/RecipNearClip;
+		RecipNearClip *= 1.1f;
 	}
 	recipz = 1.0f/z;
 	float offset = 1.0f/1024.0f;
@@ -230,6 +233,7 @@ CSprite2d::SetVertices(const CRect &r, const CRGBA &c0, const CRGBA &c1, const C
 	screenz = RwIm2DGetNearScreenZ();
 	z = 1.0f/RecipNearClip;
 	recipz = 1.0f/z;
+	RecipNearClip *= 1.1f;
 
 	// This is what we draw:
 	// 0---1
@@ -281,6 +285,7 @@ CSprite2d::SetVertices(float x1, float y1, float x2, float y2, float x3, float y
 
 	screenz = RwIm2DGetNearScreenZ();
 	recipz = RecipNearClip;
+	RecipNearClip *= 1.1f;
 
 	RwIm2DVertexSetScreenX(&maVertices[0], x3);
 	RwIm2DVertexSetScreenY(&maVertices[0], y3);
@@ -327,6 +332,7 @@ CSprite2d::SetVertices(int n, float *positions, float *uvs, const CRGBA &col)
 
 	screenz = RwIm2DGetNearScreenZ();
 	recipz = RecipNearClip;
+	RecipNearClip *= 1.1f;
 	z = RwCameraGetNearClipPlane(Scene.camera);	// not done by game
 
 
@@ -350,6 +356,7 @@ CSprite2d::SetMaskVertices(int n, float *positions)
 
 	screenz = RwIm2DGetNearScreenZ();
 	recipz = RecipNearClip;
+	RecipNearClip *= 1.1f;
 	z = RwCameraGetNearClipPlane(Scene.camera);	// not done by game
 
 	for(i = 0; i < n; i++){
@@ -374,6 +381,7 @@ CSprite2d::SetVertices(RwIm2DVertex *verts, const CRect &r, const CRGBA &c0, con
 
 	screenz = RwIm2DGetNearScreenZ();
 	recipz = RecipNearClip;
+	RecipNearClip *= 1.1f;
 	z = RwCameraGetNearClipPlane(Scene.camera);	// not done by game
 
 	RwIm2DVertexSetScreenX(&verts[0], r.left);
@@ -448,11 +456,16 @@ CSprite2d::DrawRect(const CRect &r, const CRGBA &col)
 }
 
 void
-CSprite2d::DrawRect(const CRect &r, const CRGBA &c0, const CRGBA &c1, const CRGBA &c2, const CRGBA &c3)
+CSprite2d::DrawRect(const CRect &r, const CRGBA &c0, const CRGBA &c1, const CRGBA &c2, const CRGBA &c3, bool far)
 {
-	SetVertices(r, c0, c1, c2, c3, false);
+	SetVertices(r, c0, c1, c2, c3, far);
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nil);
-	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)FALSE);
+	if (far) {
+		RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
+	} else {
+		RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)FALSE);
+	}
+	
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)FALSE);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)FALSE);
 	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, maVertices, 4);
@@ -461,11 +474,15 @@ CSprite2d::DrawRect(const CRect &r, const CRGBA &c0, const CRGBA &c1, const CRGB
 }
 
 void
-CSprite2d::DrawRectXLU(const CRect &r, const CRGBA &c0, const CRGBA &c1, const CRGBA &c2, const CRGBA &c3)
+CSprite2d::DrawRectXLU(const CRect &r, const CRGBA &c0, const CRGBA &c1, const CRGBA &c2, const CRGBA &c3, bool far)
 {
-	SetVertices(r, c0, c1, c2, c3, false);
+	SetVertices(r, c0, c1, c2, c3, far);
 	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, nil);
-	RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)FALSE);
+	if (far) {
+		RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)TRUE);
+	} else {
+		RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)FALSE);
+	}
 	RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)FALSE);
 	RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void*)TRUE);
 	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);

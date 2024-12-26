@@ -282,7 +282,7 @@ wchar foreign_table[128] = {
 #ifdef BUTTON_ICONS
 CSprite2d CFont::ButtonSprite[MAX_BUTTON_ICONS];
 int CFont::PS2Symbol = BUTTON_NONE;
-int CFont::ButtonsSlot = -1;
+int32 CFont::ButtonsSlot = -1;
 #endif // BUTTON_ICONS
 
 void

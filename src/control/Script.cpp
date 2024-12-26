@@ -810,7 +810,7 @@ int8 CRunningScript::ProcessOneCommand()
 int8 CRunningScript::ProcessCommands0To99(int32 command)
 {
 	float *fScriptVar1;
-	int *nScriptVar1;
+	int32 *nScriptVar1;
 	switch (command) {
 	case COMMAND_NOP:
 		return 0;
@@ -1515,7 +1515,7 @@ int8 CRunningScript::ProcessCommands0To99(int32 command)
 int8 CRunningScript::ProcessCommands100To199(int32 command)
 {
 	float *fScriptVar1;
-	int *nScriptVar1;
+	int32 *nScriptVar1;
 	switch (command) {
 	case COMMAND_SUB_INT_LVAR_FROM_INT_VAR:
 		nScriptVar1 = GetPointerToScriptVariable(&m_nIp, VAR_GLOBAL);

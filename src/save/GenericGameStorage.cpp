@@ -38,6 +38,8 @@
 #include "World.h"
 #include "Zones.h"
 
+#include "../vmu/vmu.h"
+
 #define BLOCK_COUNT 20
 #define SIZE_OF_SIMPLEVARS 0xBC
 
@@ -70,11 +72,10 @@ uint32 TimeToStayFadedBeforeFadeOut = 1750;
 
 #define LoadSaveDataBlock()\
 do {\
-	if (!ReadDataFromFile(file, (uint8 *) &size, 4))\
-		return false;\
-	size = align4bytes(size);\
-	if (!ReadDataFromFile(file, work_buff, size))\
-		return false;\
+	size = C_PcSave::PcClassLoadRoutine(file, work_buff); \
+	if (!size) {\
+		return false; \
+	} \
 	buf = work_buff;\
 } while (0)
 
@@ -267,10 +268,10 @@ GenericLoad()
 	CheckSum = 0;
 	CDate dummy; // unused
 	CPad::ResetCheats();
-	if (!ReadInSizeofSaveFileBuffer(file, size))
-		return false;
-	size = align4bytes(size);
-	ReadDataFromFile(file, work_buff, size);
+	file = CFileMgr::OpenFile(LoadFileName, "rb");
+	assert(file != 0);
+	size = C_PcSave::PcClassLoadRoutine(file, work_buff);
+	assert(size != 0);
 	buf = (work_buff + 0x40);
 	ReadDataFromBufferPointer(buf, saveSize);
 #ifdef MISSION_REPLAY // a hack to keep compatibility but get new data from save
@@ -473,8 +474,10 @@ void
 MakeValidSaveName(int32 slot)
 {
 	ValidSaveName[0] = '\0';
-	sprintf(ValidSaveName, "%s%i", DefaultPCSaveFileName, slot + 1);
+	sprintf(ValidSaveName, "%s%i%s", slot==7?"GTA3SF":DefaultPCSaveFileName, slot + 1, slot==7?".b": "");
+	#if !defined(RW_DC)
 	strncat(ValidSaveName, ".b", 5);
+	#endif
 }
 
 wchar *
@@ -492,6 +495,7 @@ GetNameOfSavedGame(int32 slot)
 bool
 CheckDataNotCorrupt(int32 slot, char *name)
 {
+	RAIIVmuBeep(VMU_DEFAULT_PATH, 1.0f);
 #ifdef FIX_BUGS
 	char filename[MAX_PATH];
 #else
@@ -502,20 +506,19 @@ CheckDataNotCorrupt(int32 slot, char *name)
 	eLevelName level = LEVEL_GENERIC;
 	CheckSum = 0;
 	uint32 bytes_processed = 0;
+	#if !defined(RW_DC)
 	sprintf(filename, "%s%i%s", DefaultPCSaveFileName, slot + 1, ".b");
+	#else
+	sprintf(filename, "%s%i%s", slot==7?"GTA3SF":DefaultPCSaveFileName, slot + 1, slot==7?".b": "");
+	#endif
 	int file = CFileMgr::OpenFile(filename, "rb");
 	if (file == 0)
 		return false;
 	strcpy(name, filename);
 	while (SIZE_OF_ONE_GAME_IN_BYTES - sizeof(uint32) > bytes_processed && blocknum < 40) {
 		int32 blocksize;
-		if (!ReadDataFromFile(file, (uint8*)&blocksize, sizeof(blocksize))) {
-			CloseFile(file);
-			return false;
-		}
-		if (blocksize > align4bytes(sizeof(work_buff)))
-			blocksize = sizeof(work_buff) - sizeof(uint32);
-		if (!ReadDataFromFile(file, work_buff, align4bytes(blocksize))) {
+		blocksize = C_PcSave::PcClassLoadRoutine(file, work_buff);
+		if (blocksize == 0) {
 			CloseFile(file);
 			return false;
 		}
@@ -553,21 +556,23 @@ CheckDataNotCorrupt(int32 slot, char *name)
 bool
 RestoreForStartLoad()
 {
-	uint8 buf[999];
-
 	int file = CFileMgr::OpenFile(LoadFileName, "rb");
 	if (file == 0) {
 		PcSaveHelper.nErrorCode = SAVESTATUS_ERR_LOAD_OPEN;
 		return false;
 	}
-	ReadDataFromFile(file, buf, sizeof(buf));
+
+	uint32_t size = C_PcSave::PcClassLoadRoutine(file, work_buff);
+	assert(size != 0);
+	uint8 *buf = work_buff;
+
 	if (CFileMgr::GetErrorReadWrite(file)) {
 		PcSaveHelper.nErrorCode = SAVESTATUS_ERR_LOAD_READ;
 		if (!CloseFile(file))
 			PcSaveHelper.nErrorCode = SAVESTATUS_ERR_LOAD_CLOSE;
 		return false;
 	} else {
-		uint8 *_buf = buf + sizeof(int32) + sizeof(wchar[24]) + sizeof(SYSTEMTIME) + sizeof(SIZE_OF_ONE_GAME_IN_BYTES);
+		uint8 *_buf = buf + sizeof(wchar[24]) + sizeof(SYSTEMTIME) + sizeof(SIZE_OF_ONE_GAME_IN_BYTES);
 		ReadDataFromBufferPointer(_buf, CGame::currLevel);
 		ReadDataFromBufferPointer(_buf, TheCamera.GetMatrix().GetPosition().x);
 		ReadDataFromBufferPointer(_buf, TheCamera.GetMatrix().GetPosition().y);

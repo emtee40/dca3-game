@@ -90,7 +90,7 @@ CPlayerSkin::GetSkinTexture(const char *texName)
 {
 	RwTexture *tex;
 	RwRaster *raster;
-	int32 width, height, depth, format;
+	RwInt32 width, height, depth, format;
 
 	CTxdStore::PushCurrentTxd();
 	CTxdStore::SetCurrentTxd(m_txdSlot);
@@ -103,6 +103,7 @@ CPlayerSkin::GetSkinTexture(const char *texName)
 	else
 		sprintf(gString, "skins\\%s.bmp", texName);
 
+#if 0 // we don't support .bmp custom skins in DCA3
 	if (RwImage *image = RtBMPImageRead(gString)) {
 		RwImageFindRasterFormat(image, rwRASTERTYPETEXTURE, &width, &height, &depth, &format);
 		raster = RwRasterCreate(width, height, depth, format);
@@ -117,6 +118,7 @@ CPlayerSkin::GetSkinTexture(const char *texName)
 
 		RwImageDestroy(image);
 	}
+	#endif
 	return tex;
 }
 

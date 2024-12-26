@@ -223,7 +223,7 @@ void
 cAudioManager::PreInitialiseGameSpecificSetup()
 {
 	BankStartOffset[SFX_BANK_0] = SAMPLEBANK_START;
-#ifdef GTA_PS2
+#if defined(GTA_PS2) || defined(RW_DC)
 	BankStartOffset[SFX_BANK_PACARD] = SFX_CAR_ACCEL_1;
 	BankStartOffset[SFX_BANK_PATHFINDER] = SFX_CAR_ACCEL_2;
 	BankStartOffset[SFX_BANK_PORSCHE] = SFX_CAR_ACCEL_3;
@@ -424,7 +424,7 @@ cAudioManager::ProcessReverb()
 	VolR = Min(MAX_VOLUME, VolR + VolUp);
 
 	if (OldVolL != VolL || OldVolR != VolR) {
-		SampleManager.UpdateReverb(VolL, VolR, 100, 15, 80);
+		SampleManager.UpdateReverb(/*VolL, VolR, 100, 15, 80*/);
 		OldVolL = VolL;
 		OldVolR = VolR;
 	}

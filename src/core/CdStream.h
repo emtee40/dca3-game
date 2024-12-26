@@ -43,6 +43,9 @@ char *CdStreamGetImageName(int32 cd);
 void CdStreamRemoveImages(void);
 int32 CdStreamGetNumImages(void);
 
+void CdStreamQueueAudioRead(int fd, void* pBuffer, size_t bytes, size_t seek);
+void CdStreamDiscardAudioRead(int fd);
+
 #ifdef FLUSHABLE_STREAMING
 extern bool flushStream[MAX_CDCHANNELS];
 #endif

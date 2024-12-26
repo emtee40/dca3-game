@@ -1,6 +1,4 @@
-#pragma warning( push )
-#pragma warning( disable : 4005)
-#pragma warning( pop )
+
 #define FORCE_PC_SCALING
 #include "common.h"
 #ifdef ANISOTROPIC_FILTERING
@@ -34,6 +32,21 @@ int32 texNumLoaded;
 #define READNATIVE(stream, tex, size) RWSRCGLOBAL(stdFunc[rwSTANDARDNATIVETEXTUREREAD](stream, tex, size))
 #endif
 
+void RwTextureGtaStreamWrite(RwStream *stream, RwTexture* texture)
+{
+	auto fheader = stream->tell();
+	// size will be written later
+	rw::writeChunkHeader(stream, rwID_TEXTURENATIVE, 0);
+	auto fbegin = stream->tell();
+
+	texture->streamWriteNative(stream);
+
+	// rewrite header with correct size
+	auto fend = stream->tell();
+	stream->seek(fheader, 0);
+	rw::writeChunkHeader(stream, rwID_TEXTURENATIVE, fend - fbegin);
+	stream->seek(fend, 0);
+}
 RwTexture*
 RwTextureGtaStreamRead(RwStream *stream)
 {
@@ -66,6 +79,17 @@ destroyTexture(RwTexture *texture, void *data)
 {
 	RwTextureDestroy(texture);
 	return texture;
+}
+
+void
+RwTexDictionaryGtaStreamWrite(RwStream *stream, RwTexDictionary *texDict) {
+	rw::writeChunkHeader(stream, rwID_STRUCT, 4);
+	stream->writeI32(texDict->count());
+	
+	RwTexDictionaryForAllTextures(texDict, [](RwTexture *texture, void* vstream) {
+		RwTextureGtaStreamWrite((RwStream*)vstream, texture);
+		return texture;
+	}, stream);
 }
 
 RwTexDictionary*

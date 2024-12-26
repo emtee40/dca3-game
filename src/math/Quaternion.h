@@ -8,8 +8,14 @@ public:
 	CQuaternion(void) {}
 	CQuaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
-	float Magnitude(void) const { return Sqrt(x*x + y*y + z*z + w*w); }
-	float MagnitudeSqr(void) const { return x*x + y*y + z*z + w*w; }
+	float Magnitude(void) const { return Sqrt(MagnitudeSqr()); }
+	float MagnitudeSqr(void) const {
+	#ifdef DC_SH4
+		return fipr_magnitude_sqr(x, y, z, w);
+	#else
+		return x*x + y*y + z*z + w*w;
+	#endif
+	}
 	void Normalise(void);
 	void Multiply(const CQuaternion &q1, const CQuaternion &q2);
 	void Invert(void){	// Conjugate would have been a better name

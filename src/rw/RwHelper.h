@@ -30,6 +30,7 @@ void RenderSkeleton(RpHAnimHierarchy *hier);
 RwTexDictionary *RwTexDictionaryGtaStreamRead(RwStream *stream);
 RwTexDictionary *RwTexDictionaryGtaStreamRead1(RwStream *stream);
 RwTexDictionary *RwTexDictionaryGtaStreamRead2(RwStream *stream, RwTexDictionary *texDict);
+void RwTexDictionaryGtaStreamWrite(RwStream *stream, RwTexDictionary *texDict);
 void ReadVideoCardCapsFile(uint32&, uint32&, uint32&, uint32&);
 bool CheckVideoCardCaps(void);
 void WriteVideoCardCapsFile(void);
