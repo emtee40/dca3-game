@@ -313,6 +313,34 @@ conv_ARGB1555_from_RGBA5551(uint8 *out, uint8 *in)
 	out[1] = g>>3 | r<<2 | a<<7;
 }
 
+void conv_RGB888_from_BGR565(uint8 *out, uint8 *in)
+{
+	uint16_t col = in[0] | in[1]<<8;
+	
+	uint32 r, g, b;
+	r = (col>>11) & 0x1F;
+	g = (col>>5) & 0x3F;
+	b = (col>>0) & 0x1F;
+	out[0] = r*0xFF/0x1f;
+	out[1] = g*0xFF/0x3f;
+	out[2] = b*0xFF/0x1f;
+}
+
+void conv_RGBA8888_from_BGRA4444(uint8 *out, uint8 *in)
+{
+	uint16_t col = in[0] | in[1]<<8;
+	
+	uint32 r, g, b, a;
+	a = (col>>12) & 0xF;
+	r = (col>>8) & 0xF;
+	g = (col>>4) & 0xF;
+	b = (col>>0) & 0xF;
+	out[0] = r*0xFF/0xf;
+	out[1] = g*0xFF/0xf;
+	out[2] = b*0xFF/0xf;
+	out[3] = a*0xFF/0xf;
+}
+
 void
 conv_RGBA8888_from_ARGB1555(uint8 *out, uint8 *in)
 {

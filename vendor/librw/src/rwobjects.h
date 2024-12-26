@@ -328,6 +328,8 @@ void conv_ARGB1555_from_ARGB1555(uint8 *out, uint8 *in);
 void conv_ARGB1555_from_RGB555(uint8 *out, uint8 *in);
 void conv_RGBA5551_from_ARGB1555(uint8 *out, uint8 *in);
 void conv_ARGB1555_from_RGBA5551(uint8 *out, uint8 *in);
+void conv_RGB888_from_BGR565(uint8 *out, uint8 *in);
+void conv_RGBA8888_from_BGRA4444(uint8 *out, uint8 *in);
 void conv_RGBA8888_from_ARGB1555(uint8 *out, uint8 *in);
 void conv_ABGR1555_from_ARGB1555(uint8 *out, uint8 *in);
 inline void conv_8_from_8(uint8 *out, uint8 *in) { *out = *in; }
