@@ -104,7 +104,11 @@ KOS_CPPFLAGS += -fbuiltin -ffast-math -ffp-contract=fast \
 # re-creation of the rom disk.
 all: $(TARGET)
 
+ifdef KOS_BASE
 include $(KOS_BASE)/Makefile.rules
+else
+$(warning "KOS_BASE is not set. Only prebuilt targets will work.")
+endif
 
 DEPS = $(OBJS:.o=.d) $(OBJS_TEXCONV:.o:.d)
 
