@@ -902,10 +902,15 @@ rasterToImage(Raster *raster)
 		depth = 16;
 		conv = conv_ARGB1555_from_RGB555;
 		break;
-
-	default:
 	case Raster::C565:
+		depth = 24;
+		conv = conv_RGB888_from_BGR565;
+		break;
 	case Raster::C4444:
+		depth = 32;
+		conv = conv_RGBA8888_from_BGRA4444;
+		break;
+	default:
 	case Raster::LUM8:
 		RWERROR((ERR_INVRASTER));
 		return nil;
