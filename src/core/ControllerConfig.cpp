@@ -2054,21 +2054,58 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 		static const char* Dreamcast_DPad_Down = "D-Pad Down";
 		static const char* Dreamcast_DPad_Left = "D-Pad Left";
 		static const char* Dreamcast_DPad_Right = "D-Pad Right";
-		static const char* Dreamcast_LefAnalog_Up = "Joystick Up";
-		static const char* Dreamcast_LefAnalog_Down = "Joystick Down";
-		static const char* Dreamcast_LefAnalog_Left = "Joystick Left";
-		static const char* Dreamcast_LefAnalog_Right = "Joystick Right";
-		static const char* Dreamcast_NotAssigned = "Not Assigned";
+		static const char* Dreamcast_Stick_Up = "Joystick Up";
+		static const char* Dreamcast_Stick_Down = "Joystick Down";
+		static const char* Dreamcast_Stick_Left = "Joystick Left";
+		static const char* Dreamcast_Stick_Right = "Joystick Right";
+        static const char* Dreamcast_VehicleLookLeft = "A + Joystick Left"
+        static const char* Dreamcast_VehicleLookRight = "A + Joystick Right"
+        static const char* Dreamcast_CenterCamera = "Double click X"
+		static const char* Dreamcast_CameraUp = "X + Joystick Up";
+        static const char* Dreamcast_CameraDown = "X + Joystick Down";
+        static const char* Dreamcast_CameraLeft = "X + Joystick Left";
+        static const char* Dreamcast_CameraRight = "X + Joystick Right";
+        static const char* Dreamcast_LookBehind = "Right trigger + Left trigger"
+        static const char* Dreamcast_NotAssigned = "Not Assigned";
 
-		if (CMenuManager::m_ControlMethod == CONTROL_CLASSIC) // CONTROL_CLASSIC
+        //Dual sticks
+        static const char* LefAnalog_Up = "Left Stick Up";
+		static const char* LefAnalog_Down = "Left Stick Down";
+		static const char* LefAnalog_Left = "Left Stick Left";
+		static const char* LefAnalog_Right = "Left Stick Right";
+
+        static const char* RightAnalog_Up = "Right Stick Up";
+		static const char* RightAnalog_Down = "Right Stick Down";
+		static const char* RightAnalog_Left = "Right Stick Left";
+		static const char* RightAnalog_Right = "Right Stick Right";
+
+        //Xbox Specific
+        static const char* Xbox_VehicleLookLeft = "LB"
+        static const char* Xbox_VehicleLookRight = "RB"
+        static const char* Xbox_VehicleLookBehind = "RB + LB"
+
+        //PS2 Specific
+        static const char* Dreamcast_PS2_VehicleLookLeft = "B + Joystick Left"
+        static const char* Dreamcast_PS2_VehicleLookRight = "B + Joystick Right"
+        static const char* PS2_L1 = "L1"
+        static const char* PS2_R1 = "R1"
+        static const char* PS2_L2 = "L2"
+        static const char* PS2_R2 = "R2"
+        static const char* PS2_Cross = "Cross"
+        static const char* PS2_Square = "Square"
+        static const char* PS2_Circle = "Circle"
+        static const char* PS2_Triangle = "Triangle"
+
+
+		if ((CPad::GetPad(0)->Mode == 0) && (CPad::GetPad(0)->IsDualAnalog == 0)) // Standard DC controller, Xbox like bindings
 		{
 			switch (action)
 			{
 				case VEHICLE_LOOKLEFT:
-					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_VehicleLookLeft[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case VEHICLE_LOOKRIGHT:
-					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_VehicleLookRight[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case VEHICLE_HORN:
 					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
@@ -2083,28 +2120,28 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case VEHICLE_CHANGE_RADIO_STATION:
-					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case VEHICLE_BRAKE:
 					for (int i = 0; (ActionText[i] = Dreamcast_LeftTrigger[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case TOGGLE_SUBMISSIONS:
-					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case GO_LEFT:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Left[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_Stick_Left[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case GO_RIGHT:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Right[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_Stick_Right[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case GO_FORWARD:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Up[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_Stick_Up[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case GO_BACK:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_Stick_Down[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_LOOKBEHIND:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_FIREWEAPON:
 					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
@@ -2122,22 +2159,22 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 					for (int i = 0; (ActionText[i] = Dreamcast_LeftTrigger[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_JUMPING:
-					for (int i = 0; (ActionText[i] = Dreamcast_X[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_B[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_SPRINT:
 					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_CYCLE_TARGET_LEFT:
-					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_CYCLE_TARGET_RIGHT:
-					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_CENTER_CAMERA_BEHIND_PLAYER:
-					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_CenterCamera[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_SNIPER_ZOOM_IN:
-					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_X[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_SNIPER_ZOOM_OUT:
 					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
@@ -2170,7 +2207,7 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Up[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case VEHICLE_LOOKBEHIND:
-					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_LookBehind[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case NETWORK_TALK: // Not Used on Dreamcast
 					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
@@ -2198,15 +2235,15 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 					break;
 			}
 		}
-		else // CONTROL_STANDARD
+		if ((CPad::GetPad(0)->Mode == 0) && (CPad::GetPad(0)->IsDualAnalog == 1)) // Dual analog, Xbox like bindings
 		{
 			switch (action)
 			{
 				case VEHICLE_LOOKLEFT:
-					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Xbox_VehicleLookLeft[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case VEHICLE_LOOKRIGHT:
-					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Xbox_VehicleLookRight[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case VEHICLE_HORN:
 					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
@@ -2230,19 +2267,19 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case GO_LEFT:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Left[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = LefAnalog_Left[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case GO_RIGHT:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Right[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = LefAnalog_Right[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case GO_FORWARD:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Up[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = LefAnalog_Up[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case GO_BACK:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_LOOKBEHIND:
-					for (int i = 0; (ActionText[i] = Dreamcast_LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_FIREWEAPON:
 					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
@@ -2266,16 +2303,154 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_CYCLE_TARGET_LEFT:
-					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_CYCLE_TARGET_RIGHT:
-					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_CENTER_CAMERA_BEHIND_PLAYER:
-					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					for (int i = 0; (ActionText[i] = Dreamcast_CenterCamera[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_SNIPER_ZOOM_IN:
+					for (int i = 0; (ActionText[i] = Dreamcast_X[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SNIPER_ZOOM_OUT:
 					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_UP:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_DOWN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETLEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETRIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETUP:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETDOWN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case CAMERA_CHANGE_VIEW_ALL_SITUATIONS:
+					for (int i = 0; (ActionText[i] = Xbox_Back[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Xbox_VehicleLookBehind[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case NETWORK_TALK: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case _CONTROLLERACTION_36: // What is that???
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TOGGLE_DPAD: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case SWITCH_DEBUG_CAM_ON: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TAKE_SCREEN_SHOT: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case SHOW_MOUSE_POINTER_TOGGLE: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case MAX_CONTROLLERACTIONS: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				default:
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+			}
+		}
+        if ((CPad::GetPad(0)->Mode == 1) && (CPad::GetPad(0)->IsDualAnalog == 0)) // Standard DC controller, PS2 like bindings
+		{
+			switch (action)
+			{
+				case VEHICLE_LOOKLEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_PS2_VehicleLookLeft[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_LOOKRIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_PS2_VehicleLookRight[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_HORN:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_HANDBRAKE:
+					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_ENTER_EXIT:
+					for (int i = 0; (ActionText[i] = Dreamcast_Y[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_ACCELERATE:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_CHANGE_RADIO_STATION:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_BRAKE:
+					for (int i = 0; (ActionText[i] = Dreamcast_X[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TOGGLE_SUBMISSIONS:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_Stick_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_Stick_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_FORWARD:
+					for (int i = 0; (ActionText[i] = Dreamcast_Stick_Up[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_BACK:
+					for (int i = 0; (ActionText[i] = Dreamcast_Stick_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_FIREWEAPON:
+					for (int i = 0; (ActionText[i] = Dreamcast_B[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_FIREWEAPON:
+					for (int i = 0; (ActionText[i] = Dreamcast_B[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_WEAPON_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_WEAPON_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_LOCK_TARGET:
+					for (int i = 0; (ActionText[i] = Dreamcast_RightTrigger[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_JUMPING:
+					for (int i = 0; (ActionText[i] = Dreamcast_X[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SPRINT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_TARGET_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_TARGET_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CENTER_CAMERA_BEHIND_PLAYER:
+					for (int i = 0; (ActionText[i] = Dreamcast_CenterCamera[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SNIPER_ZOOM_IN:
+					for (int i = 0; (ActionText[i] = Dreamcast_X[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case PED_SNIPER_ZOOM_OUT:
 					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
@@ -2308,7 +2483,146 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Up[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case VEHICLE_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Dreamcast_LookBehind[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case NETWORK_TALK: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case _CONTROLLERACTION_36: // What is that???
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TOGGLE_DPAD: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case SWITCH_DEBUG_CAM_ON: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TAKE_SCREEN_SHOT: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case SHOW_MOUSE_POINTER_TOGGLE: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case MAX_CONTROLLERACTIONS: // Not Used on Dreamcast
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				default:
+					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+			}
+		}
+
+        if ((CPad::GetPad(0)->Mode == 1) && (CPad::GetPad(0)->IsDualAnalog == 0)) // Dual Stick, PS2 like bindings
+		{
+			switch (action)
+			{
+				case VEHICLE_LOOKLEFT:
+					for (int i = 0; (ActionText[i] = PS2_L2[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_LOOKRIGHT:
+					for (int i = 0; (ActionText[i] = PS2_R2[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_HORN:
 					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_HANDBRAKE:
+					for (int i = 0; (ActionText[i] = PS2_R1[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_ENTER_EXIT:
+					for (int i = 0; (ActionText[i] = PS2_Triangle[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_ACCELERATE:
+					for (int i = 0; (ActionText[i] = PS2_Cross[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_CHANGE_RADIO_STATION:
+					for (int i = 0; (ActionText[i] = PS2_L1[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_BRAKE:
+					for (int i = 0; (ActionText[i] = PS2_Square[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case TOGGLE_SUBMISSIONS:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_LEFT:
+					for (int i = 0; (ActionText[i] = LefAnalog_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_RIGHT:
+					for (int i = 0; (ActionText[i] = LefAnalog_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_FORWARD:
+					for (int i = 0; (ActionText[i] = LefAnalog_Up[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case GO_BACK:
+					for (int i = 0; (ActionText[i] = LefAnalog_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Down[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_FIREWEAPON:
+					for (int i = 0; (ActionText[i] = PS2_Circle[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_FIREWEAPON:
+					for (int i = 0; (ActionText[i] = PS2_Circle[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_WEAPON_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Left[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_WEAPON_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Right[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_LOCK_TARGET:
+					for (int i = 0; (ActionText[i] = PS2_R1[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_JUMPING:
+					for (int i = 0; (ActionText[i] = PS2_Square[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SPRINT:
+					for (int i = 0; (ActionText[i] = PS2_Circle[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_TARGET_LEFT:
+					for (int i = 0; (ActionText[i] = PS2_L2[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CYCLE_TARGET_RIGHT:
+					for (int i = 0; (ActionText[i] = PS2_R2[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_CENTER_CAMERA_BEHIND_PLAYER:
+					for (int i = 0; (ActionText[i] = Dreamcast_CenterCamera[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SNIPER_ZOOM_IN:
+					for (int i = 0; (ActionText[i] = PS2_Square[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_SNIPER_ZOOM_OUT:
+					for (int i = 0; (ActionText[i] = PS2_Cross[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_LEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_RIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_UP:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case PED_1RST_PERSON_LOOK_DOWN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETLEFT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETRIGHT:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETUP:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_TURRETDOWN:
+					for (int i = 0; (ActionText[i] = Dreamcast_A[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case CAMERA_CHANGE_VIEW_ALL_SITUATIONS:
+					for (int i = 0; (ActionText[i] = Dreamcast_DPad_Up[i]) != '\0' && i < iLimitCopy; i++);
+					break;
+				case VEHICLE_LOOKBEHIND:
+					for (int i = 0; (ActionText[i] = Dreamcast_LookBehind[i]) != '\0' && i < iLimitCopy; i++);
 					break;
 				case NETWORK_TALK: // Not Used on Dreamcast
 					for (int i = 0; (ActionText[i] = Dreamcast_NotAssigned[i]) != '\0' && i < iLimitCopy; i++);
