@@ -65,6 +65,8 @@ long _dwOperatingSystemVersion;
 #include "../../dreamcast/git-version.h"
 #include "dc.h"
 
+#include <kos/dbglog.h>
+
 // This is defined on project-level, via premake5 or cmake
 #ifdef GET_KEYBOARD_INPUT_FROM_X11
 #include <X11/Xlib.h>
@@ -2081,7 +2083,7 @@ const char* getCIJobId() {
 	return CI_JOB_ID;
 }
 
-static std::string executableTag = getBuildId() + ":" + getSourceId() + ":" + getCIJobId();
+static std::string executableTag = getBuildId().substr(0, 10) + ":" + getSourceId() + ":" + getCIJobId();
 
 const char* getExecutableTag() {
 	return executableTag.c_str();
