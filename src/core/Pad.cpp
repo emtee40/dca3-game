@@ -1562,38 +1562,12 @@ void CPad::Update(int16 pad)
 
 	bHornHistory[iCurrHornHistory] = GetHorn();
 
-
-
-
 #ifdef RW_DC
-	auto old_contMaple = contMaple;
+	//auto old_contMaple = contMaple;
 	auto n_dev = maple_enum_count();
 	contMaple = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
 	state = (cont_state_t *)maple_dev_status(contMaple);
 #endif
-	// if (n_dev == 0)
-	// {
-	// 	CPad::GetPad(0)->IsDualAnalog = false;
-	// 	NewState.DPadUp			= 0;
-	// 	NewState.DPadDown		= 0;
-	// 	NewState.DPadLeft		= 0;
-	// 	NewState.DPadRight		= 0;
-	// 	NewState.A				= 0;
-	// 	NewState.B				= 0;
-	// 	NewState.C				= 0;
-	// 	NewState.D				= 0;
-	// 	NewState.X				= 0;
-	// 	NewState.Y				= 0;
-	// 	NewState.Z				= 0;
-	// 	NewState.Start			= 0;
-	// 	NewState.RightTrigger	= 0;
-	// 	NewState.LeftTrigger	= 0;
-	// 	NewState.LeftStickX		= 0;
-	// 	NewState.LeftStickY		= 0;
-	// 	NewState.RightStickX	= 0;
-	// 	NewState.RightStickY	= 0;
-	// 	NewState.RightShock		= 0;
-	// }
 
 	if ( !bDisplayNoControllerMessage )
 		CGame::bDemoMode = false;
@@ -1691,6 +1665,54 @@ CPad *CPad::GetPad(int32 pad)
 //The switch statement using CURMODE could be used in the future to define diferent control configurations, depending on the type of controller and desired mapping (e.g. Xbox like or PS2 like)
 //While i think its possible, creating a system to configure custom mappings inside the game menus like in the PC game is out of my scope in the moment, I don't know if this is really necessary
 //Also, the interface controls are not defined here, they are defined in Frontend.cpp unfortunately, using CControllerState values like here; Because of that, the behavior of the Start button and the A button for selecting menu itens are not here
+
+#ifdef RW_DC
+
+bool CPad::CameraSinglePress (void)
+{
+	if (CPad::CameraDoublePress() == false && NewState.X == true)
+		return true;
+	return 0;
+}
+
+bool CPad::CameraDoublePress (void)
+{
+	if ( ArePlayerControlsDisabled() ) //Wont work driving, camera code isnt there
+		return false;
+	
+	if ((OldState.X == 1) && (NewState.X == 0) //Falling edge
+	&& (CPad::GetPad(0)->CameraIsDoublePressed == false)) //Was not in double click state
+	{
+		//CPad::GetPad(0)->CameraJustUp = true;
+		CPad::GetPad(0)->CameraLastPressed = psTimer(); //Set timer to run
+	}	
+
+	if ((OldState.X == 1) && (NewState.X == 0) //Falling edge
+	&& (CPad::GetPad(0)->CameraIsDoublePressed == true)) //Was in double click state
+	{
+		CPad::GetPad(0)->CameraIsDoublePressed = false; //ends double click state
+		return 0;
+	}	
+
+
+	if ((OldState.X == 0) && (NewState.X == 1) //Rising edge
+	&& ((psTimer() - CPad::GetPad(0)->CameraLastPressed) < 250)) //Checks timer on the Rising edge of X press
+	{
+		CPad::GetPad(0)->CameraIsDoublePressed = true;			//Define that there was a double click
+		return true;
+	}
+
+
+	if ((OldState.X == 1) && (NewState.X == 1) 	//Button is keep pressed
+	&& (CameraIsDoublePressed == true)) 		//The last state was double click
+	{
+		CPad::GetPad(0)->CameraIsDoublePressed = true; //Keep double click state
+		return true;
+	}
+
+	return 0;
+}
+#endif
 
 int16 CPad::GetSteeringLeftRight(void)
 {
@@ -1952,7 +1974,7 @@ int16 axis = 0;
 			}
 			else
 			{
-				if (NewState.X)
+				if (CPad::CameraSinglePress())
 					return 0;
 				axis = NewState.LeftStickX;
 			}
@@ -2022,7 +2044,7 @@ int16 axis = 0;
 			}
 			else
 			{
-				if (NewState.X)
+				if (CPad::CameraSinglePress())
 					return 0;
 				axis =  NewState.LeftStickY;
 			}
@@ -3545,9 +3567,13 @@ bool CPad::GetAnaloguePadRightJustUp(void)
 
 bool CPad::ForceCameraBehindPlayer(void)
 {
-	if ( ArePlayerControlsDisabled() )
+	if ( ArePlayerControlsDisabled() ) //Wont work driving, camera code isnt there
 		return false;
 
+#ifdef RW_DC
+	if (CPad::CameraDoublePress())
+		return true;
+#else
 	switch (CURMODE)
 	{
 		case 0:
@@ -3572,7 +3598,7 @@ bool CPad::ForceCameraBehindPlayer(void)
 			break;
 		}
 	}
-
+#endif
 	return false;
 }
 
@@ -3713,7 +3739,7 @@ float axis = 0;
 			}
 			else
 			{
-				if (!NewState.X)
+				if (!CPad::CameraSinglePress())
 					return 0;
 				axis = NewState.LeftStickX;
 			}
@@ -3760,7 +3786,7 @@ int16 CPad::LookAroundUpDown(void)
 			}
 			else
 			{
-				if (!NewState.X)
+				if (!CPad::CameraSinglePress())
 					return 0;
 				axis = NewState.LeftStickY;
 			}

@@ -163,6 +163,11 @@ public:
 	int32 AverageEntries;
 	bool IsKeyboardMouse;
 	bool IsDualAnalog;
+	bool CameraJustDown;
+	bool CameraJustUp;
+	uint32 CameraJustUpTime;
+	uint32 CameraLastPressed;
+	bool CameraIsDoublePressed;
 
 #ifdef DETECT_PAD_INPUT_SWITCH
 	static bool IsAffectedByController;
@@ -213,7 +218,11 @@ public:
 	void StopShaking(int16 pad);
 	
 	static CPad *GetPad(int32 pad);
-	
+
+#ifdef RW_DC
+	bool CameraSinglePress(void);	//Checks if camera modifier was double clicked 
+	bool CameraDoublePress(void);
+#endif
 	int16 GetSteeringLeftRight(void);
 	int16 GetSteeringUpDown(void);
 	int16 GetCarGunUpDown(void);
