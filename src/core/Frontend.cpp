@@ -1936,7 +1936,7 @@ CMenuManager::Draw()
 	snprintf(strver, sizeof(strver), "DCA3: %s", getExecutableTag());
 	AsciiToUnicode(strver, ustr);
 
-	CFont::SetScale(MENU_X(MENU_TEXT_SIZE_X), MENU_Y(MENU_TEXT_SIZE_Y));
+	CFont::SetScale(MENU_X(MENU_TEXT_SIZE_X*3/4), MENU_Y(MENU_TEXT_SIZE_Y*3/4));
 	CFont::SetColor(CRGBA(MENUOPTION_COLOR.r, MENUOPTION_COLOR.g, MENUOPTION_COLOR.b, FadeIn(255)));
 	CFont::PrintString(MENU_X_LEFT_ALIGNED(BUILDID_TEXT_LEFT_MARGIN), SCREEN_SCALE_FROM_BOTTOM(BUILDID_TEXT_BOTTOM_MARGIN), ustr);
 

@@ -1,5 +1,5 @@
 GIT_VERSION := $(shell git describe --always --tags --long --dirty 2>/dev/null || echo "NO_GIT")
-CI_JOB_ID ?= NO_CI
+CI_JOB_ID ?= 00000000
 
 
 git-version.tmp:
