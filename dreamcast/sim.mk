@@ -3,6 +3,8 @@ TARGET ?= dca3-sim.elf
 IS_MAC := $(shell uname -s | grep -i "darwin" > /dev/null && echo "yes" || echo "no")
 
 
+all: $(TARGET)
+
 include common.mk
 
 OBJS = $(RE3_OBJS) $(RW_OBJS) \
@@ -51,8 +53,6 @@ else
 %.sim.o3: %.cpp
 	$(CXX) -msse2 -mfpmath=sse -c -O3 -g -fno-pic -no-pie -o $@ $(CXXFLAGS) -I../vendor/koshle -I../vendor/emu -m32 -U_WIN32 -UWIN32 -UWINNT -Ui386 -DDC_SIM -D_FILE_OFFSET_BITS=64 $<	
 endif
-
-all: $(TARGET)
 
 clean:
 	-rm -f $(OBJS_SIM) $(TARGET)

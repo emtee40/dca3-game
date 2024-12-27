@@ -6,8 +6,6 @@
 # Put the filename of the output binary here
 PROJECT_NAME = dca3
 TARGET ?= dca3.elf
-GIT_VERSION := $(shell git describe --always --tags --long --dirty 2>/dev/null || echo "NO_GIT")
-CI_JOB_ID ?= NO_CI
 
 HAVE_CDI4DC := $(shell which cdi4dc > /dev/null 2>&1 && echo "yes" || echo "no")
 IS_MAC := $(shell uname -s | grep -i "darwin" > /dev/null && echo "yes" || echo "no")
@@ -41,6 +39,8 @@ ifeq ($(FOR_DISC),1)
 AUDIO_STREAM_OPTION=-q
 MKDCDISC_PAD_OPTION=
 endif
+
+all: $(TARGET)
 
 include common.mk
 
@@ -101,29 +101,6 @@ OBJS_NO_FAST_MATH = \
 
 KOS_CPPFLAGS += -fbuiltin -ffast-math -ffp-contract=fast \
 	-mfsrra -mfsca
-
-git-version.tmp:
-	@echo "Generating git-version.tmp with GIT_VERSION = \"$(GIT_VERSION)\""
-	@echo "#pragma once" > git-version.tmp
-	@echo "#ifndef VERSION_H" >> git-version.tmp
-	@echo "#define VERSION_H" >> git-version.tmp
-	@echo "#define GIT_VERSION \"$(GIT_VERSION)\"" >> git-version.tmp
-	@echo "#define CI_JOB_ID \"$(CI_JOB_ID)\"" >> git-version.tmp
-	@echo "#endif // VERSION_H" >> git-version.tmp
-
-git-version.h: git-version.tmp
-	@if [ ! -f git-version.h ] || ! cmp -s git-version.tmp git-version.h; then \
-	  echo "Updating git-version.h"; \
-	  cp git-version.tmp git-version.h; \
-    else \
-	  echo "git-version.h is up to date. No change."; \
-	fi
-
-../src/skel/dc/dc.cpp: git-version.h
-
-# The rm-elf step is to remove the target before building, to force the
-# re-creation of the rom disk.
-all: $(TARGET)
 
 ifdef KOS_BASE
 include $(KOS_BASE)/Makefile.rules
@@ -194,7 +171,7 @@ $(REPACK_GTA_DIR)/GTA3SF8.b: GTA3SF8.b
 	kos-objcopy -R .stack -O binary $(TARGET) $(TARGET).bin
 	$(KOS_BASE)/utils/scramble/scramble $(TARGET).bin 1ST_READ.BIN
 
-.PHONY: pvrtex git-version.tmp
+.PHONY: pvrtex
 
 pvrtex:
 	$(MAKE) -C ./pvrtex
