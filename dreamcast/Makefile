@@ -214,22 +214,28 @@ $(PROJECT_NAME)-prebuilt.iso: IP.BIN 1ST_READ_PREBUILT.BIN $(REPACK_DIR)/repacke
 ifeq ($(HAVE_CDI4DC), yes)
 $(PROJECT_NAME).cdi: $(PROJECT_NAME).iso
 	cdi4dc $(PROJECT_NAME).iso $(PROJECT_NAME).cdi > cdi.log
+	@echo && echo && echo "*** CDI Baked Successfully ***" && echo && echo
 
 $(PROJECT_NAME)-no-repack.cdi: $(PROJECT_NAME)-no-repack.iso
 	cdi4dc $(PROJECT_NAME)-no-repack.iso $(PROJECT_NAME)-no-repack.cdi > cdi.log
+	@echo && echo && echo "*** CDI Baked Successfully ***" && echo && echo
 
 $(PROJECT_NAME)-prebuilt.cdi: $(PROJECT_NAME)-prebuilt.iso
 	cdi4dc $(PROJECT_NAME).iso $(PROJECT_NAME).cdi > cdi.log
 	rm 1ST_READ_PREBUILT.BIN
+	@echo && echo && echo "*** CDI Baked Successfully ***" && echo && echo
 else
 $(PROJECT_NAME).cdi: $(TARGET) $(REPACK_DIR)/repacked $(REPACK_GTA_DIR)/GTA3SF8.b
 	mkdcdisc -e $(TARGET) -o $(PROJECT_NAME).cdi -d $(REPACK_GTA_DIR)/ $(MKDCDISC_PAD_OPTION) -n DCA3 -a "the gang"
+	@echo && echo && echo "*** CDI Baked Successfully ***" && echo && echo
 
 $(PROJECT_NAME)-no-repack.cdi: $(TARGET) $(REPACK_GTA_DIR)/GTA3SF8.b
 	mkdcdisc -e $(TARGET) -o $(PROJECT_NAME)-no-repack.cdi -d $(REPACK_GTA_DIR)/ $(MKDCDISC_PAD_OPTION) -n DCA3 -a "the gang"
+	@echo && echo && echo "*** CDI Baked Successfully ***" && echo && echo
 
 $(PROJECT_NAME)-prebuilt.cdi: $(REPACK_DIR)/repacked $(REPACK_GTA_DIR)/GTA3SF8.b
 	mkdcdisc -e $(TARGET) -o $(PROJECT_NAME).cdi -d $(REPACK_GTA_DIR)/ $(MKDCDISC_PAD_OPTION) -n DCA3 -a "the gang"
+	@echo && echo && echo "*** CDI Baked Successfully ***" && echo && echo
 endif
 
 cdi: $(PROJECT_NAME).cdi
