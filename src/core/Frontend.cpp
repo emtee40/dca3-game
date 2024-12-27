@@ -35,6 +35,7 @@
 #include "FileLoader.h"
 #include "frontendoption.h"
 #include "IniFile.h"
+#include "../skel/dc/dc.h"
 
 // Game has colors inlined in code.
 // For easier modification we collect them here:
@@ -1929,6 +1930,15 @@ CMenuManager::Draw()
 		CSprite2d::DrawRect(CRect(MENU_X_LEFT_ALIGNED(180), MENU_Y(98), MENU_X_LEFT_ALIGNED(230), MENU_Y(123)), CRGBA(255, 255, 255, FadeIn(255)));
 		CSprite2d::DrawRect(CRect(MENU_X_LEFT_ALIGNED(181), MENU_Y(99), MENU_X_LEFT_ALIGNED(229), MENU_Y(122)), CRGBA(m_PrefsPlayerRed, m_PrefsPlayerGreen, m_PrefsPlayerBlue, FadeIn(255)));
 	}
+
+	char strver[200];
+	wchar ustr[200];
+	snprintf(strver, sizeof(strver), "DCA3: %s", getExecutableTag());
+	AsciiToUnicode(strver, ustr);
+
+	CFont::SetScale(MENU_X(MENU_TEXT_SIZE_X), MENU_Y(MENU_TEXT_SIZE_Y));
+	CFont::SetColor(CRGBA(MENUOPTION_COLOR.r, MENUOPTION_COLOR.g, MENUOPTION_COLOR.b, FadeIn(255)));
+	CFont::PrintString(MENU_X_LEFT_ALIGNED(BUILDID_TEXT_LEFT_MARGIN), SCREEN_SCALE_FROM_BOTTOM(BUILDID_TEXT_BOTTOM_MARGIN), ustr);
 
 }
 

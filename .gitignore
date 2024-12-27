@@ -387,4 +387,6 @@ dreamcast/aud2adpcm*
 dreamcast/repack-data
 dreamcast/output.map
 dreamcast/dca3.ds.iso
+dreamcast/git-version.h
+dreamcast/git-version.tmp
 .DS_Store

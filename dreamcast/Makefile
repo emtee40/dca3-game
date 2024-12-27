@@ -40,6 +40,8 @@ AUDIO_STREAM_OPTION=-q
 MKDCDISC_PAD_OPTION=
 endif
 
+all: $(TARGET)
+
 include common.mk
 
 OBJS = $(RE3_OBJS) $(RW_OBJS) \
@@ -100,10 +102,6 @@ OBJS_NO_FAST_MATH = \
 KOS_CPPFLAGS += -fbuiltin -ffast-math -ffp-contract=fast \
 	-mfsrra -mfsca
 
-# The rm-elf step is to remove the target before building, to force the
-# re-creation of the rom disk.
-all: $(TARGET)
-
 ifdef KOS_BASE
 include $(KOS_BASE)/Makefile.rules
 else
@@ -157,7 +155,7 @@ $(OBJS_NO_FAST_MATH): %.o: %.cpp
 
 $(TARGET): $(OBJS)
 	kos-c++ -o $(TARGET) $(OBJS) -Wl,--gc-sections -Wl,--as-needed -Wl,-Map,output.map \
-		-flto=auto $(if $(WITH_IDE),-lkosfat) $(if $(WITH_SD),-lkosfat)
+		-flto=auto $(if $(WITH_IDE),-lkosfat) $(if $(WITH_SD),-lkosfat) -Wl,--build-id=sha1 
 	@echo && echo && echo "*** Build Completed Successfully ***" && echo && echo
 
 run: $(TARGET)
@@ -355,6 +353,7 @@ STREAM_WAV_DECODED = $(addprefix $(REPACK_STREAM_DECODED_DIR)/, $(STREAM_WAV))
 
 $(REPACK_DIR)/repacked: $(REPACK_GTA_DIR)/models/gta3.img $(REPACK_GTA_DIR)/models/gta3.dir $(LOOSE_FILES_DC) $(STREAM_ADPCM_DC) $(SFX_DC_RAW) $(SFX_DC_DSC)
 	mkdir -p $(@D)
+	@git archive --format zip --output "$(REPACK_GTA_DIR)/DCA3-$(GIT_VERSION).zip" HEAD
 	@touch $@
 	@echo && echo && echo "*** Repack Completed Successfully ***" && echo && echo
  

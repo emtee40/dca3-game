@@ -1,3 +1,28 @@
+GIT_VERSION := $(shell git describe --always --tags --long --dirty 2>/dev/null || echo "NO_GIT")
+CI_JOB_ID ?= NO_CI
+
+
+git-version.tmp:
+	@echo "Generating git-version.tmp with GIT_VERSION = \"$(GIT_VERSION)\""
+	@echo "#pragma once" > git-version.tmp
+	@echo "#ifndef VERSION_H" >> git-version.tmp
+	@echo "#define VERSION_H" >> git-version.tmp
+	@echo "#define GIT_VERSION \"$(GIT_VERSION)\"" >> git-version.tmp
+	@echo "#define CI_JOB_ID \"$(CI_JOB_ID)\"" >> git-version.tmp
+	@echo "#endif // VERSION_H" >> git-version.tmp
+
+git-version.h: git-version.tmp
+	@if [ ! -f git-version.h ] || ! cmp -s git-version.tmp git-version.h; then \
+	  echo "Updating git-version.h"; \
+	  cp git-version.tmp git-version.h; \
+    else \
+	  echo "git-version.h is up to date. No change."; \
+	fi
+
+.PHONY: git-version.tmp
+
+../src/skel/dc/dc.cpp: git-version.h
+
 
 # List all of your C files here, but change the extension to ".o"
 # Include "romdisk.o" if you want a rom disk.
