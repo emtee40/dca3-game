@@ -6,6 +6,8 @@
 # Put the filename of the output binary here
 PROJECT_NAME = dca3
 TARGET ?= dca3.elf
+GIT_VERSION := $(shell git describe --always --tags --long --dirty 2>/dev/null || echo "NO_GIT")
+CI_JOB_ID ?= NO_CI
 
 HAVE_CDI4DC := $(shell which cdi4dc > /dev/null 2>&1 && echo "yes" || echo "no")
 IS_MAC := $(shell uname -s | grep -i "darwin" > /dev/null && echo "yes" || echo "no")
@@ -100,6 +102,25 @@ OBJS_NO_FAST_MATH = \
 KOS_CPPFLAGS += -fbuiltin -ffast-math -ffp-contract=fast \
 	-mfsrra -mfsca
 
+git-version.tmp:
+	@echo "Generating git-version.tmp with GIT_VERSION = \"$(GIT_VERSION)\""
+	@echo "#pragma once" > git-version.tmp
+	@echo "#ifndef VERSION_H" >> git-version.tmp
+	@echo "#define VERSION_H" >> git-version.tmp
+	@echo "#define GIT_VERSION \"$(GIT_VERSION)\"" >> git-version.tmp
+	@echo "#define CI_JOB_ID \"$(CI_JOB_ID)\"" >> git-version.tmp
+	@echo "#endif // VERSION_H" >> git-version.tmp
+
+git-version.h: git-version.tmp
+	@if [ ! -f git-version.h ] || ! cmp -s git-version.tmp git-version.h; then \
+	  echo "Updating git-version.h"; \
+	  cp git-version.tmp git-version.h; \
+    else \
+	  echo "git-version.h is up to date. No change."; \
+	fi
+
+../src/skel/dc/dc.cpp: git-version.h
+
 # The rm-elf step is to remove the target before building, to force the
 # re-creation of the rom disk.
 all: $(TARGET)
@@ -157,7 +178,7 @@ $(OBJS_NO_FAST_MATH): %.o: %.cpp
 
 $(TARGET): $(OBJS)
 	kos-c++ -o $(TARGET) $(OBJS) -Wl,--gc-sections -Wl,--as-needed -Wl,-Map,output.map \
-		-flto=auto $(if $(WITH_IDE),-lkosfat) $(if $(WITH_SD),-lkosfat)
+		-flto=auto $(if $(WITH_IDE),-lkosfat) $(if $(WITH_SD),-lkosfat) -Wl,--build-id=sha1 
 	@echo && echo && echo "*** Build Completed Successfully ***" && echo && echo
 
 run: $(TARGET)
@@ -173,7 +194,7 @@ $(REPACK_GTA_DIR)/GTA3SF8.b: GTA3SF8.b
 	kos-objcopy -R .stack -O binary $(TARGET) $(TARGET).bin
 	$(KOS_BASE)/utils/scramble/scramble $(TARGET).bin 1ST_READ.BIN
 
-.PHONY: pvrtex
+.PHONY: pvrtex git-version.tmp
 
 pvrtex:
 	$(MAKE) -C ./pvrtex
@@ -355,6 +376,7 @@ STREAM_WAV_DECODED = $(addprefix $(REPACK_STREAM_DECODED_DIR)/, $(STREAM_WAV))
 
 $(REPACK_DIR)/repacked: $(REPACK_GTA_DIR)/models/gta3.img $(REPACK_GTA_DIR)/models/gta3.dir $(LOOSE_FILES_DC) $(STREAM_ADPCM_DC) $(SFX_DC_RAW) $(SFX_DC_DSC)
 	mkdir -p $(@D)
+	@git archive --format zip --output "$(REPACK_GTA_DIR)/DCA3-$(GIT_VERSION).zip" HEAD
 	@touch $@
 	@echo && echo && echo "*** Repack Completed Successfully ***" && echo && echo
  

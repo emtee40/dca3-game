@@ -62,6 +62,8 @@ long _dwOperatingSystemVersion;
 #include "AnimViewer.h"
 #include "Font.h"
 #include "MemoryMgr.h"
+#include "../../dreamcast/git-version.h"
+#include "dc.h"
 
 // This is defined on project-level, via premake5 or cmake
 #ifdef GET_KEYBOARD_INPUT_FROM_X11
@@ -1977,13 +1979,14 @@ __attribute__((noinline)) void stacktrace() {
 		: "+r" (sp), "+r" (pr)
 		:
 		: );
-	dbgio_printf("Stack trace: %p ", (void*)pr);
+	dbglog(DBG_CRITICAL, "DCA3: %s\n", getExecutableTag());
+	dbglog(DBG_CRITICAL, "Stack trace: %p ", (void*)pr);
 	int found = 0;
 	if(!(sp & 3) && sp > 0x8c000000 && sp < _arch_mem_top) {
 		char** sp_ptr = (char**)sp;
 		for (int so = 0; so < 16384; so++) {
 			if (uintptr_t(&sp_ptr[so]) >= _arch_mem_top) {
-				dbgio_printf("(@@%p) ", &sp_ptr[so]);
+				dbglog(DBG_CRITICAL, "(@@%p) ", &sp_ptr[so]);
 				break;
 			}
 			if (sp_ptr[so] > (char*)0x8c000000 && sp_ptr[so] < etext) {
@@ -1999,9 +2002,9 @@ __attribute__((noinline)) void stacktrace() {
 				uint16_t instr = instrp[-2];
 				// BSR or BSRF or JSR @Rn ?
 				if (((instr & 0xf000) == 0xB000) || ((instr & 0xf0ff) == 0x0003) || ((instr & 0xf0ff) == 0x400B)) {
-					dbgio_printf("%p ", instrp);
+					dbglog(DBG_CRITICAL, "%p ", instrp);
 					if (found++ > 24) {
-						dbgio_printf("(@%p) ", &sp_ptr[so]);
+						dbglog(DBG_CRITICAL, "(@%p) ", &sp_ptr[so]);
 						break;
 					}
 				} else {
@@ -2011,15 +2014,83 @@ __attribute__((noinline)) void stacktrace() {
 				// dbglog(DBG_CRITICAL, "Stack trace: %p (@%p): out of range\n", (void*)sp_ptr[so], &sp_ptr[so]);
 			}
 		}
-		dbgio_printf("end\n");
+		dbglog(DBG_CRITICAL, "end\n");
 	} else {
-		dbgio_printf("(@%p)\n", (void*)sp);
+		dbglog(DBG_CRITICAL, "(@%p)\n", (void*)sp);
 	}
 }
+
+#include <cstdint>
+#include <cstdio>
+#include <string>
+#include <iomanip>
+#include <sstream>
+
+extern "C" {
+    extern const unsigned char _build_id_start[];
+    extern const unsigned char _build_id_end[];
+}
+
+std::string getBuildId()
+{
+    // Pointer to the start of the .note.gnu.build-id section
+    const unsigned char *p = _build_id_start;
+
+    // Parse the ELF note header
+    struct NoteHeader {
+        uint32_t n_namesz;
+        uint32_t n_descsz;
+        uint32_t n_type;
+    };
+    
+    // Read header fields (be careful with endianness if needed)
+    const auto* note = reinterpret_cast<const NoteHeader*>(p);
+
+    // Move p beyond the note header
+    p += sizeof(NoteHeader);
+
+    // Skip the "name" field + alignment (e.g. "GNU\0")
+    // name is note->n_namesz bytes, then align up to 4 bytes
+    auto nameBytes = (note->n_namesz + 3u) & ~3u;
+    p += nameBytes;
+
+    // Now p should point to the actual build-id bytes, which are note->n_descsz in length.
+    const unsigned char* buildId = p;
+    auto buildIdSize = note->n_descsz;
+
+    // Convert it to a hex string
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (uint32_t i = 0; i < buildIdSize; i++) {
+        oss << std::setw(2) << static_cast<unsigned>(buildId[i]);
+    }
+
+    return oss.str();
+}
+#else
+std::string getBuildId() {
+	return "non-dreamcast-build";
+}
 #endif
+
+const char* getSourceId() {
+	return GIT_VERSION;
+}
+
+const char* getCIJobId() {
+	return CI_JOB_ID;
+}
+
+static std::string executableTag = getBuildId() + ":" + getSourceId() + ":" + getCIJobId();
+
+const char* getExecutableTag() {
+	return executableTag.c_str();
+}
+
 int
 main(int argc, char *argv[])
 {
+	dbglog(DBG_CRITICAL, "DCA3: %s\n", getExecutableTag());
 	#if !defined(DC_SIM)
 	std::set_terminate([]() {
 		fflush(stdout);
@@ -2029,8 +2100,8 @@ main(int argc, char *argv[])
 		stacktrace();
 		dbgio_dev_select("fb");
 		sleep(1);
-		dbgio_printf("std::terminate() called\n");
-		dbgio_printf("POSIX error (may not be relevant): %s\n", strerror(errno));
+		dbglog(DBG_CRITICAL, "std::terminate() called\n");
+		dbglog(DBG_CRITICAL, "POSIX error (may not be relevant): %s\n", strerror(errno));
 		stacktrace();
 		dbgio_flush();
 
