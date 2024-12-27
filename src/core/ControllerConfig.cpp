@@ -2058,14 +2058,14 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 		static const char* Dreamcast_Stick_Down = "Joystick Down";
 		static const char* Dreamcast_Stick_Left = "Joystick Left";
 		static const char* Dreamcast_Stick_Right = "Joystick Right";
-        static const char* Dreamcast_VehicleLookLeft = "A + Joystick Left"
-        static const char* Dreamcast_VehicleLookRight = "A + Joystick Right"
-        static const char* Dreamcast_CenterCamera = "Double click X"
+        static const char* Dreamcast_VehicleLookLeft = "A + Joystick Left";
+        static const char* Dreamcast_VehicleLookRight = "A + Joystick Right";
+        static const char* Dreamcast_CenterCamera = "Double click X";
 		static const char* Dreamcast_CameraUp = "X + Joystick Up";
         static const char* Dreamcast_CameraDown = "X + Joystick Down";
         static const char* Dreamcast_CameraLeft = "X + Joystick Left";
         static const char* Dreamcast_CameraRight = "X + Joystick Right";
-        static const char* Dreamcast_LookBehind = "Right trigger + Left trigger"
+        static const char* Dreamcast_LookBehind = "Right trigger + Left trigger";
         static const char* Dreamcast_NotAssigned = "Not Assigned";
 
         //Dual sticks
@@ -2080,21 +2080,21 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 		static const char* RightAnalog_Right = "Right Stick Right";
 
         //Xbox Specific
-        static const char* Xbox_VehicleLookLeft = "LB"
-        static const char* Xbox_VehicleLookRight = "RB"
-        static const char* Xbox_VehicleLookBehind = "RB + LB"
+        static const char* Xbox_VehicleLookLeft = "LB";
+        static const char* Xbox_VehicleLookRight = "RB";
+        static const char* Xbox_VehicleLookBehind = "RB + LB";
 
         //PS2 Specific
-        static const char* Dreamcast_PS2_VehicleLookLeft = "B + Joystick Left"
-        static const char* Dreamcast_PS2_VehicleLookRight = "B + Joystick Right"
-        static const char* PS2_L1 = "L1"
-        static const char* PS2_R1 = "R1"
-        static const char* PS2_L2 = "L2"
-        static const char* PS2_R2 = "R2"
-        static const char* PS2_Cross = "Cross"
-        static const char* PS2_Square = "Square"
-        static const char* PS2_Circle = "Circle"
-        static const char* PS2_Triangle = "Triangle"
+        static const char* Dreamcast_PS2_VehicleLookLeft = "B + Joystick Left";
+        static const char* Dreamcast_PS2_VehicleLookRight = "B + Joystick Right";
+        static const char* PS2_L1 = "L1";
+        static const char* PS2_R1 = "R1";
+        static const char* PS2_L2 = "L2";
+        static const char* PS2_R2 = "R2";
+        static const char* PS2_Cross = "Cross";
+        static const char* PS2_Square = "Square";
+        static const char* PS2_Circle = "Circle";
+        static const char* PS2_Triangle = "Triangle";
 
 
 		if ((CPad::GetPad(0)->Mode == 0) && (CPad::GetPad(0)->IsDualAnalog == 0)) // Standard DC controller, Xbox like bindings
