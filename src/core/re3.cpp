@@ -1196,8 +1196,8 @@ void re3_assert(const char *expr, const char *filename, unsigned int lineno, con
 	stacktrace();
     dbgio_dev_select("fb");
 	sleep(1);
-	dbgio_printf("RE3 ASSERT FAILED\n\tFile: %s\n\tLine: %d\n\tFunction: %s\n\tExpression: %s\n",filename,lineno,func,expr);
-	dbgio_printf("POSIX error (may not be relevant): %s\n", strerror(errno));
+	dbglog(DBG_CRITICAL, "RE3 ASSERT FAILED\n\tFile: %s\n\tLine: %d\n\tFunction: %s\n\tExpression: %s\n",filename,lineno,func,expr);
+	dbglog(DBG_CRITICAL, "POSIX error (may not be relevant): %s\n", strerror(errno));
 	stacktrace();
 	dbgio_flush();
 	abort();
