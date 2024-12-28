@@ -23,7 +23,7 @@ public:
 	int16 DPadUp, DPadDown, DPadLeft, DPadRight;
 	int16 Start, Select;
 	int16 Square, Triangle, Cross, Circle;
-	uint32_t A, B, C, X, Y, Z;
+	uint32_t A, B, C, D, X, Y, Z;
 	int16 LeftShock, RightShock;
 	int16 NetworkTalk;
 	float GetLeftStickX(void) { return LeftStickX/32767.0f; };
@@ -161,6 +161,13 @@ public:
 	int32 LastTimeTouched;
 	int32 AverageWeapon;
 	int32 AverageEntries;
+	bool IsKeyboardMouse;
+	bool IsDualAnalog;
+	bool CameraJustDown;
+	bool CameraJustUp;
+	uint32 CameraJustUpTime;
+	uint32 CameraLastPressed;
+	bool CameraIsDoublePressed;
 
 #ifdef DETECT_PAD_INPUT_SWITCH
 	static bool IsAffectedByController;
@@ -211,7 +218,11 @@ public:
 	void StopShaking(int16 pad);
 	
 	static CPad *GetPad(int32 pad);
-	
+
+#ifdef RW_DC
+	bool CameraSinglePress(void);	//Checks if camera modifier was double clicked 
+	bool CameraDoublePress(void);
+#endif
 	int16 GetSteeringLeftRight(void);
 	int16 GetSteeringUpDown(void);
 	int16 GetCarGunUpDown(void);
