@@ -1118,6 +1118,46 @@ CMenuManager::Draw()
 #ifdef PS2_SAVE_DIALOG
 	if(!m_bRenderGameInMenu)
 #endif
+
+#ifdef RW_DC
+	if (aScreens[m_nCurrScreen].m_ScreenName[0] != '\0') {
+		
+		SET_FONT_FOR_MENU_HEADER
+
+		if (strcmp("FET_AGS", aScreens[m_nCurrScreen].m_ScreenName) == 0)
+		{
+			wchar *PageName = nil;
+			char asciiTemp[32];
+			wchar unicodeTemp[64];
+
+			sprintf(asciiTemp, "CONTROLLER SETUP");
+			AsciiToUnicode(asciiTemp, unicodeTemp);
+			PageName = unicodeTemp;
+
+			CFont::PrintString(PAGE_NAME_X(MENUHEADER_POS_X), SCREEN_SCALE_FROM_BOTTOM(MENUHEADER_POS_Y), PageName);
+		}
+		else if (strcmp("FET_CTL", aScreens[m_nCurrScreen].m_ScreenName) == 0)
+		{
+			wchar *PageName = nil;
+			char asciiTemp[32];
+			wchar unicodeTemp[64];
+
+			sprintf(asciiTemp, "KEYBOARD MOUSE SETUP");
+			AsciiToUnicode(asciiTemp, unicodeTemp);
+			PageName = unicodeTemp;
+
+			CFont::PrintString(PAGE_NAME_X(MENUHEADER_POS_X), SCREEN_SCALE_FROM_BOTTOM(MENUHEADER_POS_Y), PageName);
+		}
+		else
+		{
+			CFont::PrintString(PAGE_NAME_X(MENUHEADER_POS_X), SCREEN_SCALE_FROM_BOTTOM(MENUHEADER_POS_Y), TheText.Get(aScreens[m_nCurrScreen].m_ScreenName));
+		}
+
+		// Weird place to put that.
+		nextYToUse += 24.0f + 10.0f;
+	}
+
+#else
 	if (aScreens[m_nCurrScreen].m_ScreenName[0] != '\0') {
 		
 		SET_FONT_FOR_MENU_HEADER
@@ -1126,6 +1166,7 @@ CMenuManager::Draw()
 		// Weird place to put that.
 		nextYToUse += 24.0f + 10.0f;
 	}
+#endif
 
 	CFont::SetFontStyle(FONT_LOCALE(FONT_BANK));
 	CFont::SetScale(MENU_X(MENUACTION_SCALE_MULT * MENU_TEXT_SIZE_X), MENU_Y(MENUACTION_SCALE_MULT * MENU_TEXT_SIZE_Y));
@@ -1380,7 +1421,29 @@ CMenuManager::Draw()
 					sprintf(gString, "FEM_SL%d", i);
 					leftText = TheText.Get(gString);
 				}
-			} else {
+			} 
+			else if ((strcmp(aScreens[m_nCurrScreen].m_aEntries[i].m_EntryName, "FET_AGS")) == 0)
+			{
+				//wchar *rightText = nil;
+				char asciiTemp[32];
+				wchar unicodeTemp[64];
+
+				sprintf(asciiTemp, "CONTROLLER SETUP");
+				AsciiToUnicode(asciiTemp, unicodeTemp);
+				leftText = unicodeTemp;
+			}
+			else if ((strcmp(aScreens[m_nCurrScreen].m_aEntries[i].m_EntryName, "FET_CTL")) == 0)
+			{
+				//wchar *rightText = nil;
+				char asciiTemp[32];
+				wchar unicodeTemp[64];
+
+				sprintf(asciiTemp, "KEYBOARD MOUSE SETUP");
+				AsciiToUnicode(asciiTemp, unicodeTemp);
+				leftText = unicodeTemp;
+			}
+
+			else {
 				leftText = TheText.Get(aScreens[m_nCurrScreen].m_aEntries[i].m_EntryName);
 			}
 
@@ -1461,10 +1524,16 @@ CMenuManager::Draw()
 			case MENUACTION_CTRLCONFIG:
 				switch (CPad::GetPad(0)->Mode) {
 				case 0:
-					rightText = TheText.Get("FEC_CF1");
+					//rightText = TheText.Get("FEC_CF1");
+					sprintf(asciiTemp, "XBOX LIKE");
+					AsciiToUnicode(asciiTemp, unicodeTemp);
+					rightText = unicodeTemp;
 					break;
 				case 1:
-					rightText = TheText.Get("FEC_CF2");
+					//rightText = TheText.Get("FEC_CF2");
+					sprintf(asciiTemp, "PS2 LIKE");
+					AsciiToUnicode(asciiTemp, unicodeTemp);
+					rightText = unicodeTemp;
 					break;
 				case 2:
 					rightText = TheText.Get("FEC_CF3");
@@ -5388,10 +5457,12 @@ CMenuManager::ProcessButtonPresses(void)
 #ifdef FIX_BUGS
 			case MENUACTION_CTRLCONFIG:
 				CPad::GetPad(0)->Mode += changeValueBy;
-				if (CPad::GetPad(0)->Mode > 3)
+				//if (CPad::GetPad(0)->Mode > 3)
+				if (CPad::GetPad(0)->Mode > 1)
 					CPad::GetPad(0)->Mode = 0;
 				else if (CPad::GetPad(0)->Mode < 0)
-					CPad::GetPad(0)->Mode = 3;
+					//CPad::GetPad(0)->Mode = 3;
+					CPad::GetPad(0)->Mode = 1;
 				SaveSettings();
 				DMAudio.PlayFrontEndSound(SOUND_FRONTEND_MENU_SETTING_CHANGE, 0);
 				break;
@@ -5541,7 +5612,8 @@ CMenuManager::ProcessOnOffMenuOptions()
 #ifndef FIX_BUGS
 	case MENUACTION_CTRLCONFIG:
 		CPad::GetPad(0)->Mode++;
-		if (CPad::GetPad(0)->Mode > 3)
+		//if (CPad::GetPad(0)->Mode > 3)
+		if (CPad::GetPad(0)->Mode > 1)
 			CPad::GetPad(0)->Mode = 0;
 		DMAudio.PlayFrontEndSound(SOUND_FRONTEND_MENU_SETTING_CHANGE, 0);
 		break;

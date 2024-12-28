@@ -2083,6 +2083,8 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
         static const char* Xbox_VehicleLookLeft = "LB";
         static const char* Xbox_VehicleLookRight = "RB";
         static const char* Xbox_VehicleLookBehind = "RB + LB";
+        static const char* Xbox_Back = "Back";
+        
 
         //PS2 Specific
         static const char* Dreamcast_PS2_VehicleLookLeft = "B + Joystick Left";
