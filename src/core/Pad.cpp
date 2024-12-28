@@ -1564,7 +1564,7 @@ void CPad::Update(int16 pad)
 
 #ifdef RW_DC
 	//auto old_contMaple = contMaple;
-	auto n_dev = maple_enum_count();
+	//auto n_dev = maple_enum_count();
 	contMaple = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
 	state = (cont_state_t *)maple_dev_status(contMaple);
 #endif
