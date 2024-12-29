@@ -3219,6 +3219,15 @@ void pvr_poly_cxt_txr_fast(pvr_poly_hdr_t *hdr, pvr_list_t list,
 
 
 
+size_t vertexBufferFree() {
+    size_t end   = PVR_GET(PVR_TA_VERTBUF_END);
+    size_t pos   = PVR_GET(PVR_TA_VERTBUF_POS);
+
+    size_t free  = end - pos;
+
+	return free;
+}
+
 
 void defaultRenderCB(ObjPipeline *pipe, Atomic *atomic) {
     rw::Camera *cam = engine->currentCamera;
@@ -3400,6 +3409,9 @@ void defaultRenderCB(ObjPipeline *pipe, Atomic *atomic) {
 
 		// clipping performed per meshlet
 		auto renderCB = [contextId, n] {
+			if (vertexBufferFree() < (128 * 1024)) {
+				return;
+			}
 			const atomic_context_t* acp = &atomicContexts[contextId];
 			auto geo = acp->geo;
 			auto mesh = geo->meshHeader->getMeshes() + n;
