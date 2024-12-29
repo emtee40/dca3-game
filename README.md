@@ -28,12 +28,12 @@ You will also need the following tools installed
 
 ### Cloning the dca3-game repo and downloading the prebuilt elf
 - Open dreamsdk shell
-- type `git clone https://gitlab.com/skmp/dca3-game.git` (and press enter)
+- type `git clone --branch alpha https://gitlab.com/skmp/dca3-game.git` (and press enter)
 - It should take a moment and successfully clone the repo
 - type `cd dca3-game/dreamcast` (and press enter)
 - type `explorer .` (and press enter).
 - A folder named dreamcast with some files should be open. Keep it on the side.
-- Download the artifacts from https://gitlab.com/skmp/dca3-game/-/jobs/8725216645
+- Download the Alpha Prebuilt Elf from https://gitlab.com/skmp/dca3-game/-/releases
 - Open artifacts.zip and extract dca3.elf to the folder that was kept open before.
 - Close the folder and dreamsdk shell
 
