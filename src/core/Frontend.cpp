@@ -235,12 +235,26 @@ const char* FrontendFilenames[][2] = {
 	{"fe_iconaudio", "" },
 	{"fe_icondisplay", "" },
 	{"fe_iconlanguage", "" },
+
+#ifdef RW_DC
+	{"dc_xboxf",""},
+	{"dc_xboxd",""},
+	{"dc_ps2f",""},
+	{"dc_ps2d",""},
+	{"xbox_f",""},
+	{"xbox_d",""},
+	{"ps2_f",""},
+	{"ps2_d",""},
+
+#else
 	{"fe_controller", "" },
 	{"fe_controllersh", "" },
 	{"fe_arrows1", "" },
 	{"fe_arrows2", "" },
 	{"fe_arrows3", "" },
 	{"fe_arrows4", "" },
+
+#endif
 	{"fe_radio1", "" },
 	{"fe_radio2", "" },
 	{"fe_radio3", "" },
@@ -3794,7 +3808,11 @@ CMenuManager::LoadController(int8 type)
 	}
 
 	// Unload current textures
+#ifdef RW_DC
+	for (int i = DC_XBOXF; i <= PS2_D; i++)
+#else
 	for (int i = FE_CONTROLLER; i <= FE_ARROWS4; i++)
+#endif
 		m_aFrontEndSprites[i].Delete();
 
 	// Unload txd
@@ -3827,7 +3845,11 @@ CMenuManager::LoadController(int8 type)
 	assert(txdSlot != -1);
 	// Load new textures
 	CTxdStore::SetCurrentTxd(txdSlot);
+#ifdef RW_DC
+	for (int i = DC_XBOXF; i <= PS2_D; i++) {
+#else
 	for (int i = FE_CONTROLLER; i <= FE_ARROWS4; i++) {
+#endif
 		m_aFrontEndSprites[i].SetTexture(FrontendFilenames[i][0], FrontendFilenames[i][1]);
 		m_aFrontEndSprites[i].SetAddressing(rwTEXTUREADDRESSBORDER);
 	}
@@ -5955,7 +5977,6 @@ CMenuManager::PrintController(void)
 
 #define X(f) ((f)*scale + centerX)
 #define Y(f) ((f)*scale + centerY)
-
 	m_aFrontEndSprites[FE_CONTROLLERSH].Draw(MENU_X_LEFT_ALIGNED(X(-CONTROLLER_SIZE_X / 2)), MENU_Y(Y(-CONTROLLER_SIZE_Y / 2)), MENU_X((CONTROLLER_SIZE_X + 4.8f) * scale), MENU_Y((CONTROLLER_SIZE_Y + 4.8f) * scale), CRGBA(0, 0, 0, 255));
 	m_aFrontEndSprites[FE_CONTROLLER].Draw(MENU_X_LEFT_ALIGNED(X(-CONTROLLER_SIZE_X / 2)), MENU_Y(Y(-CONTROLLER_SIZE_Y / 2)), MENU_X(CONTROLLER_SIZE_X * scale), MENU_Y(CONTROLLER_SIZE_Y * scale), CRGBA(255, 255, 255, 255));
 	if (m_DisplayControllerOnFoot) {
@@ -6246,7 +6267,373 @@ CMenuManager::PrintController(void)
 #undef X
 #undef Y
 }
+
+#elif RW_DC
+void
+CMenuManager::PrintController(void)
+{
+	// FIX: Originally this function doesn't have StretchX/Y, everything had constant pixel size (due to screen was abandoned early?)
+	//		Also texts and their alignment were very bad, so I tried to make them readable (commented out the original code, and marked the ones I added with X)
+	
+	switch (CPad::GetPad(0)->Mode)
+	{
+		case 0:	//Xbox Mode
+			if (CPad::GetPad(0)->IsDualAnalog)
+			{
+				if (m_DisplayControllerOnFoot)
+					m_aFrontEndSprites[XBOX_F].Draw(MENU_X_LEFT_ALIGNED(65.0f), MENU_Y(75.0f), MENU_X(512.0f), MENU_Y(256.0f), CRGBA(255, 255, 255, 255));
+				else
+					m_aFrontEndSprites[XBOX_D].Draw(MENU_X_LEFT_ALIGNED(65.0f), MENU_Y(75.0f), MENU_X(512.0f), MENU_Y(256.0f), CRGBA(255, 255, 255, 255));
+
+			}
+			else
+			{
+				if (m_DisplayControllerOnFoot)
+					m_aFrontEndSprites[DC_XBOXF].Draw(MENU_X_LEFT_ALIGNED(65.0f), MENU_Y(75.0f), MENU_X(512.0f), MENU_Y(256.0f), CRGBA(255, 255, 255, 255));
+				else
+					m_aFrontEndSprites[DC_XBOXD].Draw(MENU_X_LEFT_ALIGNED(65.0f), MENU_Y(75.0f), MENU_X(512.0f), MENU_Y(256.0f), CRGBA(255, 255, 255, 255));
+			}
+			break;
+		case 1:	//PS2 Mode
+			if (CPad::GetPad(0)->IsDualAnalog)
+			{
+				if (m_DisplayControllerOnFoot)
+					m_aFrontEndSprites[PS2_F].Draw(MENU_X_LEFT_ALIGNED(65.0f), MENU_Y(75.0f), MENU_X(512.0f), MENU_Y(256.0f), CRGBA(255, 255, 255, 255));
+				else
+					m_aFrontEndSprites[PS2_D].Draw(MENU_X_LEFT_ALIGNED(65.0f), MENU_Y(75.0f), MENU_X(512.0f), MENU_Y(256.0f), CRGBA(255, 255, 255, 255));
+			}
+			else
+			{
+				if (m_DisplayControllerOnFoot)
+					m_aFrontEndSprites[DC_PS2F].Draw(MENU_X_LEFT_ALIGNED(65.0f), MENU_Y(75.0f), MENU_X(512.0f), MENU_Y(256.0f), CRGBA(255, 255, 255, 255));
+				else
+					m_aFrontEndSprites[DC_PS2D].Draw(MENU_X_LEFT_ALIGNED(65.0f), MENU_Y(75.0f), MENU_X(512.0f), MENU_Y(256.0f), CRGBA(255, 255, 255, 255));
+			}
+			break;
+	}
+
+	// CFont::SetFontStyle(FONT_LOCALE(FONT_BANK));  // X
+
+	// // CFont::SetScale(0.4f, 0.4f);
+	// CFont::SetScale(MENU_X(SMALLESTTEXT_X_SCALE), MENU_Y(SMALLESTTEXT_Y_SCALE)); // X
+
+	// // CFont::SetColor(CRGBA(128, 128, 128, FadeIn(255)));
+	// CFont::SetDropColor(CRGBA(0, 0, 0, FadeIn(255))); // X
+	// CFont::SetDropShadowPosition(1); // X
+	// CFont::SetColor(CRGBA(255, 255, 255, FadeIn(255))); // X
+
+	// if (m_DisplayControllerOnFoot) {
+	// 	switch (CPad::GetPad(0)->Mode) {
+	// 		case 0:
+	// 			if (CPad::GetPad(0)->IsDualAnalog)
+	// 			{
+	// 				CFont::SetRightJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_CWL"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_LOF"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_MOV"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_MOV"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_CAM"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_PAU"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_CWR"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_TAR"));
+	// 				CFont::SetRightJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_JUM"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_ENV"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_ATT"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_RUN"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 			}
+	// 			else
+	// 			{
+	// 				// CFont::SetRightJustifyOn(); // X
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(220.0f), TheText.Get("FEC_CWL"));
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(232.0f), TheText.Get("FEC_LB"));
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(206.0f), TheText.Get("FEC_CAM"));
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(176.0f), TheText.Get("FEC_MOV"));
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(247.0f), MENU_Y(101.0f), TheText.Get("FEC_TAR"));
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(297.0f), MENU_Y(89.0f), TheText.Get("FEC_CWR"));
+	// 				// CFont::SetJustifyOn(); // X
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(257.0f), TheText.Get("FEC_PAU"));
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(89.0f), TheText.Get("FEC_CMR"));
+	// 				// CFont::SetJustifyOn(); // X
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(195.0f), TheText.Get("FEC_JUM"));
+	// 				// CFont::SetJustifyOn(); // X
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(178.0f), TheText.Get("FEC_ENV"));
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(212.0f), TheText.Get("FEC_RUN"));
+	// 				// CFont::PrintString(MENU_X_LEFT_ALIGNED(394.0f), MENU_Y(101.0f), TheText.Get("FEC_ATT"));
+					
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 			}
+	// 			break;
+	// 		case 1:
+	// 			if (CPad::GetPad(0)->IsDualAnalog)
+	// 			{
+	// 				CFont::SetRightJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_CWL"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_LOF"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_MOV"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_MOV"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_CAM"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_PAU"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_CWR"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_TAR"));
+	// 				CFont::SetRightJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_JUM"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_ENV"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_ATT"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_RUN"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 			}
+	// 			else
+	// 			{
+	// 				CFont::SetRightJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(220.0f), TheText.Get("FEC_CWL"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(232.0f), TheText.Get("FEC_LB"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(206.0f), TheText.Get("FEC_CAM"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(176.0f), TheText.Get("FEC_MOV"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(247.0f), MENU_Y(101.0f), TheText.Get("FEC_CMR"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(297.0f), MENU_Y(89.0f), TheText.Get("FEC_CWR"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(257.0f), TheText.Get("FEC_PAU"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(89.0f), TheText.Get("FEC_JUM"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(178.0f), TheText.Get("FEC_ENV"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(212.0f), TheText.Get("FEC_RUN"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(394.0f), MENU_Y(101.0f), TheText.Get("FEC_TAR"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(195.0f), TheText.Get("FEC_ATT"));
+					
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 			}
+	// 			break;
+
+	// 			// CFont::SetRightJustifyOn(); // X
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_CWL"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_LOF"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_CAM"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_MOV"));
+	// 			// CFont::SetJustifyOn(); // X
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_NA"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_PAU"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_CWR"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_TAR"));
+	// 			// CFont::SetRightJustifyOn(); // X
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_JUM"));
+	// 			// CFont::SetJustifyOn(); // X
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_ENV"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_ATT"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_RUN"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 			// break;
+	// 		// case 2:
+	// 		// 	CFont::SetRightJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_CWL"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_ENV"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_MOV"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_MOV"));
+	// 		// 	CFont::SetJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_CAM"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_PAU"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_CWR"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_TAR"));
+	// 		// 	CFont::SetRightJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_JUM"));
+	// 		// 	CFont::SetJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_LOF"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_RUN"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_ATT"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 		// 	break;
+	// 		// case 3:
+	// 		// 	CFont::SetRightJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_CWL"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_TAR"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_NA"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_MOV"));
+	// 		// 	CFont::SetJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_CAM"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_PAU"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_CWR"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_TAR"));
+	// 		// 	CFont::SetRightJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_JUM"));
+	// 		// 	CFont::SetJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_LOF"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_RUN"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_ATT"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 		// 	break;
+	// 		default:
+	// 			return;
+	// 	}
+	// } else {
+	// 	switch (CPad::GetPad(0)->Mode) {
+	// 		case 0:
+	// 			// CFont::SetRightJustifyOn(); // X
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_LL"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_RSC"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_VES"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_VES"));
+	// 			// CFont::SetJustifyOn(); // X
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_HO3"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_CAM"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_PAU"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_LB"));
+	// 			// CFont::SetRightJustifyOn(); // X
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_LR"));
+	// 			// CFont::SetJustifyOn(); // X
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_HAB"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_BRA"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_EXV"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_CAW"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_ACC"));
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_TUC"));
+	// 			// // FIX: Coordinates of this line is undefined in PC...
+	// 			// CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(304.0f), TheText.Get("FEC_SM3"));
+	// 			// break;
+
+	// 			if (CPad::GetPad(0)->IsDualAnalog)
+	// 			{
+	// 				CFont::SetRightJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_CWL"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_LOF"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_MOV"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_MOV"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_CAM"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_PAU"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_CWR"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_TAR"));
+	// 				CFont::SetRightJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_JUM"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_ENV"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_ATT"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_RUN"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 			}
+	// 			else
+	// 			{
+	// 				CFont::SetRightJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(220.0f), TheText.Get("FEC_SUB"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(232.0f), TheText.Get("FEC_HRN"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(206.0f), TheText.Get("FEC_CAM"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(202.0f), MENU_Y(176.0f), TheText.Get("FEC_VES"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(247.0f), MENU_Y(101.0f), TheText.Get("FEC_BRA"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(297.0f), MENU_Y(89.0f), TheText.Get("FEC_RSC"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(257.0f), TheText.Get("FEC_PAU"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(89.0f), TheText.Get("FEC_CMR"));
+	// 				CFont::SetJustifyOn(); // X
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(195.0f), TheText.Get("FEC_HAB"));
+	// 				CFont::SetJustifyOn(); // X
+					
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(212.0f), TheText.Get("FEC_PFR"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(394.0f), MENU_Y(101.0f), TheText.Get("FEC_ACC"));
+	// 				CFont::PrintString(MENU_X_LEFT_ALIGNED(438.45f), MENU_Y(178.0f), TheText.Get("FEC_EXV"));
+					
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_FPC"));
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_LB3"));
+	// 				//CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_R3"));
+	// 			}
+
+
+	// 		case 1:
+	// 			CFont::SetRightJustifyOn(); // X
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_LL"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_HOR"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_CAM"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_VES"));
+	// 			CFont::SetJustifyOn(); // X
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_NA"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_RSC"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_PAU"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_LB"));
+	// 			CFont::SetRightJustifyOn(); // X
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_LR"));
+	// 			CFont::SetJustifyOn(); // X
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_HAB"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_BRA"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_EXV"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_CAW"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_ACC"));
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_TUC"));
+	// 			// FIX: Coordinates of this line is undefined in PC...
+	// 			CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(304.0f), TheText.Get("FEC_SM3"));
+	// 			break;
+	// 		// case 2:
+	// 		// 	CFont::SetRightJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_LL"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_EXV"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_VES"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_VES"));
+	// 		// 	CFont::SetJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_RS3"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_CAM"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_PAU"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_LB"));
+	// 		// 	CFont::SetRightJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_LR"));
+	// 		// 	CFont::SetJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_HOR"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_BRA"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_HAB"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_CAW"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_ACC"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_TUC"));
+	// 		// 	// FIX: Coordinates of this line is undefined in PC...
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(304.0f), TheText.Get("FEC_SM3"));
+	// 		// 	break;
+	// 		// case 3:
+	// 		// 	CFont::SetRightJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(210.0f), MENU_Y(146.0f), TheText.Get("FEC_LL"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(185.0f), TheText.Get("FEC_HAB"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(225.0f), TheText.Get("FEC_TUC"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(156.0f), MENU_Y(257.0f), TheText.Get("FEC_VES"));
+	// 		// 	CFont::SetJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(263.0f), MENU_Y(301.0f), TheText.Get("FEC_HO3"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(290.0f), MENU_Y(288.0f), TheText.Get("FEC_CAM"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(344.0f), MENU_Y(146.0f), TheText.Get("FEC_PAU"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(185.0f), TheText.Get("FEC_LB"));
+	// 		// 	CFont::SetRightJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(304.0f), MENU_Y(178.0f), TheText.Get("FEC_LR"));
+	// 		// 	CFont::SetJustifyOn(); // X
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(212.0f), TheText.Get("FEC_CAW"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(225.0f), TheText.Get("FEC_SMT"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(238.0f), TheText.Get("FEC_EXV"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(254.0f), TheText.Get("FEC_RSC"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(269.0f), TheText.Get("FEC_NA"));
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(282.0f), TheText.Get("FEC_ACC"));
+	// 		// 	// FIX: Coordinates of this line is undefined in PC...
+	// 		// 	CFont::PrintString(MENU_X_LEFT_ALIGNED(398.0f), MENU_Y(304.0f), TheText.Get("FEC_BRA"));
+	// 		// 	break;
+	// 		default:
+	// 			return;
+	// 	}
+	// }
+
+	// CFont::SetDropShadowPosition(0); // X
+}
 #else
+
 void
 CMenuManager::PrintController(void)
 {
@@ -6467,6 +6854,7 @@ CMenuManager::PrintController(void)
 
 	CFont::SetDropShadowPosition(0); // X
 }
+
 #endif
 
 #ifdef MENU_MAP

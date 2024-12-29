@@ -2514,7 +2514,7 @@ wchar *CControllerConfigManager::GetControllerSettingTextWithOrderNumber(e_Contr
 			}
 		}
 
-        if ((CPad::GetPad(0)->Mode == 1) && (CPad::GetPad(0)->IsDualAnalog == 0)) // Dual Stick, PS2 like bindings
+        if ((CPad::GetPad(0)->Mode == 1) && (CPad::GetPad(0)->IsDualAnalog == 1)) // Dual Stick, PS2 like bindings
 		{
 			switch (action)
 			{
