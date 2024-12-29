@@ -59,8 +59,8 @@ You will also need the following tools installed
   - It will continue where it left off before
   - It should run to completion now and show "*** Repack Completed Successfully ***"
 - type `explorer .` (and press enter)
-- The dreamcast folder should open up, and it should contain dca3.cdi for you (~ 700 megs)
-- If the .cdi is not 700 megabytes, then you did something wrong.
+- The dreamcast folder should open up, and it should contain dca3.cdi for you (~ 700 megs or ~260 megs)
+- If the .cdi is not ~ 700 megs (linux/mkdcdisc) or ~260 megs (windows/cdi4dc), then you did something wrong.
   - You can type `rm -rf repack-data` (and press enter)
   - And then start this step from the beggining
 
