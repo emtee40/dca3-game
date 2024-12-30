@@ -19,3 +19,8 @@ public:
 		int16 botred, int16 botgreen, int16 botblue, int16 alpha);
 	static void RenderHorizon(void);
 };
+
+enum {
+	NUM_CLOUDS = 15,
+	MAX_CLOUDS = 37
+};

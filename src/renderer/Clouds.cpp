@@ -87,7 +87,7 @@ float LowCloudsX[12] = { 1.0f, 0.7f, 0.0f, -0.7f, -1.0f, -0.7f, 0.0f, 0.7f, 0.8f
 float LowCloudsY[12] = { 0.0f, -0.7f, -1.0f, -0.7f, 0.0f, 0.7f, 1.0f, 0.7f, 0.4f, 0.4f, -0.8f, -0.8f };
 float LowCloudsZ[12] = { 0.0f, 1.0f, 0.5f, 0.0f, 1.0f, 0.3f, 0.9f, 0.4f, 1.3f, 1.4f, 1.2f, 1.7f };
 
-float CoorsOffsetX[37] = {
+float CoorsOffsetX[MAX_CLOUDS] = {
 	0.0f, 60.0f, 72.0f, 48.0f, 21.0f, 12.0f,
 	9.0f, -3.0f, -8.4f, -18.0f, -15.0f, -36.0f,
 	-40.0f, -48.0f, -60.0f, -24.0f, 100.0f, 100.0f,
@@ -95,7 +95,7 @@ float CoorsOffsetX[37] = {
 	100.0f, 100.0f, -30.0f, -20.0f, 10.0f, 30.0f,
 	0.0f, -100.0f, -100.0f, -100.0f, -100.0f, -100.0f, -100.0f
 };
-float CoorsOffsetY[37] = {
+float CoorsOffsetY[MAX_CLOUDS] = {
 	100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f,
 	100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f,
 	100.0f, 100.0f, 100.0f, 100.0f, -30.0f, 10.0f,
@@ -103,7 +103,7 @@ float CoorsOffsetY[37] = {
 	15.0f, 40.0f, -100.0f, -100.0f, -100.0f, -100.0f,
 	-100.0f, -40.0f, -20.0f, 0.0f, 10.0f, 30.0f, 35.0f
 };
-float CoorsOffsetZ[37] = {
+float CoorsOffsetZ[MAX_CLOUDS] = {
 	2.0f, 1.0f, 0.0f, 0.3f, 0.7f, 1.4f,
 	1.7f, 0.24f, 0.7f, 1.3f, 1.6f, 1.0f,
 	1.2f, 0.3f, 0.7f, 1.4f, 0.0f, 0.1f,
@@ -225,13 +225,13 @@ CClouds::Render(void)
 	float rot_cos = Cos(CloudRotation);
 	int fluffyalpha = 160 * (1.0f - CWeather::Foggyness);
 	if(fluffyalpha != 0){
-		static bool bCloudOnScreen[37];
+		static bool bCloudOnScreen[NUM_CLOUDS];
 		float hilight;
 
 		RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
 		RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
 		RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwTextureGetRaster(gpCloudTex[4]));
-		for(i = 0; i < 37; i++){
+		for(i = 0; i < NUM_CLOUDS; i++){
 			RwV3d pos = { 2.0f*CoorsOffsetX[i], 2.0f*CoorsOffsetY[i], 40.0f*CoorsOffsetZ[i] + 40.0f };
 			worldpos.x = pos.x*rot_cos + pos.y*rot_sin + campos.x;
 			worldpos.y = pos.x*rot_sin - pos.y*rot_cos + campos.y;
@@ -274,7 +274,7 @@ CClouds::Render(void)
 		RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDONE);
 		RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwTextureGetRaster(gpCloudTex[3]));
 
-		for(i = 0; i < 37; i++){
+		for(i = 0; i < NUM_CLOUDS; i++){
 			RwV3d pos = { 2.0f*CoorsOffsetX[i], 2.0f*CoorsOffsetY[i], 40.0f*CoorsOffsetZ[i] + 40.0f };
 			worldpos.x = pos.x*rot_cos + pos.y*rot_sin + campos.x;
 			worldpos.y = pos.x*rot_sin - pos.y*rot_cos + campos.y;
