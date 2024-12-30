@@ -94,6 +94,10 @@
 #include <sys/stat.h>
 #include <cctype>
 
+#ifdef RW_DC
+#include <dc/vmu_pkg.h>
+#endif
+
 namespace mINI
 {
 	namespace INIStringUtil
@@ -335,6 +339,7 @@ namespace mINI
 	private:
 		std::ifstream fileReadStream;
 		T_LineDataPtr lineData;
+		std::size_t start_offt;
 
 		T_LineData readFile()
 		{
@@ -352,7 +357,17 @@ namespace mINI
 			}
 			std::string buffer;
 			buffer.reserve(50);
-			for (std::size_t i = 0; i < fileSize; ++i)
+
+#ifdef RW_DC
+			{
+				vmu_pkg_t vmu_pkg;
+				vmu_pkg_parse(reinterpret_cast<uint8*>(const_cast<int8*>(fileContents.c_str())), &vmu_pkg);
+				start_offt = reinterpret_cast<unsigned int>(vmu_pkg.data)
+					- reinterpret_cast<unsigned int>(fileContents.c_str());
+			}
+#endif
+
+			for (std::size_t i = start_offt; i < fileSize; ++i)
 			{
 				char& c = fileContents[i];
 				if (c == '\n')
@@ -378,6 +393,8 @@ namespace mINI
 			{
 				lineData = std::make_shared<T_LineData>();
 			}
+
+			start_offt = 0;
 		}
 		~INIReader() { }
 
@@ -426,22 +443,54 @@ namespace mINI
 	{
 	private:
 		std::ofstream fileWriteStream;
+		std::stringstream memStream;
 
 	public:
 		bool prettyPrint = false;
 
 		INIGenerator(std::string const& filename)
+			: fileWriteStream(filename, std::ios::out | std::ios::binary),
+			  memStream(std::ios::out | std::ios::binary)
 		{
-			fileWriteStream.open(filename, std::ios::out | std::ios::binary);
 		}
-		~INIGenerator() { }
+
+		~INIGenerator()
+		{
+			const char *buf = memStream.str().c_str();
+			int buf_size = static_cast<int>(memStream.tellg());
+
+#ifdef RW_DC
+			uint8_t *data;
+			uint8_t icon_buf[512 * 3];
+			vmu_pkg_t vmu_pkg = {
+				.desc_short = "DCA3 Settings",
+				.desc_long = "DCA3 Settings",
+				.app_id = "DCA3",
+				.icon_cnt = 3,
+				.icon_anim_speed = 8,
+				.data_len = buf_size,
+				.icon_data = icon_buf,
+				.data = reinterpret_cast<const uint8_t*>(buf),
+			};
+
+			if (vmu_pkg_load_icon(&vmu_pkg, "settings.ico") < 0)
+				vmu_pkg.icon_cnt = 0;
+
+			vmu_pkg_build(const_cast<vmu_pkg_t *>(&vmu_pkg), &data, &buf_size);
+			buf = reinterpret_cast<char*>(data);
+#endif
+
+			fileWriteStream.write(buf, buf_size);
+		}
+
+		bool operator<<(const std::string& str)
+		{
+			memStream << str;
+			return true;
+		}
 
 		bool operator<<(INIStructure const& data)
 		{
-			if (!fileWriteStream.is_open())
-			{
-				return false;
-			}
 			if (!data.size())
 			{
 				return true;
@@ -451,13 +500,13 @@ namespace mINI
 			{
 				auto const& section = it->first;
 				auto const& collection = it->second;
-				fileWriteStream
+				memStream
 					<< "["
 					<< section
 					<< "]";
 				if (collection.size())
 				{
-					fileWriteStream << INIStringUtil::endl;
+					memStream << INIStringUtil::endl;
 					auto it2 = collection.begin();
 					for (;;)
 					{
@@ -465,7 +514,7 @@ namespace mINI
 						INIStringUtil::replace(key, "=", "\\=");
 						auto value = it2->second;
 						INIStringUtil::trim(value);
-						fileWriteStream
+						memStream
 							<< key
 							<< ((prettyPrint) ? " = " : "=")
 							<< value;
@@ -473,20 +522,25 @@ namespace mINI
 						{
 							break;
 						}
-						fileWriteStream << INIStringUtil::endl;
+						memStream << INIStringUtil::endl;
 					}
 				}
 				if (++it == data.end())
 				{
 					break;
 				}
-				fileWriteStream << INIStringUtil::endl;
+				memStream << INIStringUtil::endl;
 				if (prettyPrint)
 				{
-					fileWriteStream << INIStringUtil::endl;
+					memStream << INIStringUtil::endl;
 				}
 			}
 			return true;
+		}
+
+		operator bool() const
+		{
+			return fileWriteStream.is_open();
 		}
 	};
 
@@ -667,12 +721,15 @@ namespace mINI
 		{
 			struct stat buf;
 			bool fileExists = (stat(filename.c_str(), &buf) == 0);
+
+			INIGenerator generator(filename);
+			generator.prettyPrint = prettyPrint;
+
 			if (!fileExists)
 			{
-				INIGenerator generator(filename);
-				generator.prettyPrint = prettyPrint;
 				return generator << data;
 			}
+
 			INIStructure originalData;
 			T_LineDataPtr lineData;
 			bool readSuccess = false;
@@ -688,20 +745,19 @@ namespace mINI
 				return false;
 			}
 			T_LineData output = getLazyOutput(lineData, data, originalData);
-			std::ofstream fileWriteStream(filename, std::ios::out | std::ios::binary);
-			if (fileWriteStream.is_open())
+			if (generator)
 			{
 				if (output.size())
 				{
 					auto line = output.begin();
 					for (;;)
 					{
-						fileWriteStream << *line;
+						generator << *line;
 						if (++line == output.end())
 						{
 							break;
 						}
-						fileWriteStream << INIStringUtil::endl;
+						generator << INIStringUtil::endl;
 					}
 				}
 				return true;
