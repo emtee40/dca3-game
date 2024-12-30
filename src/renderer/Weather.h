@@ -58,7 +58,7 @@ public:
 };
 
 enum {
-	NUM_RAIN_STREAKS = 35
+	NUM_RAIN_STREAKS = 10
 };
 
 struct tRainStreak

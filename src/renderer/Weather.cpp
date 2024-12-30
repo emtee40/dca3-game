@@ -301,7 +301,11 @@ void CWeather::AddRain()
 	float screen_width = SCREEN_WIDTH;
 	float screen_height = SCREEN_HEIGHT;
 	int cur_frame = (int)(3 * Rain) & 3;
+#if defined(DC_SH4)	
+	int num_drops = (int)(1 * Rain) + 2;
+#elif
 	int num_drops = (int)(2 * Rain) + 2;
+#endif
 	static int STATIC_RAIN_ANGLE = -45;
 	static int count = 1500;
 	static int add_angle = 1;
