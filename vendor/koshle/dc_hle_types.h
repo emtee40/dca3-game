@@ -19,7 +19,6 @@ typedef volatile int vint32;                 /**< \brief 32-bit signed integer *
 typedef volatile short vint16;                /**< \brief 16-bit signed integer */
 typedef volatile char vint8;                  /**< \brief 8-bit signed integer */ 
 
-typedef uint64 ptr_t;
 #define INT32_IS_INT
 #elif ((__LONG_LONG_MAX__*2ULL+1ULL) == 18446744073709551615ULL) && ((__LONG_MAX__ *2UL+1UL) == 4294967295ULL)
 // These are -m32 specific and try to follow KOS rules
@@ -41,9 +40,14 @@ typedef volatile long vint32;                 /**< \brief 32-bit signed integer 
 typedef volatile short vint16;                /**< \brief 16-bit signed integer */
 typedef volatile char vint8;                  /**< \brief 8-bit signed integer */ 
 
-typedef uint32 ptr_t;
 #else
 #error "Unable to detect basic types" 
+#endif
+
+#if __SIZEOF_POINTER__ == 4
+typedef uint32 ptr_t;
+#else
+typedef uint64 ptr_t;
 #endif
 
 static_assert(sizeof(uint64) == 8, "uint64 size is not 8 bytes");
